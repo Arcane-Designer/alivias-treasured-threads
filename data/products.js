@@ -185,13 +185,13 @@ const PRODUCTS = [
  */
 const SITE_SETTINGS = {
   /* Email where form submissions are sent — UPDATE THIS */
-  contactEmail: "alivia@example.com",
+  contactEmail: "aliviagellatly@gmail.com",
 
-  /* Instagram URL — UPDATE THIS */
-  instagramUrl: "https://instagram.com/aliviastreasuredthreads",
+  /* Instagram URL */
+  instagramUrl: "https://www.instagram.com/alivias_treasured_threads?igsh=ajdiMWM4ajBtaHBn",
 
-  /* Web3Forms access key — UPDATE THIS after signing up at https://web3forms.com */
-  web3formsKey: "YOUR_ACCESS_KEY_HERE",
+  /* Web3Forms access key */
+  web3formsKey: "83bacc95-b2fb-42fc-861e-3c16f4104ac2",
 
   /* Brand name */
   brandName: "Alivia's Treasured Threads",
