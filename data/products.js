@@ -12,7 +12,7 @@
  * 2. To ADD a new "ready to ship" item:
  *    - Find the product type in PRODUCTS
  *    - Add a new object to its availableItems[] array
- *    - Include: id, name, image
+ *    - Include: id, name, image, (optional) images[] for multiple photos
  *
  * 3. To REMOVE a sold item:
  *    - Find the item in availableItems[] and delete or comment out that object
@@ -21,6 +21,9 @@
  *    - Change the "price" and/or "priceLabel" field
  *
  * 5. Image paths are relative to the site root (images/products/ or images/available/)
+ *
+ * 6. Optional fields on products:
+ *    - badge: a small text badge shown on the product card (e.g. "Now available in mini!")
  * ============================================
  */
 
@@ -30,14 +33,12 @@ const PRODUCTS = [
     name: "Hooded Cape",
     price: null,
     priceLabel: "Custom Order",
-    description: "Handmade hooded capes — perfect for costumes, festivals, or just feeling magical. Each cape is custom-sewn to order in the fabric of your choice.",
+    description: "Handcrafted hooded capes. Ideal for costumes, festivals, or just everyday whimsy. Capes are by custom order only to make sure it's perfect for you.",
     images: [
       "images/products/cape-1.jpg",
       "images/products/cape-2.jpg"
     ],
-    availableItems: [
-      // No pre-made capes currently — all custom order
-    ]
+    availableItems: []
   },
   {
     id: "bookmarks",
@@ -52,7 +53,7 @@ const PRODUCTS = [
     availableItems: [
       { id: "bk-fall-fun", name: "Fall Fun Bookmark", image: "images/available/bookmark-fall-fun.jpg" },
       { id: "bk-fall-fun-2", name: "Fall Fun Bookmark #2", image: "images/available/bookmark-fall-fun-2.jpg" },
-      { id: "bk-fall-pattern", name: "Fall Pattern Bookmark", image: "images/available/bookmark-fall-pattern.jpg" },
+      { id: "bk-fall-pattern", name: "Fall Fun Bookmark #3", image: "images/available/bookmark-fall-pattern.jpg" },
       { id: "bk-black", name: "Black Bookmark", image: "images/available/bookmark-black.jpg" },
       { id: "bk-blue-green", name: "Blue & Green Pattern Bookmark", image: "images/available/bookmark-blue-and-green-pattern.jpg" },
       { id: "bk-brown-fb", name: "Brown Bookmark (Front & Back)", image: "images/available/bookmark-brown-front-and-back.jpg" },
@@ -72,45 +73,52 @@ const PRODUCTS = [
   {
     id: "zipper-pouch",
     name: "Zipper Pouch",
-    price: 9,
-    priceLabel: "$9",
-    description: "A cute and handy zipper pouch — great for makeup, school supplies, sewing notions, or whatever you need to keep organized!",
+    price: 14,
+    priceLabel: "$14",
+    badge: "Now available in mini!",
+    description: "A cute and handy zipper pouch. Great for makeup, school supplies, sewing notions, or whatever you need to keep organized!",
     images: [
       "images/products/makeup-bag.jpg"
     ],
     availableItems: [
-      { id: "zp-fall", name: "Fall Pattern Zipper Pouch", image: "images/available/makeup-bag-fall-pattern.jpg" }
+      { id: "zp-fall", name: "Fall Pattern Zipper Pouch", image: "images/available/fall-pattern-zipper-pouch.jpg" },
+      { id: "zp-mushroom", name: "Keene's Mushroom Zipper Pouch", image: "images/available/keenes-mushroom-zipper-pouch.jpg" }
     ]
   },
   {
-    id: "heart-bag",
-    name: "Heart Bag",
-    price: 19,
-    priceLabel: "$19",
-    description: "An adorable heart-shaped bag — a fun and unique accessory that's sure to get compliments!",
+    id: "mini-zipper-pouch",
+    name: "Mini Zipper Pouch",
+    price: 7,
+    priceLabel: "$7",
+    description: "A tiny version of our zipper pouch, perfect for coins, earbuds, small treasures, or whatever fits. 3\" x 3\" x 0.5\". This mini size was born from a special collaboration with Keene, a cryptid (Sasquatch) with his own Instagram. Custom order yours in any fabric!",
+    descriptionLink: { text: "Meet Keene on Instagram", url: "https://www.instagram.com/not_too_keene?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" },
     images: [
-      // Heart bag visible in product catalog images
-      "images/products/products-4.jpg"
+      "images/products/mini-zipper-pouch-1.jpg",
+      "images/products/mini-zipper-pouch-2.jpg",
+      "images/products/mini-zipper-pouch-3.jpg",
+      "images/products/mini-zipper-pouch-4.jpg"
     ],
     availableItems: []
   },
   {
-    id: "messenger-bag",
-    name: "Messenger Side Bag",
-    price: 29,
-    priceLabel: "$29",
-    description: "A practical and stylish messenger side bag with roomy interior and adjustable strap. Perfect for everyday use!",
+    id: "cute-quilted-coasters",
+    name: "Cute Quilted Coasters",
+    price: 4,
+    priceLabel: "$4 for one or $12 for 4",
+    description: "Cute quilted coasters! These coasters are perfect for everyday use, they're machine washable and can catch little drips. Buy just one or buy a whole set!",
     images: [
-      "images/products/products-4.jpg"
+      "images/products/cute-quilted-coaster-1.jpg"
     ],
-    availableItems: []
+    availableItems: [
+      { id: "coaster-pink", name: "Pretty in Pink Coaster", image: "images/available/pretty-in-pink-coaster.jpg" }
+    ]
   },
   {
     id: "annas-everyday-tote",
     name: "Anna's Everyday Tote Bag",
-    price: null,
-    priceLabel: "Custom Order",
-    description: "A beautifully patchwork tote bag — roomy enough for everyday errands, cute enough to show off. Each one is unique!",
+    price: 35,
+    priceLabel: "$35",
+    description: "A beautiful patchwork tote. It's roomy enough for everyday errands and cute enough to show off!",
     images: [
       "images/products/anna-s-everyday-tote-bag-1.jpg",
       "images/products/anna-s-everyday-tote-bag-2.jpg",
@@ -125,11 +133,11 @@ const PRODUCTS = [
     ]
   },
   {
-    id: "annas-overnighter-tote",
-    name: "Anna's Overnighter Tote Bag",
-    price: null,
-    priceLabel: "Custom Order",
-    description: "The big sister of the Everyday Tote — extra roomy for overnights, beach days, or anytime you need to pack more!",
+    id: "overnighter-tote",
+    name: "Overnighter Tote Bag",
+    price: 50,
+    priceLabel: "$50",
+    description: "The big sister of the Everyday Tote. This bag is extra roomy for overnights, beach days, or anytime you need to pack more!",
     images: [
       "images/products/anna-s-overnighter-tote-bag-1.jpg",
       "images/products/anna-s-overnighter-tote-bag-2.jpg",
@@ -140,9 +148,9 @@ const PRODUCTS = [
   {
     id: "pot-holders",
     name: "Pot Holders",
-    price: null,
-    priceLabel: "Custom Order",
-    description: "Handmade quilted pot holders — functional and adorable! Available in all sorts of fun fabrics.",
+    price: 8,
+    priceLabel: "$8",
+    description: "Handmade quilted pot holders. They're functional and adorable! Available in all sorts of fun fabrics.",
     images: [
       "images/products/pot-holders-1.jpg",
       "images/products/pot-holders-2.jpg",
@@ -154,23 +162,11 @@ const PRODUCTS = [
     ]
   },
   {
-    id: "sewing-roll",
-    name: "Sewing Roll",
-    price: 24,
-    priceLabel: "$24",
-    description: "A roll-up sewing organizer with pockets for needles, pins, scissors, and more. Ties shut with yarn and rolls up compact for storage or travel.",
-    images: [
-      "images/products/pencil-brush-roll-1.jpg",
-      "images/products/pencil-brush-roll-2.jpg"
-    ],
-    availableItems: []
-  },
-  {
     id: "craft-roll",
     name: "Craft Roll",
     price: 19,
     priceLabel: "$19",
-    description: "Like the Sewing Roll but made for markers, colored pencils, crochet hooks, or paint brushes. Rolls up with a yarn tie — super portable!",
+    description: "A roll-up organizer for brushes, pens, markers, or other craft tools. Rolls up compactly with a yarn or ribbon tie.",
     images: [
       "images/products/pencil-brush-roll-3.jpg",
       "images/products/pencil-brush-roll-4.jpg"
@@ -184,7 +180,7 @@ const PRODUCTS = [
  * Update these values as needed
  */
 const SITE_SETTINGS = {
-  /* Email where form submissions are sent — UPDATE THIS */
+  /* Email where form submissions are sent */
   contactEmail: "aliviagellatly@gmail.com",
 
   /* Instagram URL */

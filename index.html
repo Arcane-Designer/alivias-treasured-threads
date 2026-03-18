@@ -773,6 +773,59 @@
       line-height: 1.3;
     }
 
+    /* Expandable available item */
+    .available-item.expanded {
+      grid-column: 1 / -1;
+      border-color: var(--teal);
+      box-shadow: 0 6px 20px rgba(79, 228, 188, 0.3);
+    }
+
+    .available-item.expanded img {
+      aspect-ratio: auto;
+      max-height: 400px;
+      object-fit: contain;
+      background: var(--neutral);
+    }
+
+    .available-item {
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .available-item .tap-hint {
+      font-size: 0.65rem;
+      color: var(--teal-dark);
+      opacity: 0;
+      transition: opacity var(--transition);
+      text-align: center;
+      padding: 0 8px 4px;
+    }
+
+    .available-item:hover .tap-hint { opacity: 1; }
+
+    /* Product card badge (e.g. "Now available in mini!") */
+    .product-card-badge {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      box-shadow: 0 2px 8px rgba(255, 116, 212, 0.4);
+      z-index: 2;
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
     /* Custom order CTA in modal */
     .modal-custom-cta {
       display: flex;
@@ -1230,7 +1283,7 @@
         <span class="hero-serif">Treasured Threads</span>
       </div>
       <h1 class="hero-tagline">Handmade with love, one stitch at a time</h1>
-      <p class="hero-sub">Unique hand-sewn goods crafted with care — from cozy capes to adorable bookmarks, each piece has a little magic stitched in.</p>
+      <p class="hero-sub">Unique handcrafted goods sewn with care. From custom capes to cute bookmarks, every piece is made with love.</p>
       <a href="#products" class="hero-cta">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         Shop the Collection
@@ -1247,8 +1300,8 @@
         <img src="images/brand/alivia-transparent-with-cape.png" alt="Alivia wearing a handmade moon-phase hooded cape" class="about-photo">
         <div class="about-text">
           <h3>Hi, I'm Alivia!</h3>
-          <p>I'm a young maker who loves sewing, crafting, and creating things that are as unique as the people who wear and use them. Every item in my shop is hand-sewn by me with fabrics I pick out because they make me smile — from whimsical celestial prints to cozy fall patterns.</p>
-          <p style="margin-top:12px">Whether you're looking for a one-of-a-kind cape, a cute bookmark for your favorite novel, or a custom tote bag, I'd love to make something special for you!</p>
+          <p>I'm a young creator who loves sewing, crafting, and creating things that make every day more fun and cozy. Every item in my shop is handcrafted by me with fabrics I pick out because they make me smile, and every item can be custom ordered to make you smile too.</p>
+          <p style="margin-top:12px">Whether you're looking for a one-of-a-kind cape, a whimsical bookmark for your favorite novel, or an every day tote bag, I'd love to make something special for you!</p>
         </div>
       </div>
     </div>
@@ -1445,10 +1498,13 @@
         const hasAvailable = product.availableItems && product.availableItems.length > 0;
         const mainImage = product.images[0] || 'images/brand/logo.jpg';
 
+        const badgeHTML = product.badge ? `<span class="product-card-badge">${product.badge}</span>` : '';
+
         card.innerHTML = `
           <div class="product-card-img-wrap">
             <img src="${mainImage}" alt="${product.name}" loading="lazy">
             ${hasAvailable ? '<span class="available-badge">In Stock!</span>' : ''}
+            ${badgeHTML}
           </div>
           <div class="product-card-info">
             <div class="product-card-name">${product.name}</div>
@@ -1497,6 +1553,16 @@
         modalPrice.textContent = product.priceLabel;
         modalPrice.className = 'modal-price' + (product.price === null ? ' custom' : '');
         modalDesc.textContent = product.description;
+        // Add description link if present (e.g. Keene's Instagram)
+        if (product.descriptionLink) {
+          const linkEl = document.createElement('a');
+          linkEl.href = product.descriptionLink.url;
+          linkEl.target = '_blank';
+          linkEl.rel = 'noopener noreferrer';
+          linkEl.textContent = ' ' + product.descriptionLink.text;
+          linkEl.style.cssText = 'color:var(--pink);font-weight:700;';
+          modalDesc.appendChild(linkEl);
+        }
 
         // Build gallery
         const existingImgs = modalGallery.querySelectorAll('img');
@@ -1536,7 +1602,22 @@
             el.innerHTML = `
               <img src="${item.image}" alt="${item.name}" loading="lazy">
               <div class="available-item-name">${item.name}</div>
+              <div class="tap-hint">Tap to enlarge</div>
             `;
+            // Click to expand/collapse for a closer look
+            el.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const wasExpanded = el.classList.contains('expanded');
+              // Collapse any other expanded item
+              modalAvailableGrid.querySelectorAll('.available-item.expanded').forEach(other => {
+                other.classList.remove('expanded');
+              });
+              // Toggle this one
+              if (!wasExpanded) {
+                el.classList.add('expanded');
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            });
             modalAvailableGrid.appendChild(el);
           });
         } else {
