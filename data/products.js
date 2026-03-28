@@ -25,13 +25,11 @@
  * 6. Optional fields on products:
  *    - badge: a small text badge shown on the product card (e.g. "Now available in mini!")
  *
- * 7. SOLD ITEMS (auto-removal):
- *    - When someone orders a "ready to ship" item via the form, it's automatically
- *      hidden from the site by adding its ID to the sold-items list (hosted on npoint.io)
- *    - To RE-ADD an item (sale fell through), go to https://www.npoint.io/docs/a582fe30b8ed785ef6b9
- *      and remove the item's ID from the array, then click Save
- *    - To manually mark an item as sold, add its ID string to that same array
- *    - Custom orders do NOT trigger auto-removal — only "ready to ship" selections do
+ * 7. REMOVING A SOLD ITEM:
+ *    - When Alivia sells a ready-to-ship item, just delete that item's object
+ *      from the availableItems[] array of the relevant product below
+ *    - If ALL available items for a product are sold, the "In Stock!" badge
+ *      will automatically disappear from the product card
  * ============================================
  */
 
@@ -202,8 +200,5 @@ const SITE_SETTINGS = {
   brandName: "Alivia's Treasured Threads",
 
   /* Tagline */
-  tagline: "Handmade with love, one stitch at a time",
-
-  /* Sold-items endpoint (npoint.io JSON bin) — used for auto-removing sold items */
-  soldItemsApi: "https://api.npoint.io/a582fe30b8ed785ef6b9"
+  tagline: "Handmade with love, one stitch at a time"
 };
