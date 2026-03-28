@@ -24,6 +24,14 @@
  *
  * 6. Optional fields on products:
  *    - badge: a small text badge shown on the product card (e.g. "Now available in mini!")
+ *
+ * 7. SOLD ITEMS (auto-removal):
+ *    - When someone orders a "ready to ship" item via the form, it's automatically
+ *      hidden from the site by adding its ID to the sold-items list (hosted on npoint.io)
+ *    - To RE-ADD an item (sale fell through), go to https://www.npoint.io/docs/a582fe30b8ed785ef6b9
+ *      and remove the item's ID from the array, then click Save
+ *    - To manually mark an item as sold, add its ID string to that same array
+ *    - Custom orders do NOT trigger auto-removal — only "ready to ship" selections do
  * ============================================
  */
 
@@ -110,7 +118,8 @@ const PRODUCTS = [
       "images/products/cute-quilted-coaster-1.jpg"
     ],
     availableItems: [
-      { id: "coaster-pink", name: "Pretty in Pink Coaster", image: "images/available/pretty-in-pink-coaster.jpg" }
+      { id: "coaster-pink", name: "Pretty in Pink Coaster", image: "images/available/pretty-in-pink-coaster.jpg" },
+      { id: "coaster-papaya-racing", name: "Papaya Racing Coaster", image: "images/available/papaya-racing-coaster.jpg" }
     ]
   },
   {
@@ -193,5 +202,8 @@ const SITE_SETTINGS = {
   brandName: "Alivia's Treasured Threads",
 
   /* Tagline */
-  tagline: "Handmade with love, one stitch at a time"
+  tagline: "Handmade with love, one stitch at a time",
+
+  /* Sold-items endpoint (npoint.io JSON bin) — used for auto-removing sold items */
+  soldItemsApi: "https://api.npoint.io/a582fe30b8ed785ef6b9"
 };

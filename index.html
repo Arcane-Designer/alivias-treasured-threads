@@ -1468,6 +1468,71 @@
       document.getElementById('footerIg').href = SITE_SETTINGS.instagramUrl;
 
       /* =============================================
+         SOLD ITEMS — auto-remove ready-to-ship items
+         ============================================= */
+      const SOLD_API = SITE_SETTINGS.soldItemsApi;
+
+      // Fetch sold items on load and filter them from product data
+      async function loadSoldItems() {
+        try {
+          const res = await fetch(SOLD_API, { cache: 'no-store' });
+          if (!res.ok) return;
+          const soldIds = await res.json();
+          if (!Array.isArray(soldIds) || soldIds.length === 0) return;
+
+          // Remove sold items from each product's availableItems
+          PRODUCTS.forEach(p => {
+            p.availableItems = p.availableItems.filter(item => !soldIds.includes(item.id));
+          });
+
+          // Update "In Stock!" badges on already-rendered product cards
+          document.querySelectorAll('.product-card').forEach(card => {
+            const product = PRODUCTS.find(p => p.id === card.dataset.id);
+            if (product) {
+              const badge = card.querySelector('.available-badge');
+              if (badge && (!product.availableItems || product.availableItems.length === 0)) {
+                badge.remove();
+              }
+            }
+          });
+        } catch (e) {
+          // Fail silently — items just stay visible until manually removed
+        }
+      }
+
+      // Mark items as sold by updating the JSON bin
+      async function markItemsSold(itemIds) {
+        if (!itemIds.length) return;
+        try {
+          // Get current sold list
+          const getRes = await fetch(SOLD_API, { cache: 'no-store' });
+          const currentSold = getRes.ok ? await getRes.json() : [];
+
+          // Merge new sold IDs (no duplicates)
+          const updated = [...new Set([...(Array.isArray(currentSold) ? currentSold : []), ...itemIds])];
+          if (updated.length === currentSold.length) return; // nothing new
+
+          // Save updated sold list
+          await fetch(SOLD_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updated)
+          });
+
+          // Also update local data so current visitor sees the change
+          PRODUCTS.forEach(p => {
+            p.availableItems = p.availableItems.filter(item => !itemIds.includes(item.id));
+          });
+        } catch (e) {
+          // Non-critical — Alivia can manually remove items if this fails
+          console.log('Auto-sold update skipped:', e);
+        }
+      }
+
+      // Load sold items right away (async, non-blocking)
+      loadSoldItems();
+
+      /* =============================================
          FLOATING STARS (background decoration)
          ============================================= */
       const starsContainer = document.getElementById('starsContainer');
@@ -1864,6 +1929,18 @@
           });
 
           if (res.ok) {
+            // Auto-remove any ready-to-ship items that were ordered
+            const soldIds = [];
+            rows.forEach(row => {
+              const optSel = row.querySelector('.item-option-select');
+              if (optSel && optSel.value && optSel.value !== '' && optSel.value !== 'custom') {
+                soldIds.push(optSel.value);
+              }
+            });
+            if (soldIds.length > 0) {
+              markItemsSold(soldIds); // fire-and-forget, don't block success
+            }
+
             orderForm.style.display = 'none';
             formSuccess.classList.add('show');
           } else {
