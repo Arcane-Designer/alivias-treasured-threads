@@ -109,9 +109,9 @@ const PRODUCTS = [
   {
     id: "cute-quilted-coasters",
     name: "Cute Quilted Coasters",
-    price: 4,
-    priceLabel: "$4 for one or $12 for 4",
-    description: "Cute quilted coasters! These coasters are perfect for everyday use, they're machine washable and can catch little drips. Buy just one or buy a whole set!",
+    price: 12,
+    priceLabel: "$12 for a set of 4",
+    description: "Cute quilted coasters! These coasters are perfect for everyday use, they're machine washable and can catch little drips. Available in sets of 4!",
     images: [
       "images/products/cute-quilted-coaster-1.jpg"
     ],
