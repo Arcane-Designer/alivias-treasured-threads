@@ -113,11 +113,13 @@ const PRODUCTS = [
     priceLabel: "$12 for a set of 4",
     description: "Cute quilted coasters! These coasters are perfect for everyday use, they're machine washable and can catch little drips. Available in sets of 4!",
     images: [
-      "images/products/cute-quilted-coaster-1.jpg"
+      "images/products/cute-quilted-coaster-1.jpg",
+      "images/products/cute-quilted-coaster-2.jpg"
     ],
     availableItems: [
       { id: "coaster-pink", name: "Pretty in Pink Coaster", image: "images/available/pretty-in-pink-coaster.jpg" },
-      { id: "coaster-papaya-racing", name: "Papaya Racing Coaster", image: "images/available/papaya-racing-coaster.jpg" }
+      { id: "coaster-papaya-racing", name: "Papaya Racing Coaster", image: "images/available/papaya-racing-coaster.jpg" },
+      { id: "coaster-lights-out", name: "Lights Out Coaster", image: "images/available/lights-out-coaster.jpg" }
     ]
   },
   {
