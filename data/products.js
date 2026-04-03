@@ -119,7 +119,9 @@ const PRODUCTS = [
     availableItems: [
       { id: "coaster-pink", name: "Pretty in Pink Coaster", image: "images/available/pretty-in-pink-coaster.jpg" },
       { id: "coaster-papaya-racing", name: "Papaya Racing Coaster", image: "images/available/papaya-racing-coaster.jpg" },
-      { id: "coaster-lights-out", name: "Lights Out Coaster", image: "images/available/lights-out-coaster.jpg" }
+      { id: "coaster-lights-out", name: "Lights Out Coaster", image: "images/available/lights-out-coaster.jpg" },
+      { id: "coaster-marauders-map", name: "Marauder's Map Coasters", image: "images/available/marauders-map-coasters.jpg" },
+      { id: "coaster-boy-who-lived", name: "Boy Who Lived Coasters", image: "images/available/boy-who-lived-coasters.jpg" }
     ]
   },
   {
