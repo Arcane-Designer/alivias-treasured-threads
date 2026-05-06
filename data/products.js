@@ -158,7 +158,7 @@ const PRODUCTS = [
   },
   {
     id: "mini-tote-bag",
-    name: "Mini Tote Bag",
+    name: "Jackie Mini Tote Bag",
     price: 20,
     priceLabel: "$20",
     badge: "NEW!",
