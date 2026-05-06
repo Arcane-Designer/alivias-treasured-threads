@@ -157,6 +157,18 @@ const PRODUCTS = [
     availableItems: []
   },
   {
+    id: "mini-tote-bag",
+    name: "Mini Tote Bag",
+    price: 20,
+    priceLabel: "$20",
+    badge: "NEW!",
+    description: "A mini tote bag, perfect for quick outings or when you need to travel light. Features an interior pocket and a snap closure.",
+    images: [
+      "images/products/mini-tote-bag-1.jpg"
+    ],
+    availableItems: []
+  },
+  {
     id: "pot-holders",
     name: "Pot Holders",
     price: 8,
