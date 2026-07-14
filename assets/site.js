@@ -134,7 +134,7 @@
 
     list.forEach((product) => {
       const stock = unsoldListings(product).length;
-      const hasPeek = product.images && product.images.length > 1;
+      const imgs = (product.images && product.images.length ? product.images : [PLACEHOLDER_IMG]).map(resolveImg);
 
       const card = document.createElement('article');
       card.className = 'product-card';
@@ -144,8 +144,9 @@
 
       card.innerHTML =
         '<div class="product-card-img-wrap">' +
-          '<img class="cover' + (hasPeek ? ' has-peek' : '') + '" src="' + esc(coverImg(product)) + '" alt="' + esc(product.name) + '" loading="lazy" decoding="async">' +
-          (hasPeek ? '<img class="peek" src="' + esc(resolveImg(product.images[1])) + '" alt="" loading="lazy" decoding="async" aria-hidden="true">' : '') +
+          imgs.map((src, i) =>
+            '<img class="' + (i === 0 ? 'active' : '') + '" src="' + esc(src) + '" alt="' + (i === 0 ? esc(product.name) : '') + '" loading="lazy" decoding="async"' + (i > 0 ? ' aria-hidden="true"' : '') + '>'
+          ).join('') +
           (product.badge ? '<span class="sticker sticker-badge">' + esc(product.badge) + '</span>' : '') +
           (stock > 0 ? '<span class="sticker sticker-stock">In stock!</span>' : '') +
         '</div>' +
@@ -154,6 +155,26 @@
           '<div class="product-card-price' + (product.price === null ? ' custom' : '') + '">' + esc(product.priceLabel || '') + '</div>' +
           (stock > 0 ? '<div class="product-card-meta">✨ ' + stock + ' ready to ship</div>' : '') +
         '</div>';
+
+      /* on hover, gently shuffle through all of the product's photos */
+      if (imgs.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const frames = card.querySelectorAll('.product-card-img-wrap img');
+        let slideIdx = 0;
+        let slideTimer = null;
+        const show = (n) => frames.forEach((im, j) => im.classList.toggle('active', j === n));
+        const step = () => { slideIdx = (slideIdx + 1) % frames.length; show(slideIdx); };
+        card.addEventListener('mouseenter', () => {
+          if (slideTimer) return;
+          step(); /* switch right away so the hover feels alive… */
+          slideTimer = setInterval(step, 2000); /* …then keep looping every 2s */
+        });
+        card.addEventListener('mouseleave', () => {
+          clearInterval(slideTimer);
+          slideTimer = null;
+          slideIdx = 0;
+          show(0);
+        });
+      }
 
       const open = () => openModal(product);
       card.addEventListener('click', open);
@@ -244,7 +265,9 @@
       img.alt = product.name + ' photo ' + (i + 1);
       img.loading = i === 0 ? 'eager' : 'lazy';
       if (i === 0) img.classList.add('active');
-      img.addEventListener('click', () => openLightbox(imgs, i, product.name));
+      /* open the photo that's showing right now (the stacked images all sit
+         on top of each other, so trusting `i` here opens the wrong one) */
+      img.addEventListener('click', () => openLightbox(imgs, currentSlide, product.name));
       track.appendChild(img);
 
       const dot = document.createElement('button');

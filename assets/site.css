@@ -543,13 +543,12 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.45s ease;
 }
 
-.product-card-img-wrap img.peek { opacity: 0; }
-.product-card:hover .product-card-img-wrap img.cover { transform: scale(1.05); }
-.product-card:hover .product-card-img-wrap img.peek { opacity: 1; transform: scale(1.05); }
-.product-card:hover .product-card-img-wrap img.cover.has-peek { opacity: 0; }
+.product-card-img-wrap img.active { opacity: 1; }
+.product-card:hover .product-card-img-wrap img.active { transform: scale(1.04); }
 
 /* sticker badges */
 .sticker {
@@ -662,12 +661,14 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* show the whole photo (soft letterboxing) instead of cropping into it */
+  object-fit: contain;
   opacity: 0;
   transition: opacity 0.45s;
   cursor: zoom-in;
+  pointer-events: none;
 }
-.modal-gallery-track img.active { opacity: 1; }
+.modal-gallery-track img.active { opacity: 1; pointer-events: auto; }
 
 .gallery-nav {
   position: absolute;
