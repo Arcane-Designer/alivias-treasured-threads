@@ -147,8 +147,10 @@
           imgs.map((src, i) =>
             '<img class="' + (i === 0 ? 'active' : '') + '" src="' + esc(src) + '" alt="' + (i === 0 ? esc(product.name) : '') + '" loading="lazy" decoding="async"' + (i > 0 ? ' aria-hidden="true"' : '') + '>'
           ).join('') +
-          (product.badge ? '<span class="sticker sticker-badge">' + esc(product.badge) + '</span>' : '') +
-          (stock > 0 ? '<span class="sticker sticker-stock">In stock!</span>' : '') +
+          '<div class="sticker-row">' +
+            (product.badge ? '<span class="sticker sticker-badge">' + esc(product.badge) + '</span>' : '') +
+            (stock > 0 ? '<span class="sticker sticker-stock">In stock!</span>' : '') +
+          '</div>' +
         '</div>' +
         '<div class="product-card-info">' +
           '<div class="product-card-name">' + esc(product.name) + '</div>' +
