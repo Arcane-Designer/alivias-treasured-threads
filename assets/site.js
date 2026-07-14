@@ -629,24 +629,107 @@
   /* ================================================
      CUSTOM REQUEST PICKER (order section)
      ================================================ */
+  /* a hand-stitched dropdown (with product photos!) instead of the browser's plain one */
+  function buildProductPicker() {
+    let value = '';
+    const wrap = document.createElement('div');
+    wrap.className = 'cute-select';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cute-select-btn';
+    btn.setAttribute('aria-haspopup', 'listbox');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML =
+      '<span class="css-label placeholder">What should I make you?</span>' +
+      '<svg class="css-arrow" width="14" height="9" viewBox="0 0 14 9" aria-hidden="true"><path d="M1.5 1.5 L7 7 L12.5 1.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 2.4"/></svg>';
+
+    const panel = document.createElement('div');
+    panel.className = 'cute-select-panel';
+    panel.setAttribute('role', 'listbox');
+    panel.setAttribute('aria-label', 'Choose a product for a custom request');
+    panel.hidden = true;
+
+    function open() {
+      panel.hidden = false;
+      requestAnimationFrame(() => panel.classList.add('open'));
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    function close() {
+      panel.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      setTimeout(() => { panel.hidden = true; }, 180);
+    }
+
+    activeProducts.forEach((p) => {
+      const opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'cute-option';
+      opt.setAttribute('role', 'option');
+      opt.innerHTML =
+        '<img src="' + esc(coverImg(p)) + '" alt="" loading="lazy">' +
+        '<span class="co-name">' + esc(p.name) + '</span>' +
+        '<span class="co-price' + (p.price === null ? ' custom' : '') + '">' + esc(p.priceLabel || '') + '</span>';
+      opt.addEventListener('click', () => {
+        value = p.id;
+        const label = btn.querySelector('.css-label');
+        label.textContent = p.name;
+        label.classList.remove('placeholder');
+        panel.querySelectorAll('.cute-option').forEach((o) => o.classList.toggle('selected', o === opt));
+        close();
+        btn.focus();
+      });
+      panel.appendChild(opt);
+    });
+
+    btn.addEventListener('click', () => (panel.hidden ? open() : close()));
+
+    const outside = (e) => {
+      if (!wrap.isConnected) { document.removeEventListener('click', outside); return; }
+      if (!wrap.contains(e.target) && !panel.hidden) close();
+    };
+    document.addEventListener('click', outside);
+
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) {
+        e.stopPropagation();
+        close();
+        btn.focus();
+        return;
+      }
+      if (e.key === 'ArrowDown' && panel.hidden && document.activeElement === btn) {
+        e.preventDefault();
+        open();
+        setTimeout(() => panel.querySelector('.cute-option').focus(), 60);
+        return;
+      }
+      if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !panel.hidden) {
+        e.preventDefault();
+        const opts = [...panel.querySelectorAll('.cute-option')];
+        const i = opts.indexOf(document.activeElement);
+        opts[e.key === 'ArrowDown' ? Math.min(i + 1, opts.length - 1) : Math.max(i - 1, 0)].focus();
+      }
+    });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(panel);
+    return { el: wrap, get value() { return value; }, focus: () => btn.focus() };
+  }
+
   $('addCustomBtn').addEventListener('click', function () {
     if (document.querySelector('.custom-add-row')) return;
     const row = document.createElement('div');
     row.className = 'custom-add-row';
 
-    const select = document.createElement('select');
-    select.className = 'form-input';
-    select.setAttribute('aria-label', 'Choose a product for a custom request');
-    select.innerHTML = '<option value="">What should I make you?</option>' +
-      activeProducts.map((p) => '<option value="' + esc(p.id) + '">' + esc(p.name) + ' — ' + esc(p.priceLabel || '') + '</option>').join('');
+    const picker = buildProductPicker();
 
     const add = document.createElement('button');
     add.type = 'button';
     add.className = 'btn btn-purple btn-small';
     add.textContent = 'Add 🧵';
     add.addEventListener('click', (e) => {
-      if (!select.value) { select.focus(); return; }
-      addCustomToBasket(select.value, e);
+      if (!picker.value) { picker.focus(); return; }
+      addCustomToBasket(picker.value, e);
       row.remove();
     });
 
@@ -657,11 +740,11 @@
     cancel.setAttribute('aria-label', 'Never mind');
     cancel.addEventListener('click', () => row.remove());
 
-    row.appendChild(select);
+    row.appendChild(picker.el);
     row.appendChild(add);
     row.appendChild(cancel);
     this.after(row);
-    select.focus();
+    picker.focus();
   });
 
   /* ================================================
