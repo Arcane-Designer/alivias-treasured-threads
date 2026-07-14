@@ -1396,12 +1396,15 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
 /* ============ MISC ============ */
 #home, #about, #products, #order { scroll-margin-top: 72px; }
 
-.custom-add-row { display: flex; gap: 8px; margin-top: 10px; align-items: stretch; }
-.custom-add-row select { flex: 1; min-width: 0; }
+.custom-add-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: stretch; }
 .custom-add-row .btn { flex-shrink: 0; }
+/* when the row is too narrow for picker + buttons, the picker takes the whole
+   line and the buttons drop underneath (Add stretches to fill) */
+.custom-add-row .cute-select { flex: 1 1 300px; }
+.custom-add-row .btn-purple { flex: 1 0 auto; }
 
 /* ---- hand-stitched dropdown ---- */
-.cute-select { position: relative; flex: 1; min-width: 0; }
+.cute-select { position: relative; min-width: 0; }
 
 .cute-select-btn {
   width: 100%;
@@ -1442,7 +1445,7 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
   border: 2px dashed var(--purple-light);
   border-radius: var(--radius-sm);
   box-shadow: 0 14px 38px rgba(107, 92, 184, 0.25);
-  max-height: 300px;
+  max-height: min(300px, 46vh);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 6px;
