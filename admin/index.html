@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alivia's Studio 🧵</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Dancing+Script:wght@400;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ================= LOGIN ================= -->
+  <div class="login-view" id="loginView" hidden>
+    <div class="login-card">
+      <img src="../images/brand/logo.jpg" alt="" class="login-logo">
+      <h1><span class="script">Alivia's</span> Studio</h1>
+      <p class="login-sub">Your cozy corner for running the shop — add treasures, update prices, and keep everything sparkling ✨</p>
+
+      <label class="field-label" for="tokenInput">Your magic key</label>
+      <input type="password" id="tokenInput" class="field-input" placeholder="Paste your magic key here…" autocomplete="off" spellcheck="false">
+      <p class="login-err" id="loginErr"></p>
+
+      <button class="btn btn-gradient btn-big" id="loginBtn">Unlock my studio 🗝️</button>
+      <p class="login-help">Lost your key? Ask Nathan — he can make you a new one anytime 💜</p>
+    </div>
+  </div>
+
+  <!-- ================= APP ================= -->
+  <div class="app-view" id="appView" hidden>
+
+    <header class="studio-bar">
+      <div class="studio-bar-inner">
+        <div class="studio-brand">
+          <img src="../images/brand/logo.jpg" alt="" class="studio-logo">
+          <div class="studio-title">
+            <span class="script">Alivia's</span>
+            <span class="serif">Studio</span>
+          </div>
+        </div>
+        <div class="studio-actions">
+          <a class="ghost-btn" id="viewSiteBtn" href="../" target="_blank" rel="noopener">🛍️ <span class="hide-sm">See my shop</span></a>
+          <button class="ghost-btn" id="logoutBtn">👋 <span class="hide-sm">Log out</span></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="studio-main">
+      <div class="hello-row">
+        <h2 class="hello" id="helloLine">Hi Alivia! What are we making today?</h2>
+      </div>
+
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="products" role="tab" aria-selected="true">🧺 My Products</button>
+        <button class="tab" data-tab="settings" role="tab" aria-selected="false">🎀 Shop Settings</button>
+      </nav>
+
+      <!-- ---------- PRODUCTS TAB ---------- -->
+      <section class="tab-panel" id="panel-products">
+        <div class="admin-grid" id="adminGrid">
+          <!-- product cards injected -->
+        </div>
+      </section>
+
+      <!-- ---------- SETTINGS TAB ---------- -->
+      <section class="tab-panel" id="panel-settings" hidden>
+        <div class="settings-card">
+          <h3 class="settings-heading">The words on your site</h3>
+          <div class="field-group">
+            <label class="field-label" for="setTagline">Big tagline (top of the page)</label>
+            <input type="text" id="setTagline" class="field-input" data-setting="tagline">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setHeroSub">Little welcome sentence (under the tagline)</label>
+            <textarea id="setHeroSub" class="field-input" rows="3" data-setting="heroSub"></textarea>
+          </div>
+
+          <h3 class="settings-heading">Where people find you</h3>
+          <div class="field-group">
+            <label class="field-label" for="setInstagram">Instagram link</label>
+            <input type="url" id="setInstagram" class="field-input" data-setting="instagramUrl" placeholder="https://instagram.com/…">
+          </div>
+
+          <h3 class="settings-heading">Order form delivery <span class="tiny-note">(Nathan can help with these!)</span></h3>
+          <div class="field-group">
+            <label class="field-label" for="setEmail">Email where orders should arrive</label>
+            <input type="email" id="setEmail" class="field-input" data-setting="contactEmail" placeholder="you@email.com">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setW3f">Web3Forms key (makes the order form send email automatically)</label>
+            <input type="text" id="setW3f" class="field-input" data-setting="web3formsKey" placeholder="paste key from web3forms.com" spellcheck="false">
+            <p class="field-hint">No key yet? The form politely falls back to opening the shopper's email app instead.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ---------- PUBLISH BAR ---------- -->
+    <div class="publish-bar" id="publishBar" hidden>
+      <div class="publish-bar-inner">
+        <span class="publish-msg">✨ You have unpublished changes</span>
+        <div class="publish-actions">
+          <button class="ghost-btn" id="previewBtn">👀 Preview</button>
+          <button class="ghost-btn danger" id="discardBtn">Discard</button>
+          <button class="btn btn-gradient" id="publishBtn">Publish to my shop ✨</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= PRODUCT EDITOR ================= -->
+  <div class="editor-overlay" id="editorOverlay" hidden>
+    <div class="editor" role="dialog" aria-modal="true" aria-label="Edit product">
+      <div class="editor-head">
+        <h3 id="editorTitle">Edit product</h3>
+        <button class="icon-btn" id="editorClose" aria-label="Close editor">×</button>
+      </div>
+
+      <div class="editor-body">
+        <div class="field-group">
+          <label class="field-label" for="epName">Name <span class="req">*</span></label>
+          <input type="text" id="epName" class="field-input" placeholder="What's it called?">
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="epPriceLabel">Price tag shoppers see</label>
+            <input type="text" id="epPriceLabel" class="field-input" placeholder="$12 · or 'Custom Order'">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="epPrice">Price number <span class="tiny-note">for basket math</span></label>
+            <input type="number" id="epPrice" class="field-input" min="0" step="0.5" placeholder="leave empty for custom">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="epDesc">Description</label>
+          <textarea id="epDesc" class="field-input" rows="4" placeholder="Tell shoppers what makes it special!"></textarea>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="epBadge">Sticker badge <span class="tiny-note">optional — like "Halloween Drop!"</span></label>
+            <input type="text" id="epBadge" class="field-input" placeholder="New! · Fall Drop 🎃 · …">
+          </div>
+          <div class="field-group toggle-group">
+            <label class="field-label">Visibility</label>
+            <label class="cute-toggle">
+              <input type="checkbox" id="epArchived">
+              <span class="toggle-pill"></span>
+              <span class="toggle-txt" id="epArchivedTxt">Showing in shop</span>
+            </label>
+            <p class="field-hint">Hidden items stay saved right here so you can bring them back anytime.</p>
+          </div>
+        </div>
+
+        <!-- photos -->
+        <div class="editor-section">
+          <h4>📷 Photos <span class="tiny-note">first photo is the cover</span></h4>
+          <div class="photo-grid" id="epPhotos"></div>
+          <label class="add-photos-btn">
+            <input type="file" id="epPhotoInput" accept="image/*" multiple hidden>
+            <span>+ Add photos</span>
+          </label>
+        </div>
+
+        <!-- listings -->
+        <div class="editor-section">
+          <h4>✨ Ready-to-ship listings</h4>
+          <p class="field-hint" style="margin-top:-6px">Each listing is a real, finished item someone can claim — give it a name and its own photo!</p>
+          <div class="listing-list" id="epListings"></div>
+
+          <div class="add-listing-form" id="addListingForm">
+            <input type="text" id="newListingName" class="field-input" placeholder="Name this treasure (like 'Pink Crystal Bookmark')">
+            <div class="add-listing-row">
+              <label class="add-photos-btn small">
+                <input type="file" id="newListingPhotos" accept="image/*" multiple hidden>
+                <span id="newListingPhotoLabel">📷 Pick photo(s)</span>
+              </label>
+              <button class="btn btn-teal btn-small" id="addListingBtn">+ Add listing</button>
+            </div>
+            <div class="photo-strip" id="newListingPreview"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-foot">
+        <button class="ghost-btn danger" id="epDelete">🗑 Delete product</button>
+        <button class="btn btn-gradient" id="epDone">Done ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CONFIRM DIALOG ================= -->
+  <div class="confirm-overlay" id="confirmOverlay" hidden>
+    <div class="confirm-card" role="alertdialog" aria-modal="true">
+      <p id="confirmMsg"></p>
+      <div class="confirm-actions">
+        <button class="ghost-btn" id="confirmNo">Never mind</button>
+        <button class="btn btn-pink" id="confirmYes">Yes, do it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PUBLISH PROGRESS ================= -->
+  <div class="progress-overlay" id="progressOverlay" hidden>
+    <div class="progress-card">
+      <div class="spool-spinner" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="64" height="64">
+          <rect x="18" y="10" width="28" height="6" rx="3" fill="#E05AB8"/>
+          <rect x="18" y="48" width="28" height="6" rx="3" fill="#E05AB8"/>
+          <rect x="22" y="16" width="20" height="32" fill="#FF9BDF"/>
+          <path d="M22 20h20M22 25h20M22 30h20M22 35h20M22 40h20M22 45h20" stroke="#E05AB8" stroke-width="1.6"/>
+        </svg>
+      </div>
+      <p id="progressMsg">Stitching your changes together…</p>
+    </div>
+  </div>
+
+  <div class="toast-zone" id="toastZone" aria-live="polite"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
