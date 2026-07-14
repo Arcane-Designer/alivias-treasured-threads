@@ -530,6 +530,33 @@ textarea.field-input { resize: vertical; }
 
 .toggle-txt { font-weight: 800; font-size: 0.88rem; }
 
+/* badge sticker chips */
+.badge-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.badge-chip {
+  padding: 7px 14px;
+  border-radius: 30px;
+  border: 2px dashed var(--pink-light);
+  background: var(--white);
+  color: var(--pink-dark);
+  font-weight: 800;
+  font-size: 0.78rem;
+  transition: all var(--transition);
+}
+.badge-chip:hover { background: var(--pink-pale); border-color: var(--pink); transform: rotate(-1deg); }
+.badge-chip.active {
+  background: var(--pink);
+  border: 2px solid var(--pink);
+  color: #fff;
+  box-shadow: 0 0 0 2.5px #fff, 0 3px 10px rgba(255, 116, 212, 0.4);
+  transform: rotate(-2deg);
+}
+
 /* photos */
 .photo-grid {
   display: grid;

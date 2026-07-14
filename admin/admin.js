@@ -460,6 +460,7 @@
     $('epPrice').value = typeof currentProduct.price === 'number' ? currentProduct.price : '';
     $('epDesc').value = currentProduct.description || '';
     $('epBadge').value = currentProduct.badge || '';
+    syncBadgeChips();
     $('epArchived').checked = !!currentProduct.archived;
     updateArchivedText();
     $('epDelete').style.display = isNew ? 'none' : '';
@@ -533,8 +534,49 @@
   $('epBadge').addEventListener('input', function () {
     if (!currentProduct) return;
     currentProduct.badge = this.value;
+    syncBadgeChips();
     markDirty();
   });
+
+  /* ---------- badge sticker presets (tap to toggle) ---------- */
+  const BADGE_PRESETS = [
+    'NEW!',
+    'Now available in mini!',
+    'Back in stock!',
+    'Seasonal drop 🎃',
+    'Limited edition ✨',
+    'Sale!',
+  ];
+
+  (function buildBadgeChips() {
+    const wrap = $('epBadgeChips');
+    BADGE_PRESETS.forEach((text) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'badge-chip';
+      chip.textContent = text;
+      chip.setAttribute('aria-pressed', 'false');
+      chip.addEventListener('click', () => {
+        if (!currentProduct) return;
+        /* tapping the active sticker peels it off; tapping another swaps it on */
+        const next = currentProduct.badge === text ? '' : text;
+        currentProduct.badge = next;
+        $('epBadge').value = next;
+        syncBadgeChips();
+        markDirty();
+      });
+      wrap.appendChild(chip);
+    });
+  })();
+
+  function syncBadgeChips() {
+    const current = currentProduct ? (currentProduct.badge || '') : '';
+    $('epBadgeChips').querySelectorAll('.badge-chip').forEach((chip) => {
+      const on = chip.textContent === current;
+      chip.classList.toggle('active', on);
+      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
   $('epArchived').addEventListener('change', function () {
     if (!currentProduct) return;
     currentProduct.archived = this.checked;
