@@ -654,6 +654,20 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
   margin-top: -52px;
 }
 
+/* blurred, lavender-washed echo of the current photo fills the letterbox bands */
+.gallery-backdrop {
+  position: absolute;
+  inset: -24px;
+  width: calc(100% + 48px);
+  height: calc(100% + 48px);
+  object-fit: cover;
+  filter: blur(22px) saturate(1.05);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.45s;
+}
+.gallery-backdrop[src=""] { opacity: 0; }
+
 .modal-gallery-track { position: absolute; inset: 0; }
 
 .modal-gallery-track img {

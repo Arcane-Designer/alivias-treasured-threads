@@ -277,6 +277,8 @@
       dots.appendChild(dot);
     });
 
+    $('galleryBackdrop').src = imgs[0];
+
     const multi = imgs.length > 1;
     $('galleryPrev').style.display = multi ? '' : 'none';
     $('galleryNext').style.display = multi ? '' : 'none';
@@ -290,6 +292,7 @@
     if (!imgs.length) return;
     currentSlide = (index + imgs.length) % imgs.length;
     imgs.forEach((im, i) => im.classList.toggle('active', i === currentSlide));
+    $('galleryBackdrop').src = imgs[currentSlide].src;
     $('galleryDots').querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide));
   }
 
