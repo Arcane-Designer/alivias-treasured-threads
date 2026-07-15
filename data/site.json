@@ -103,9 +103,9 @@
         },
         {
           "id": "bk-green-fb",
-          "name": "Green Bookmark (Front & Back)",
+          "name": "Pink and Green",
           "images": [
-            "images/available/bookmark-green-front-and-back.jpg"
+            "images/uploads/green-bookmark-front-back-mrlj1gjyng8.jpg"
           ],
           "sold": false
         },
@@ -113,7 +113,7 @@
           "id": "bk-greenery-flowers",
           "name": "Greenery Flowers Bookmark",
           "images": [
-            "images/available/bookmark-greenery-flowers.jpg"
+            "images/uploads/greenery-flowers-bookmark-mrlj0xiegk6.jpg"
           ],
           "sold": false
         },
@@ -121,15 +121,15 @@
           "id": "bk-greenery-pattern",
           "name": "Greenery Pattern Bookmark",
           "images": [
-            "images/available/bookmark-greenery-pattern.jpg"
+            "images/uploads/greenery-pattern-bookmark-mrlj0npbtxv.jpg"
           ],
           "sold": false
         },
         {
           "id": "bk-orange-black",
-          "name": "Orange & Black Bookmark",
+          "name": "Spider Bookmark",
           "images": [
-            "images/available/bookmark-orange-and-black.jpg"
+            "images/uploads/orange-black-bookmark-mrlj01xmn92.jpg"
           ],
           "sold": false
         },
@@ -137,7 +137,7 @@
           "id": "bk-pink",
           "name": "Pink Bookmark",
           "images": [
-            "images/available/bookmark-pink.jpg"
+            "images/uploads/pink-bookmark-mrlizs2dxqb.jpg"
           ],
           "sold": false
         },
@@ -145,7 +145,7 @@
           "id": "bk-space-black",
           "name": "Space Black Bookmark",
           "images": [
-            "images/available/bookmark-space-black.jpg"
+            "images/uploads/space-black-bookmark-mrlizjvngry.jpg"
           ],
           "sold": false
         },
@@ -153,7 +153,7 @@
           "id": "bk-space-man",
           "name": "Space Man Bookmark",
           "images": [
-            "images/available/bookmark-space-man.jpg"
+            "images/uploads/space-man-bookmark-mrlizb3g2by.jpg"
           ],
           "sold": false
         },
@@ -161,7 +161,7 @@
           "id": "cbk-fall-fun",
           "name": "Corner Bookmark - Fall Fun",
           "images": [
-            "images/available/corner-bookmark-fall-fun.jpg"
+            "images/uploads/corner-bookmark-fall-fun-mrlip8au64m.jpg"
           ],
           "sold": false
         },
@@ -169,22 +169,12 @@
           "id": "cbk-green",
           "name": "Corner Bookmark - Green",
           "images": [
-            "images/available/corner-bookmark-green.jpg"
-          ],
-          "sold": false
-        },
-        {
-          "id": "cbk-pink-crystal",
-          "name": "Corner Bookmark - Pink Crystal",
-          "images": [
-            "images/available/corner-bookmark-pink-crystal.jpg"
+            "images/uploads/corner-bookmark-green-mrliotpafbs.jpg"
           ],
           "sold": false
         }
       ],
-      "badges": [
-        "In stock!"
-      ]
+      "badges": []
     },
     {
       "id": "zipper-pouch",
@@ -215,8 +205,7 @@
         }
       ],
       "badges": [
-        "Now available in mini!",
-        "In stock!"
+        "Now available in mini!"
       ]
     },
     {
@@ -292,9 +281,7 @@
           "sold": false
         }
       ],
-      "badges": [
-        "In stock!"
-      ]
+      "badges": []
     },
     {
       "id": "annas-everyday-tote",
@@ -329,9 +316,7 @@
           "sold": false
         }
       ],
-      "badges": [
-        "In stock!"
-      ]
+      "badges": []
     },
     {
       "id": "overnighter-tote",
@@ -361,8 +346,7 @@
       "listings": [],
       "badges": [
         "NEW!"
-      ],
-      "oneOfAKind": false
+      ]
     },
     {
       "id": "pot-holders",
@@ -394,9 +378,7 @@
           "sold": false
         }
       ],
-      "badges": [
-        "In stock!"
-      ]
+      "badges": []
     },
     {
       "id": "craft-roll",
