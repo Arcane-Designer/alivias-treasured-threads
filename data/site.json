@@ -37,7 +37,7 @@
       "id": "bookmarks",
       "name": "Bookmarks",
       "price": 4,
-      "priceLabel": "$4 each or 2 for $6",
+      "priceLabel": "$4 each · 2 for $6",
       "description": "Handmade fabric bookmarks in tons of fun patterns. Also available as corner bookmarks! Perfect little gifts for the book lover in your life.",
       "archived": false,
       "images": [
@@ -174,7 +174,19 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [],
+      "salePrice": null,
+      "saleLabel": "",
+      "priceTiers": [
+        {
+          "qty": 1,
+          "price": 4
+        },
+        {
+          "qty": 2,
+          "price": 6
+        }
+      ]
     },
     {
       "id": "zipper-pouch",
