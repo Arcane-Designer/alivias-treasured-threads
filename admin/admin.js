@@ -735,6 +735,7 @@
           '<div class="listing-actions">' +
             '<button type="button" class="sold-chip' + (listing.sold ? ' active' : '') + '">' + (listing.sold ? 'Sold ✓' : 'Mark sold') + '</button>' +
             '<button type="button" class="icon-btn mini l-photos" aria-label="Manage photos">📷</button>' +
+            '<button type="button" class="icon-btn mini l-dup" aria-label="Duplicate listing" title="Duplicate">📑</button>' +
             '<button type="button" class="icon-btn mini l-del" aria-label="Delete listing">🗑</button>' +
           '</div>' +
         '</div>' +
@@ -750,6 +751,21 @@
         markDirty();
         renderEditorListings();
         toast(listing.sold ? 'Marked sold — congrats!! 🎉' : 'Back on the shelf!', 'teal');
+      });
+
+      row.querySelector('.l-dup').addEventListener('click', () => {
+        /* "Fall Fun Bookmark" -> "Fall Fun Bookmark 2"; "… 2" -> "… 3" */
+        const m = (listing.name || '').match(/^(.*?)(\d+)\s*$/);
+        const nextName = m ? m[1] + (parseInt(m[2], 10) + 1) : ((listing.name || 'Untitled') + ' 2');
+        const copy = { id: uid('l'), name: nextName, images: [...(listing.images || [])], sold: false };
+        const at = currentProduct.listings.indexOf(listing);
+        currentProduct.listings.splice(at + 1, 0, copy);
+        markDirty();
+        renderEditorListings();
+        toast('Duplicated! Tweak the name & photos ✨', 'teal');
+        const inputs = $('epListings').querySelectorAll('.listing-name-input');
+        const newInput = inputs[at + 1];
+        if (newInput) { newInput.focus(); newInput.select(); }
       });
 
       row.querySelector('.l-del').addEventListener('click', async () => {
