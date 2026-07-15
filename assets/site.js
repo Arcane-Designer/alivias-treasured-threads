@@ -929,7 +929,8 @@
     lines.push('');
     lines.push('Name: ' + $('name').value.trim());
     lines.push('Email: ' + $('email').value.trim());
-    lines.push('Phone: ' + ($('phone').value.trim() || '~'));
+    const ig = $('instagram').value.trim().replace(/^@+/, '');
+    lines.push('Instagram: ' + (ig ? '@' + ig : '~'));
     const notes = $('notes').value.trim();
     lines.push('');
     lines.push('Notes:');
@@ -980,7 +981,7 @@
             from_name: "Alivia's Treasured Threads Website",
             name: $('name').value.trim(),
             email: email,
-            phone: $('phone').value.trim(),
+            instagram: $('instagram').value.trim(),
             message: message,
           }),
         });
