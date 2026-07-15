@@ -43,91 +43,18 @@
       "saleLabel": ""
     },
     {
-      "id": "mini-zipper-pouch",
-      "name": "Mini Zipper Pouch",
-      "price": 7,
-      "priceLabel": "$7",
-      "description": "A tiny version of our zipper pouch, perfect for coins, earbuds, small treasures, or whatever fits. 3\" x 3\" x 0.5\". This mini size was born from a special collaboration with Keene, a cryptid (Sasquatch) with his own Instagram. Custom order yours in any fabric!",
-      "descriptionLink": {
-        "text": "Meet Keene on Instagram",
-        "url": "https://www.instagram.com/not_too_keene?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-      },
+      "id": "hooded-cape",
+      "name": "Hooded Cape",
+      "price": null,
+      "priceLabel": "Custom Order",
+      "description": "Handcrafted hooded capes. Ideal for costumes, festivals, or just everyday whimsy. Capes are by custom order only to make sure it's perfect for you.",
       "archived": false,
       "images": [
-        "images/products/mini-zipper-pouch-1.jpg",
-        "images/products/mini-zipper-pouch-2.jpg",
-        "images/products/mini-zipper-pouch-3.jpg",
-        "images/products/mini-zipper-pouch-4.jpg"
+        "images/products/cape-1.jpg",
+        "images/products/cape-2.jpg"
       ],
       "listings": [],
       "badges": []
-    },
-    {
-      "id": "annas-everyday-tote",
-      "name": "Anna's Everyday Tote Bag",
-      "price": 45,
-      "priceLabel": "$45",
-      "description": "A beautiful patchwork tote. It's roomy enough for everyday errands and cute enough to show off!",
-      "archived": false,
-      "images": [
-        "images/products/anna-s-everyday-tote-bag-1.jpg",
-        "images/products/anna-s-everyday-tote-bag-2.jpg",
-        "images/products/anna-s-everyday-tote-bag-3.jpg",
-        "images/products/anna-s-everyday-tote-bag-4.jpg",
-        "images/products/products-1.jpg",
-        "images/products/products-3.jpg"
-      ],
-      "listings": [
-        {
-          "id": "tote-black-halloween",
-          "name": "Black Halloween Tote",
-          "images": [
-            "images/available/anna-s-everyday-tote-bag-black-halloween.jpg"
-          ],
-          "sold": false
-        },
-        {
-          "id": "tote-orange-halloween",
-          "name": "Orange Halloween Tote",
-          "images": [
-            "images/available/anna-s-everyday-tote-bag-orange-halloween.jpg"
-          ],
-          "sold": false
-        }
-      ],
-      "badges": []
-    },
-    {
-      "id": "zipper-pouch",
-      "name": "Zipper Pouch",
-      "price": 14,
-      "priceLabel": "$14",
-      "description": "A cute and handy zipper pouch. Great for makeup, school supplies, sewing notions, or whatever you need to keep organized!",
-      "archived": false,
-      "images": [
-        "images/uploads/zipper-pouch-mrllwtakomy.jpg"
-      ],
-      "listings": [
-        {
-          "id": "zp-fall",
-          "name": "Fall Pattern Zipper Pouch",
-          "images": [
-            "images/available/fall-pattern-zipper-pouch.jpg"
-          ],
-          "sold": false
-        },
-        {
-          "id": "zp-mushroom",
-          "name": "Keene's Mushroom Zipper Pouch",
-          "images": [
-            "images/available/keenes-mushroom-zipper-pouch.jpg"
-          ],
-          "sold": false
-        }
-      ],
-      "badges": [
-        "Now available in mini!"
-      ]
     },
     {
       "id": "bookmarks",
@@ -285,6 +212,58 @@
       ]
     },
     {
+      "id": "zipper-pouch",
+      "name": "Zipper Pouch",
+      "price": 14,
+      "priceLabel": "$14",
+      "description": "A cute and handy zipper pouch. Great for makeup, school supplies, sewing notions, or whatever you need to keep organized!",
+      "archived": false,
+      "images": [
+        "images/uploads/zipper-pouch-mrllwtakomy.jpg"
+      ],
+      "listings": [
+        {
+          "id": "zp-fall",
+          "name": "Fall Pattern Zipper Pouch",
+          "images": [
+            "images/available/fall-pattern-zipper-pouch.jpg"
+          ],
+          "sold": false
+        },
+        {
+          "id": "zp-mushroom",
+          "name": "Keene's Mushroom Zipper Pouch",
+          "images": [
+            "images/available/keenes-mushroom-zipper-pouch.jpg"
+          ],
+          "sold": false
+        }
+      ],
+      "badges": [
+        "Now available in mini!"
+      ]
+    },
+    {
+      "id": "mini-zipper-pouch",
+      "name": "Mini Zipper Pouch",
+      "price": 7,
+      "priceLabel": "$7",
+      "description": "A tiny version of our zipper pouch, perfect for coins, earbuds, small treasures, or whatever fits. 3\" x 3\" x 0.5\". This mini size was born from a special collaboration with Keene, a cryptid (Sasquatch) with his own Instagram. Custom order yours in any fabric!",
+      "descriptionLink": {
+        "text": "Meet Keene on Instagram",
+        "url": "https://www.instagram.com/not_too_keene?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+      },
+      "archived": false,
+      "images": [
+        "images/products/mini-zipper-pouch-1.jpg",
+        "images/products/mini-zipper-pouch-2.jpg",
+        "images/products/mini-zipper-pouch-3.jpg",
+        "images/products/mini-zipper-pouch-4.jpg"
+      ],
+      "listings": [],
+      "badges": []
+    },
+    {
       "id": "cute-quilted-coasters",
       "name": "Cute Quilted Coasters",
       "price": 12,
@@ -340,26 +319,46 @@
       "badges": []
     },
     {
-      "id": "mini-tote-bag",
-      "name": "Jackie Mini Tote Bag",
-      "price": 25,
-      "priceLabel": "$25",
-      "description": "A mini tote bag, perfect for quick outings or when you need to travel light. Features an interior pocket and a snap closure.",
+      "id": "annas-everyday-tote",
+      "name": "Anna's Everyday Tote Bag",
+      "price": 45,
+      "priceLabel": "$45",
+      "description": "A beautiful patchwork tote. It's roomy enough for everyday errands and cute enough to show off! \n12” by 12” by 4”",
       "archived": false,
       "images": [
-        "images/products/mini-tote-bag-1.jpg"
+        "images/products/anna-s-everyday-tote-bag-1.jpg",
+        "images/products/anna-s-everyday-tote-bag-2.jpg",
+        "images/products/anna-s-everyday-tote-bag-3.jpg",
+        "images/products/anna-s-everyday-tote-bag-4.jpg",
+        "images/products/products-1.jpg",
+        "images/products/products-3.jpg"
       ],
-      "listings": [],
-      "badges": [
-        "NEW!"
-      ]
+      "listings": [
+        {
+          "id": "tote-black-halloween",
+          "name": "Black Halloween Tote",
+          "images": [
+            "images/available/anna-s-everyday-tote-bag-black-halloween.jpg"
+          ],
+          "sold": false
+        },
+        {
+          "id": "tote-orange-halloween",
+          "name": "Orange Halloween Tote",
+          "images": [
+            "images/available/anna-s-everyday-tote-bag-orange-halloween.jpg"
+          ],
+          "sold": false
+        }
+      ],
+      "badges": []
     },
     {
       "id": "overnighter-tote",
       "name": "Overnighter Tote Bag",
       "price": 60,
       "priceLabel": "$60",
-      "description": "The big sister of the Everyday Tote. This bag is extra roomy for overnights, beach days, or anytime you need to pack more!",
+      "description": "The big sister of the Everyday Tote. This bag is extra roomy for overnights, beach days, or anytime you need to pack more!\n18” by 15” by 7”",
       "archived": false,
       "images": [
         "images/products/anna-s-overnighter-tote-bag-1.jpg",
@@ -370,18 +369,19 @@
       "badges": []
     },
     {
-      "id": "craft-roll",
-      "name": "Craft Roll",
-      "price": 19,
-      "priceLabel": "$19",
-      "description": "A roll-up organizer for brushes, pens, markers, or other craft tools. Rolls up compactly with a yarn or ribbon tie.",
+      "id": "mini-tote-bag",
+      "name": "Jackie Mini Tote Bag",
+      "price": 25,
+      "priceLabel": "$25",
+      "description": "A mini tote bag, perfect for quick outings or when you need to travel light. Features an interior pocket and a snap closure.\n9” by 9” by 4”",
       "archived": false,
       "images": [
-        "images/products/pencil-brush-roll-3.jpg",
-        "images/products/pencil-brush-roll-4.jpg"
+        "images/products/mini-tote-bag-1.jpg"
       ],
       "listings": [],
-      "badges": []
+      "badges": [
+        "NEW!"
+      ]
     },
     {
       "id": "pot-holders",
@@ -416,15 +416,15 @@
       "badges": []
     },
     {
-      "id": "hooded-cape",
-      "name": "Hooded Cape",
-      "price": null,
-      "priceLabel": "Custom Order",
-      "description": "Handcrafted hooded capes. Ideal for costumes, festivals, or just everyday whimsy. Capes are by custom order only to make sure it's perfect for you.",
+      "id": "craft-roll",
+      "name": "Craft Roll",
+      "price": 19,
+      "priceLabel": "$19",
+      "description": "A roll-up organizer for brushes, pens, markers, or other craft tools. Rolls up compactly with a yarn or ribbon tie.",
       "archived": false,
       "images": [
-        "images/products/cape-1.jpg",
-        "images/products/cape-2.jpg"
+        "images/products/pencil-brush-roll-3.jpg",
+        "images/products/pencil-brush-roll-4.jpg"
       ],
       "listings": [],
       "badges": []
