@@ -433,6 +433,26 @@
       ],
       "listings": [],
       "badges": []
+    },
+    {
+      "id": "p-mrlk6gshtsmk",
+      "name": "Strawberry Picnic Bundle",
+      "price": 60,
+      "priceLabel": "$60",
+      "description": "This bundle includes 4 bookmarks, a zipper pouch, a set of four coasters, and a mini tote bag all in a cheerful yellow, red, and blue color scheme! It comes at a slight discount as well ",
+      "badges": [],
+      "archived": false,
+      "oneOfAKind": true,
+      "images": [
+        "images/uploads/strawberry-picnic-bundle-mrlk89rnc3t.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89t47gl.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89udkdl.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89vk5xq.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlkg2ys2tr.jpg"
+      ],
+      "listings": [],
+      "salePrice": null,
+      "saleLabel": ""
     }
   ]
 }
