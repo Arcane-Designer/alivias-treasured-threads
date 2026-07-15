@@ -14,7 +14,6 @@
     "orderIntro": "Interested in something? Let me know! Pick what caught your eye, share your info, and I'll get back to you as soon as I can to work out the details.",
     "successTitle": "Thanks so much!",
     "successBody": "I got your message and will be in touch soon. Can't wait to work with you!",
-    "oneOffNote": "This treasure is one of a kind — once it finds a home, it's gone!",
     "instagramUrl": "https://www.instagram.com/alivias_treasured_threads?igsh=ajdiMWM4ajBtaHBn",
     "contactEmail": "aliviagellatly@gmail.com",
     "web3formsKey": "83bacc95-b2fb-42fc-861e-3c16f4104ac2"
@@ -299,8 +298,8 @@
     {
       "id": "annas-everyday-tote",
       "name": "Anna's Everyday Tote Bag",
-      "price": 35,
-      "priceLabel": "$35",
+      "price": 45,
+      "priceLabel": "$45",
       "description": "A beautiful patchwork tote. It's roomy enough for everyday errands and cute enough to show off!",
       "archived": false,
       "images": [
@@ -334,8 +333,8 @@
     {
       "id": "overnighter-tote",
       "name": "Overnighter Tote Bag",
-      "price": 50,
-      "priceLabel": "$50",
+      "price": 60,
+      "priceLabel": "$60",
       "description": "The big sister of the Everyday Tote. This bag is extra roomy for overnights, beach days, or anytime you need to pack more!",
       "archived": false,
       "images": [
@@ -349,8 +348,8 @@
     {
       "id": "mini-tote-bag",
       "name": "Jackie Mini Tote Bag",
-      "price": 20,
-      "priceLabel": "$20",
+      "price": 25,
+      "priceLabel": "$25",
       "description": "A mini tote bag, perfect for quick outings or when you need to travel light. Features an interior pocket and a snap closure.",
       "archived": false,
       "images": [
@@ -450,9 +449,9 @@
     {
       "id": "p-mrlk6gshtsmk",
       "name": "Strawberry Picnic Bundle",
-      "price": 60,
-      "priceLabel": "$60",
-      "description": "This bundle includes 4 bookmarks, a zipper pouch, a set of four coasters, and a mini tote bag all in a cheerful yellow, red, and blue color scheme! It comes at a slight discount as well ",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This bundle includes 4 bookmarks, a zipper pouch, a set of four coasters, and a mini tote bag all in a cheerful yellow, pink, and blue color scheme! The best part? It’s priced way better than buying each item alone! ",
       "badges": [],
       "archived": false,
       "oneOfAKind": true,
@@ -464,7 +463,7 @@
         "images/uploads/strawberry-picnic-bundle-mrlkg2ys2tr.jpg"
       ],
       "listings": [],
-      "salePrice": null,
+      "salePrice": 60,
       "saleLabel": ""
     }
   ]
