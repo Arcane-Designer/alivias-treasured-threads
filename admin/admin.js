@@ -479,6 +479,7 @@
     $('newListingName').value = '';
     $('newListingPreview').innerHTML = '';
     $('newListingPhotoLabel').textContent = '📷 Pick photo(s)';
+    $('newListingAlsoProduct').checked = false;
 
     renderEditorPhotos();
     renderEditorListings();
@@ -817,6 +818,19 @@
           renderEditorListings();
         });
         strip.appendChild(addLbl);
+
+        const reuseBtn = document.createElement('button');
+        reuseBtn.type = 'button';
+        reuseBtn.className = 'add-photos-btn small';
+        reuseBtn.textContent = '📚 Reuse';
+        reuseBtn.addEventListener('click', async () => {
+          const picks = await openPhotoPicker(imgs);
+          if (!picks.length) return;
+          picks.forEach((path) => { if (!imgs.includes(path)) imgs.push(path); });
+          markDirty();
+          renderEditorListings();
+        });
+        strip.appendChild(reuseBtn);
       }
 
       wrap.appendChild(row);
@@ -830,16 +844,92 @@
     }
   }
 
+  /* ---------- photo library picker (reuse without re-uploading) ---------- */
+  let pickerResolve = null;
+
+  function allDraftPhotos() {
+    const seen = new Map(); /* path -> where it lives */
+    (draft.products || []).forEach((p) => {
+      (p.images || []).forEach((path) => { if (!seen.has(path)) seen.set(path, p.name || ''); });
+      (p.listings || []).forEach((l) => (l.images || []).forEach((path) => {
+        if (!seen.has(path)) seen.set(path, l.name || p.name || '');
+      }));
+    });
+    return [...seen.entries()];
+  }
+
+  function openPhotoPicker(excludePaths) {
+    return new Promise((resolve) => {
+      pickerResolve = resolve;
+      const grid = $('pickerGrid');
+      grid.innerHTML = '';
+      const items = allDraftPhotos().filter(([path]) => !excludePaths.includes(path));
+      if (!items.length) {
+        grid.innerHTML = '<p class="picker-hint" style="grid-column:1/-1">No other photos to reuse yet — add some first!</p>';
+      }
+      items.forEach(([path, label]) => {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'picker-cell';
+        cell.dataset.path = path;
+        cell.innerHTML =
+          '<img src="' + esc(imgSrc(path)) + '" alt="" loading="lazy">' +
+          '<span class="picker-check" aria-hidden="true">✓</span>' +
+          (label ? '<span class="picker-label">' + esc(label) + '</span>' : '');
+        cell.addEventListener('click', () => cell.classList.toggle('selected'));
+        grid.appendChild(cell);
+      });
+      $('pickerOverlay').hidden = false;
+    });
+  }
+
+  function closePicker(paths) {
+    $('pickerOverlay').hidden = true;
+    if (pickerResolve) { pickerResolve(paths); pickerResolve = null; }
+  }
+
+  $('pickerClose').addEventListener('click', () => closePicker([]));
+  $('pickerCancel').addEventListener('click', () => closePicker([]));
+  $('pickerOverlay').addEventListener('click', (e) => { if (e.target === $('pickerOverlay')) closePicker([]); });
+  $('pickerAdd').addEventListener('click', () => {
+    closePicker([...$('pickerGrid').querySelectorAll('.picker-cell.selected')].map((c) => c.dataset.path));
+  });
+
+  /* reuse into the product gallery */
+  $('epPickExisting').addEventListener('click', async () => {
+    if (!currentProduct) return;
+    const picks = await openPhotoPicker(currentProduct.images || []);
+    if (!picks.length) return;
+    picks.forEach((path) => { if (!currentProduct.images.includes(path)) currentProduct.images.push(path); });
+    renderEditorPhotos();
+    markDirty();
+    toast(picks.length + ' photo' + (picks.length > 1 ? 's' : '') + ' added! 📚', 'teal');
+  });
+
+  /* reuse into a brand-new listing (staged until "+ Add listing") */
+  $('newListingPickExisting').addEventListener('click', async () => {
+    if (!currentProduct) return;
+    const already = stagedListingPhotos.map((s) => s.path);
+    const picks = await openPhotoPicker(already);
+    if (!picks.length) return;
+    picks.forEach((path) => stagedListingPhotos.push({ path, existing: true }));
+    renderStagedPreview();
+  });
+
+  function renderStagedPreview() {
+    $('newListingPhotoLabel').textContent = stagedListingPhotos.length
+      ? '📷 ' + stagedListingPhotos.length + ' picked' : '📷 Pick photo(s)';
+    $('newListingPreview').innerHTML = stagedListingPhotos
+      .map((s, i) => '<div class="photo-cell" style="width:74px"><img src="' + esc(s.dataUrl || imgSrc(s.path)) + '" alt="Photo ' + (i + 1) + '"></div>')
+      .join('');
+  }
+
   /* add-listing form */
   $('newListingPhotos').addEventListener('change', async function () {
     if (!this.files.length) return;
     const shots = await ingestFiles(this.files, $('newListingName').value || 'listing');
     stagedListingPhotos.push(...shots);
-    $('newListingPhotoLabel').textContent = '📷 ' + stagedListingPhotos.length + ' picked';
-    const prev = $('newListingPreview');
-    prev.innerHTML = stagedListingPhotos
-      .map((s, i) => '<div class="photo-cell" style="width:74px"><img src="' + s.dataUrl + '" alt="Photo ' + (i + 1) + '"></div>')
-      .join('');
+    renderStagedPreview();
     this.value = '';
   });
 
@@ -854,15 +944,24 @@
     $('newListingName').classList.remove('invalid');
 
     const listing = { id: uid('l'), name, images: [], sold: false };
-    stagedListingPhotos.forEach(({ path, dataUrl, base64 }) => {
-      pendingImages[path] = { dataUrl, base64 };
-      listing.images.push(path);
+    stagedListingPhotos.forEach(({ path, dataUrl, base64, existing }) => {
+      if (!existing) pendingImages[path] = { dataUrl, base64 };
+      if (!listing.images.includes(path)) listing.images.push(path);
     });
     currentProduct.listings.push(listing);
+
+    /* one tap, both places: mirror the photos into the product gallery */
+    if ($('newListingAlsoProduct').checked) {
+      listing.images.forEach((path) => {
+        if (!currentProduct.images.includes(path)) currentProduct.images.push(path);
+      });
+      renderEditorPhotos();
+    }
+
     stagedListingPhotos = [];
     $('newListingName').value = '';
-    $('newListingPreview').innerHTML = '';
-    $('newListingPhotoLabel').textContent = '📷 Pick photo(s)';
+    $('newListingAlsoProduct').checked = false;
+    renderStagedPreview();
     markDirty();
     renderEditorListings();
     toast('Listing added! ✨', 'teal');
@@ -998,6 +1097,7 @@
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     if (!$('confirmOverlay').hidden) return; /* let the buttons decide */
+    if (!$('pickerOverlay').hidden) { closePicker([]); return; }
     if (!$('editorOverlay').hidden) closeEditor();
   });
 

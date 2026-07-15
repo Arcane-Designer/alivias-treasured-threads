@@ -72,8 +72,25 @@
 
   /* ---------------- settings ---------------- */
   function applySettings(s) {
-    if (s.tagline) $('heroTagline').textContent = s.tagline;
-    if (s.heroSub) $('heroSub').textContent = s.heroSub;
+    /* every editable text block: falls back to what's already in the HTML */
+    const textFields = {
+      heroTagline: s.tagline,
+      heroSub: s.heroSub,
+      aboutHeading: s.aboutHeading,
+      aboutText1: s.aboutText1,
+      aboutText2: s.aboutText2,
+      shopScript: s.shopScript,
+      shopTitle: s.shopTitle,
+      shopSubtitle: s.shopSubtitle,
+      orderScript: s.orderScript,
+      orderTitle: s.orderTitle,
+      orderIntro: s.orderIntro,
+      successTitle: s.successTitle,
+      successBody: s.successBody,
+    };
+    Object.entries(textFields).forEach(([id, val]) => {
+      if (val) $(id).textContent = val;
+    });
     const ig = s.instagramUrl || '#';
     ['footerIg', 'aboutIg', 'successIg'].forEach((id) => { const el = $(id); if (el) el.href = ig; });
     $('footerYear').textContent = new Date().getFullYear();

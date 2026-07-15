@@ -57,7 +57,9 @@
           <circle cx="30" cy="30" r="2.6" fill="#fff"/>
           <path d="M20.5 20.5 L27.5 27.5 M27.5 20.5 L20.5 27.5" stroke="#B84A96" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
-        <img src="images/brand/badge.jpg" alt="Alivia's Treasured Threads banner" class="hero-banner" fetchpriority="high">
+        <span class="hero-banner-frame">
+          <img src="images/brand/badge.jpg" alt="Alivia's Treasured Threads banner" class="hero-banner" fetchpriority="high">
+        </span>
       </div>
 
       <h1 class="hero-tagline" id="heroTagline">Handmade with love, one stitch at a time</h1>
@@ -98,9 +100,9 @@
           <span class="about-tape" aria-hidden="true"></span>
         </div>
         <div class="about-text">
-          <h2 class="about-hi">Hi, I'm Alivia!</h2>
-          <p>I'm a young maker who loves sewing, crafting, and creating things that are as unique as the people who wear and use them. Every item in my shop is hand-sewn by me with fabrics I pick out because they make me smile — from whimsical celestial prints to cozy fall patterns.</p>
-          <p style="margin-top:12px">Whether you're looking for a one-of-a-kind cape, a cute bookmark for your favorite novel, or a custom tote bag, I'd love to make something special for you!</p>
+          <h2 class="about-hi" id="aboutHeading">Hi, I'm Alivia!</h2>
+          <p id="aboutText1">I'm a young maker who loves sewing, crafting, and creating things that are as unique as the people who wear and use them. Every item in my shop is hand-sewn by me with fabrics I pick out because they make me smile — from whimsical celestial prints to cozy fall patterns.</p>
+          <p id="aboutText2" style="margin-top:12px">Whether you're looking for a one-of-a-kind cape, a cute bookmark for your favorite novel, or a custom tote bag, I'd love to make something special for you!</p>
           <a class="about-ig" id="aboutIg" href="#" target="_blank" rel="noopener noreferrer">
             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
             Follow along on Instagram
@@ -114,8 +116,8 @@
   <section class="section products-section" id="products">
     <div class="section-inner">
       <div class="section-title">
-        <span class="script">take a look</span>
-        <span class="serif">The Collection</span>
+        <span class="script" id="shopScript">take a look</span>
+        <span class="serif" id="shopTitle">The Collection</span>
       </div>
       <div class="thread-divider" aria-hidden="true">
         <svg viewBox="0 0 220 26" width="220" height="26">
@@ -124,7 +126,7 @@
           <circle cx="207" cy="13" r="2.2" fill="#8E79DD"/>
         </svg>
       </div>
-      <p class="section-subtitle">Each piece is handmade with love. Tap any item to see more photos and order options!</p>
+      <p class="section-subtitle" id="shopSubtitle">Each piece is handmade with love. Tap any item to see more photos and order options!</p>
 
       <div class="filter-chips" id="filterChips" role="group" aria-label="Filter products">
         <button class="chip active" data-filter="all">Everything</button>
@@ -147,8 +149,8 @@
   <section class="section form-section" id="order">
     <div class="section-inner">
       <div class="section-title">
-        <span class="script">let's make it happen</span>
-        <span class="serif">Place an Order</span>
+        <span class="script" id="orderScript">let's make it happen</span>
+        <span class="serif" id="orderTitle">Place an Order</span>
       </div>
       <div class="thread-divider" aria-hidden="true">
         <svg viewBox="0 0 220 26" width="220" height="26">
@@ -158,7 +160,7 @@
         </svg>
       </div>
 
-      <p class="form-intro">
+      <p class="form-intro" id="orderIntro">
         Interested in something? Let me know! Pick what caught your eye, share your info, and I'll get back to you as soon as I can to work out the details.
       </p>
 
@@ -212,8 +214,8 @@
       <div class="form-success" id="formSuccess" tabindex="-1">
         <div class="confetti" id="confetti" aria-hidden="true"></div>
         <div class="checkmark">✓</div>
-        <h3>Thanks so much!</h3>
-        <p>I got your message and will be in touch soon. Can't wait to work with you!</p>
+        <h3 id="successTitle">Thanks so much!</h3>
+        <p id="successBody">I got your message and will be in touch soon. Can't wait to work with you!</p>
         <a href="#" id="successIg" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-small" style="margin-top:18px">Follow along on Instagram</a>
       </div>
     </div>

@@ -71,14 +71,70 @@
       <!-- ---------- SETTINGS TAB ---------- -->
       <section class="tab-panel" id="panel-settings" hidden>
         <div class="settings-card">
-          <h3 class="settings-heading">The words on your site</h3>
+          <h3 class="settings-heading">Top of the page</h3>
           <div class="field-group">
-            <label class="field-label" for="setTagline">Big tagline (top of the page)</label>
+            <label class="field-label" for="setTagline">Big tagline</label>
             <input type="text" id="setTagline" class="field-input" data-setting="tagline">
           </div>
           <div class="field-group">
             <label class="field-label" for="setHeroSub">Little welcome sentence (under the tagline)</label>
             <textarea id="setHeroSub" class="field-input" rows="3" data-setting="heroSub"></textarea>
+          </div>
+
+          <h3 class="settings-heading">About me</h3>
+          <div class="field-group">
+            <label class="field-label" for="setAboutHeading">Greeting</label>
+            <input type="text" id="setAboutHeading" class="field-input" data-setting="aboutHeading">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setAboutText1">Your bio — first paragraph</label>
+            <textarea id="setAboutText1" class="field-input" rows="4" data-setting="aboutText1"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setAboutText2">Your bio — second paragraph</label>
+            <textarea id="setAboutText2" class="field-input" rows="3" data-setting="aboutText2"></textarea>
+          </div>
+
+          <h3 class="settings-heading">Shop section</h3>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="setShopScript">Little script words</label>
+              <input type="text" id="setShopScript" class="field-input" data-setting="shopScript">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="setShopTitle">Big title</label>
+              <input type="text" id="setShopTitle" class="field-input" data-setting="shopTitle">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setShopSubtitle">Sentence under the title</label>
+            <textarea id="setShopSubtitle" class="field-input" rows="2" data-setting="shopSubtitle"></textarea>
+          </div>
+
+          <h3 class="settings-heading">Order section</h3>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="setOrderScript">Little script words</label>
+              <input type="text" id="setOrderScript" class="field-input" data-setting="orderScript">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="setOrderTitle">Big title</label>
+              <input type="text" id="setOrderTitle" class="field-input" data-setting="orderTitle">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setOrderIntro">Intro sentence</label>
+            <textarea id="setOrderIntro" class="field-input" rows="3" data-setting="orderIntro"></textarea>
+          </div>
+
+          <h3 class="settings-heading">Thank-you note (after an order is sent)</h3>
+          <div class="field-group">
+            <label class="field-label" for="setSuccessTitle">Title</label>
+            <input type="text" id="setSuccessTitle" class="field-input" data-setting="successTitle">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setSuccessBody">Message</label>
+            <textarea id="setSuccessBody" class="field-input" rows="2" data-setting="successBody"></textarea>
           </div>
 
           <h3 class="settings-heading">Where people find you</h3>
@@ -166,10 +222,13 @@
         <div class="editor-section">
           <h4>📷 Photos <span class="tiny-note">first photo is the cover</span></h4>
           <div class="photo-grid" id="epPhotos"></div>
-          <label class="add-photos-btn">
-            <input type="file" id="epPhotoInput" accept="image/*" multiple hidden>
-            <span>+ Add photos</span>
-          </label>
+          <div class="photo-btn-row">
+            <label class="add-photos-btn">
+              <input type="file" id="epPhotoInput" accept="image/*" multiple hidden>
+              <span>+ Add photos</span>
+            </label>
+            <button type="button" class="add-photos-btn" id="epPickExisting">📚 Reuse a photo</button>
+          </div>
         </div>
 
         <!-- listings -->
@@ -185,9 +244,15 @@
                 <input type="file" id="newListingPhotos" accept="image/*" multiple hidden>
                 <span id="newListingPhotoLabel">📷 Pick photo(s)</span>
               </label>
+              <button type="button" class="add-photos-btn small" id="newListingPickExisting">📚 Reuse</button>
               <button class="btn btn-teal btn-small" id="addListingBtn">+ Add listing</button>
             </div>
             <div class="photo-strip" id="newListingPreview"></div>
+            <label class="cute-check">
+              <input type="checkbox" id="newListingAlsoProduct">
+              <span class="check-box" aria-hidden="true">✓</span>
+              Also add the photo(s) to this product's gallery
+            </label>
           </div>
         </div>
       </div>
@@ -195,6 +260,22 @@
       <div class="editor-foot">
         <button class="ghost-btn danger" id="epDelete">🗑 Delete product</button>
         <button class="btn btn-gradient" id="epDone">Done ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PHOTO LIBRARY PICKER ================= -->
+  <div class="picker-overlay" id="pickerOverlay" hidden>
+    <div class="picker-card" role="dialog" aria-modal="true" aria-label="My photos">
+      <div class="picker-head">
+        <h3>📚 My photos</h3>
+        <button class="icon-btn" id="pickerClose" aria-label="Close photo library">×</button>
+      </div>
+      <p class="picker-hint">Tap the photos you want to reuse, then hit Add — no re-uploading needed!</p>
+      <div class="picker-grid" id="pickerGrid"></div>
+      <div class="picker-foot">
+        <button class="ghost-btn" id="pickerCancel">Never mind</button>
+        <button class="btn btn-gradient" id="pickerAdd">Add selected ✓</button>
       </div>
     </div>
   </div>

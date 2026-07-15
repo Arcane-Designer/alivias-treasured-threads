@@ -250,16 +250,34 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
   50% { transform: rotate(-1deg) translateY(-8px); }
 }
 
-.hero-banner {
-  width: min(88vw, 480px);
-  aspect-ratio: 2.3;
-  object-fit: cover;
-  object-position: center 52%;
+/* white frame does the rounding + clipping, so no crop artifacts leak out */
+.hero-banner-frame {
+  display: block;
+  position: relative;
+  padding: 6px;
+  background: #fff;
   border-radius: var(--radius);
   box-shadow: 0 14px 40px rgba(107, 92, 184, 0.3);
-  border: 6px solid #fff;
-  outline: var(--stitch);
-  outline-offset: -12px;
+  overflow: hidden;
+}
+.hero-banner-frame::after {
+  content: '';
+  position: absolute;
+  inset: 13px;
+  border: 2px dashed rgba(255, 255, 255, 0.55);
+  border-radius: calc(var(--radius) - 10px);
+  pointer-events: none;
+}
+
+.hero-banner {
+  display: block;
+  width: min(84vw, 470px);
+  /* the badge's purple band spans 29%–70.8% of the source image;
+     a 2.5 ratio centered at 50% shows 30%–70% — safely inside it */
+  aspect-ratio: 2.5;
+  object-fit: cover;
+  object-position: center 50%;
+  border-radius: calc(var(--radius) - 6px);
 }
 
 .hero-pin-button {
