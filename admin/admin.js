@@ -68,10 +68,11 @@
     return '../' + path;
   }
 
-  function confirmCute(msg, yesLabel) {
+  function confirmCute(msg, yesLabel, noLabel) {
     return new Promise((resolve) => {
       $('confirmMsg').textContent = msg;
       $('confirmYes').textContent = yesLabel || 'Yes, do it';
+      $('confirmNo').textContent = noLabel || 'Never mind';
       $('confirmOverlay').hidden = false;
       const done = (answer) => {
         $('confirmOverlay').hidden = true;
@@ -402,7 +403,7 @@
         '<div class="admin-card-body">' +
           '<div class="admin-card-name">' + esc(p.name || 'Untitled') + '</div>' +
           '<div class="admin-card-price' + (p.price === null ? ' custom' : '') + '">' + esc(p.priceLabel || '—') + '</div>' +
-          '<div class="admin-card-meta">📷 ' + (p.images || []).length + ' · ✨ ' + unsold + ' ready to ship</div>' +
+          '<div class="admin-card-meta">📷 ' + (p.images || []).length + (p.oneOfAKind ? ' · 🌟 one of a kind' : ' · ✨ ' + unsold + ' ready to ship') + '</div>' +
         '</div>' +
         '<div class="admin-card-actions">' +
           '<button type="button" class="edit-btn">✏️ Edit</button>' +
@@ -449,6 +450,7 @@
       description: '',
       badges: [],
       archived: false,
+      oneOfAKind: false,
       images: [],
       listings: [],
     };
@@ -475,6 +477,8 @@
     syncBadgeChips();
     $('epArchived').checked = !!currentProduct.archived;
     updateArchivedText();
+    $('epOneOff').checked = !!currentProduct.oneOfAKind;
+    updateOneOffUI();
     $('epDelete').style.display = isNew ? 'none' : '';
     $('newListingName').value = '';
     $('newListingPreview').innerHTML = '';
@@ -490,7 +494,7 @@
     if (isNew) setTimeout(() => $('epName').focus(), 250);
   }
 
-  function closeEditor(force) {
+  async function closeEditor(force) {
     if (!force && !$('epName').value.trim()) {
       /* brand-new product left without a name → quietly remove the empty shell */
       if (editorWasNew && isProductUntouched(currentProduct)) {
@@ -500,6 +504,18 @@
         $('epName').focus();
         toast('Give it a name first! 💜', 'pink');
         return;
+      }
+    }
+
+    /* last check before the editor closes: an availability sticker with no
+       ready-to-ship listings (and no one-of-a-kind switch) is probably a mistake */
+    if (!force && currentProduct) {
+      const mismatch = availabilityMismatch(currentProduct);
+      if (mismatch) {
+        const ok = await confirmCute(
+          'Heads up! This product wears the "' + mismatch + '" sticker, but it has no ready-to-ship listings and the one-of-a-kind switch is off — so shoppers can\'t actually grab one. Save it anyway?',
+          'Save anyway', 'Keep editing');
+        if (!ok) return;
       }
     }
     $('editorOverlay').classList.remove('active');
@@ -547,6 +563,7 @@
   /* ---------- badge stickers: up to two, tap to toggle ---------- */
   const MAX_BADGES = 2;
   const BADGE_PRESETS = [
+    'In stock!',
     'NEW!',
     'Back in stock!',
     'Seasonal drop!',
@@ -556,6 +573,22 @@
     'Sale!',
     'Now available in mini!',
   ];
+
+  /* stickers that promise something is grab-able right now */
+  function isAvailabilityBadge(text) {
+    const t = String(text || '').toLowerCase();
+    return t.includes('in stock') || t.includes('almost gone');
+  }
+
+  function unsoldCount(p) {
+    return (p.listings || []).filter((l) => !l.sold).length;
+  }
+
+  function availabilityMismatch(p) {
+    if (!p || p.oneOfAKind) return null;
+    if (unsoldCount(p) > 0) return null;
+    return (p.badges || []).find(isAvailabilityBadge) || null;
+  }
 
   function badgeList() {
     if (!currentProduct) return [];
@@ -582,6 +615,10 @@
           return;
         } else {
           arr.push(text);
+          /* gentle nudge, not a blocker: sticker promises stock that isn't listed */
+          if (isAvailabilityBadge(text) && availabilityMismatch(currentProduct)) {
+            toast("Psst — this product has no ready-to-ship listings yet, so that sticker might confuse shoppers! 💜", 'pink');
+          }
         }
         syncBadgeChips();
         markDirty();
@@ -630,6 +667,23 @@
 
   function updateArchivedText() {
     $('epArchivedTxt').textContent = $('epArchived').checked ? 'Hidden from shop 🙈' : 'Showing in shop ✨';
+  }
+
+  /* ---------- one-of-a-kind toggle ---------- */
+  $('epOneOff').addEventListener('change', function () {
+    if (!currentProduct) return;
+    currentProduct.oneOfAKind = this.checked;
+    updateOneOffUI();
+    markDirty();
+    if (this.checked && (currentProduct.listings || []).length) {
+      toast('Your ' + currentProduct.listings.length + ' listing' + (currentProduct.listings.length > 1 ? 's are' : ' is') + ' tucked away safe — flip this off to get them back!');
+    }
+  });
+
+  function updateOneOffUI() {
+    const on = $('epOneOff').checked;
+    $('epOneOffTxt').textContent = on ? '🌟 One-of-a-kind — this product IS the listing!' : '🌟 One-of-a-kind item';
+    $('listingsSection').hidden = on;
   }
 
   $('editorClose').addEventListener('click', () => closeEditor());

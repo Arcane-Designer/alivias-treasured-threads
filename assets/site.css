@@ -604,9 +604,12 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
 }
 .sticker-row .sticker-stock { margin-left: auto; white-space: nowrap; }
 
-/* a second badge goes purple with an opposite tilt, like two stickers slapped on */
-.sticker-row .sticker-badge + .sticker-badge {
-  background: var(--purple);
+/* two stickers: left one pink, right one teal, tilted opposite ways */
+.sticker-row .sticker-badge + .sticker-badge,
+.sticker-row .sticker-badge.avail-solo {
+  margin-left: auto;
+  background: var(--teal);
+  color: var(--ink);
   transform: rotate(2deg);
 }
 

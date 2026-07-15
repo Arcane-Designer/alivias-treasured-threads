@@ -106,6 +106,10 @@
     const list = Array.isArray(p.badges) ? p.badges : (p.badge ? [p.badge] : []);
     return list.filter(Boolean).slice(0, 2);
   }
+  function isAvailabilityBadge(text) {
+    const t = String(text || '').toLowerCase();
+    return t.includes('in stock') || t.includes('almost gone');
+  }
   function esc(str) {
     return String(str == null ? '' : str)
       .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -143,8 +147,8 @@
      PRODUCT GRID
      ================================================ */
   function filteredProducts() {
-    if (currentFilter === 'ready') return activeProducts.filter((p) => unsoldListings(p).length > 0);
-    if (currentFilter === 'custom') return activeProducts.filter((p) => p.price === null);
+    if (currentFilter === 'ready') return activeProducts.filter((p) => p.oneOfAKind || unsoldListings(p).length > 0);
+    if (currentFilter === 'custom') return activeProducts.filter((p) => p.price === null && !p.oneOfAKind);
     return activeProducts;
   }
 
@@ -155,6 +159,7 @@
     $('gridEmpty').hidden = list.length > 0;
 
     list.forEach((product) => {
+      const isOneOff = !!product.oneOfAKind;
       const stock = unsoldListings(product).length;
       const imgs = (product.images && product.images.length ? product.images : [PLACEHOLDER_IMG]).map(resolveImg);
 
@@ -170,14 +175,18 @@
             '<img class="' + (i === 0 ? 'active' : '') + '" src="' + esc(src) + '" alt="' + (i === 0 ? esc(product.name) : '') + '" loading="lazy" decoding="async"' + (i > 0 ? ' aria-hidden="true"' : '') + '>'
           ).join('') +
           '<div class="sticker-row">' +
-            productBadges(product).map((b) => '<span class="sticker sticker-badge">' + esc(b) + '</span>').join('') +
-            (stock > 0 ? '<span class="sticker sticker-stock">In stock!</span>' : '') +
+            (function (badges) {
+              /* a lone availability sticker keeps its classic spot: right side, green */
+              const solo = badges.length === 1 && isAvailabilityBadge(badges[0]);
+              return badges.map((b) => '<span class="sticker sticker-badge' + (solo ? ' avail-solo' : '') + '">' + esc(b) + '</span>').join('');
+            })(productBadges(product)) +
           '</div>' +
         '</div>' +
         '<div class="product-card-info">' +
           '<div class="product-card-name">' + esc(product.name) + '</div>' +
           '<div class="product-card-price' + (product.price === null ? ' custom' : '') + '">' + esc(product.priceLabel || '') + '</div>' +
-          (stock > 0 ? '<div class="product-card-meta">✨ ' + stock + ' ready to ship</div>' : '') +
+          (isOneOff ? '<div class="product-card-meta">🌟 one of a kind</div>' :
+            (stock > 0 ? '<div class="product-card-meta">✨ ' + stock + ' ready to ship</div>' : '')) +
         '</div>';
 
       /* on hover, gently shuffle through all of the product's photos */
@@ -254,8 +263,10 @@
 
     buildGallery(product);
     buildListings(product);
+    refreshOneOffUI(product);
 
     $('modalCustomAdd').onclick = (e) => addCustomToBasket(product.id, e);
+    $('modalOneOffAdd').onclick = (e) => toggleOneOffInBasket(product.id, e);
 
     overlay.hidden = false;
     requestAnimationFrame(() => overlay.classList.add('active'));
@@ -332,10 +343,23 @@
   }, { passive: true });
 
   /* --- listings inside modal --- */
+  /* one-of-a-kind products: the product itself is the listing */
+  function refreshOneOffUI(product) {
+    const isOneOff = !!product.oneOfAKind;
+    $('modalCustomCta').hidden = isOneOff;
+    $('modalOneOff').hidden = !isOneOff;
+    if (!isOneOff) return;
+    const inBasket = basket.some((b) => b.type === 'oneoff' && b.productId === product.id);
+    const btn = $('modalOneOffAdd');
+    btn.classList.toggle('btn-pink', !inBasket);
+    btn.classList.toggle('btn-teal', inBasket);
+    btn.textContent = inBasket ? '💜 In your basket! (tap to remove)' : '♡ Add to my basket';
+  }
+
   function buildListings(product) {
     const wrap = $('modalAvailable');
     const grid = $('modalAvailableGrid');
-    const listings = product.listings || [];
+    const listings = product.oneOfAKind ? [] : (product.listings || []);
     if (!listings.length) { wrap.hidden = true; return; }
 
     wrap.hidden = false;
@@ -370,9 +394,12 @@
     });
   }
 
-  /* re-render modal hearts without rebuilding everything */
+  /* re-render modal hearts + one-off button without rebuilding everything */
   function refreshModalListings() {
-    if (currentProduct && !overlay.hidden) buildListings(currentProduct);
+    if (currentProduct && !overlay.hidden) {
+      buildListings(currentProduct);
+      refreshOneOffUI(currentProduct);
+    }
   }
 
   /* ================================================
@@ -451,6 +478,7 @@
         const l = listingById(p, item.listingId);
         if (!l || l.sold) { dropped++; return false; }
       }
+      if (item.type === 'oneoff' && !p.oneOfAKind) { dropped++; return false; }
       return true;
     });
     if (dropped > 0) toast('Some treasures in your basket were snapped up — sorry! 💜', 'pink');
@@ -479,6 +507,21 @@
       toast('Okay, popped it back on the shelf!');
     } else {
       basket.push({ type: 'listing', productId, listingId });
+      basketChanged();
+      bumpFab();
+      if (e) flyStar(e.clientX, e.clientY);
+      toast('Added to your basket! 💜', 'teal');
+    }
+  }
+
+  function toggleOneOffInBasket(productId, e) {
+    const idx = basket.findIndex((b) => b.type === 'oneoff' && b.productId === productId);
+    if (idx >= 0) {
+      basket.splice(idx, 1);
+      basketChanged();
+      toast('Okay, popped it back on the shelf!');
+    } else {
+      basket.push({ type: 'oneoff', productId });
       basketChanged();
       bumpFab();
       if (e) flyStar(e.clientX, e.clientY);
@@ -562,6 +605,14 @@
         '<div><div class="bi-name">' + esc(l.name) + '</div>' +
         '<div class="bi-sub">' + esc(p.name) + ' · ready to ship' + (typeof p.price === 'number' ? ' · ' + esc(p.priceLabel || ('$' + p.price)) : '') + '</div></div>' +
         '<div class="bi-actions"><button type="button" class="bi-remove" aria-label="Remove ' + esc(l.name) + '">✕</button></div>' +
+        '</div>';
+    }
+    if (item.type === 'oneoff') {
+      return '<div class="basket-item" data-index="' + index + '">' +
+        '<img src="' + esc(coverImg(p)) + '" alt="">' +
+        '<div><div class="bi-name">' + esc(p.name) + '</div>' +
+        '<div class="bi-sub">🌟 one of a kind · ready to ship' + (typeof p.price === 'number' ? ' · ' + esc(p.priceLabel || ('$' + p.price)) : '') + '</div></div>' +
+        '<div class="bi-actions"><button type="button" class="bi-remove" aria-label="Remove ' + esc(p.name) + '">✕</button></div>' +
         '</div>';
     }
     /* custom */
@@ -685,7 +736,8 @@
       setTimeout(() => { panel.hidden = true; }, 180);
     }
 
-    activeProducts.forEach((p) => {
+    /* one-of-a-kind items can't be custom ordered — they're the one and only */
+    activeProducts.filter((p) => !p.oneOfAKind).forEach((p) => {
       const opt = document.createElement('button');
       opt.type = 'button';
       opt.className = 'cute-option';
@@ -800,6 +852,8 @@
         if (item.type === 'listing') {
           const l = listingById(p, item.listingId);
           lines.push('  ' + (i + 1) + '. ' + (l ? l.name : '?') + ' — ' + p.name + ' (Ready to Ship)' + (p.priceLabel ? ' — ' + p.priceLabel : ''));
+        } else if (item.type === 'oneoff') {
+          lines.push('  ' + (i + 1) + '. ' + p.name + ' (One of a Kind — Ready to Ship)' + (p.priceLabel ? ' — ' + p.priceLabel : ''));
         } else {
           lines.push('  ' + (i + 1) + '. CUSTOM ' + p.name + ' × ' + (item.qty || 1) + (p.priceLabel ? ' — ' + p.priceLabel : ''));
         }

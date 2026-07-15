@@ -182,7 +182,9 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [
+        "In stock!"
+      ]
     },
     {
       "id": "zipper-pouch",
@@ -213,7 +215,8 @@
         }
       ],
       "badges": [
-        "Now available in mini!"
+        "Now available in mini!",
+        "In stock!"
       ]
     },
     {
@@ -289,7 +292,9 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [
+        "In stock!"
+      ]
     },
     {
       "id": "annas-everyday-tote",
@@ -324,7 +329,9 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [
+        "In stock!"
+      ]
     },
     {
       "id": "overnighter-tote",
@@ -354,7 +361,8 @@
       "listings": [],
       "badges": [
         "NEW!"
-      ]
+      ],
+      "oneOfAKind": false
     },
     {
       "id": "pot-holders",
@@ -386,7 +394,9 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [
+        "In stock!"
+      ]
     },
     {
       "id": "craft-roll",

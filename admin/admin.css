@@ -528,6 +528,17 @@ textarea.field-input { resize: vertical; }
 .cute-toggle input:checked + .toggle-pill::after { transform: translateX(22px); }
 .cute-toggle input:focus-visible + .toggle-pill { outline: 3px solid var(--pink); outline-offset: 2px; }
 
+/* variant where CHECKED is the "on/special" state (teal when checked) */
+.cute-toggle.on-checked .toggle-pill { background: var(--neutral-dark); }
+.cute-toggle.on-checked input:checked + .toggle-pill { background: var(--teal); }
+
+.oneoff-group {
+  border: 2px dashed var(--teal-light);
+  border-radius: var(--radius-sm);
+  background: var(--teal-pale);
+  padding: 12px 14px;
+}
+
 .toggle-txt { font-weight: 800; font-size: 0.88rem; }
 
 /* badge sticker chips */

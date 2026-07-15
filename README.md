@@ -61,7 +61,9 @@ itself is never at risk (the key can only edit this one repo's files).
 
 ## What Alivia can do in the Studio
 
-- **Add a product** (name, price or "custom order," description, photos, sticker badge)
+- **Add a product** (name, price or "custom order," description, photos, sticker badges)
+- **Mark a product one-of-a-kind** (bundles, single finished pieces) — it becomes its own
+  listing: shoppers add it straight to their basket and it skips the custom-order menu
 - **Add ready-to-ship listings** to any product, each with its own name + photos
 - **Mark listings sold** (shows a cute SOLD sticker on the shop) or delete them
 - **Hide/unhide whole products** (archive keeps them saved, just off the shop)
