@@ -1,5 +1,5 @@
 /* ============================================================
-   ALIVIA'S STUDIO — admin behavior
+   ALIVIA'S STUDIO ~ admin behavior
    Talks straight to the GitHub API: reads data/site.json,
    and publishes edits + new photos as a single commit to main.
    GitHub Pages then redeploys the shop automatically.
@@ -10,7 +10,7 @@
   /* ---------------- config ---------------- */
   const GH_OWNER = 'Arcane-Designer';
   const GH_REPO = 'alivias-treasured-threads';
-  /* normally 'main' — a localStorage override exists so future testing can
+  /* normally 'main' ~ a localStorage override exists so future testing can
      publish to a scratch branch without touching the live shop */
   const GH_BRANCH = localStorage.getItem('att-studio-branch') || 'main';
   const DATA_PATH = 'data/site.json';
@@ -212,7 +212,7 @@
         return newCommit.sha;
       } catch (err) {
         if (attempt >= 2 || err.code === 401 || err.code === 'no-push') throw err;
-        /* someone else pushed between our read and write — try once more from the new head */
+        /* someone else pushed between our read and write ~ try once more from the new head */
       }
     }
   }
@@ -244,11 +244,11 @@
       token = null;
       localStorage.removeItem(TOKEN_KEY);
       if (err.code === 'no-push') {
-        showLogin('That key can peek but not publish — ask Nathan to check its permissions 💜');
+        showLogin('That key can peek but not publish ~ ask Nathan to check its permissions 💜');
       } else if (err.code === 401 || err.code === 404) {
-        showLogin("Hmm, that key doesn't seem right — double-check with Nathan!");
+        showLogin("Hmm, that key doesn't seem right ~ double-check with Nathan!");
       } else {
-        showLogin('Something hiccuped: ' + err.message + ' — try again in a moment!');
+        showLogin('Something hiccuped: ' + err.message + ' ~ try again in a moment!');
       }
     } finally {
       btn.disabled = false;
@@ -269,7 +269,7 @@
       const storedDirty = JSON.stringify(stored.draft) !== publishedSnapshot ||
         Object.keys(stored.pendingImages || {}).length > 0;
       if (storedDirty) {
-        const keep = await confirmCute('You have unpublished changes from last time — keep working on them?', 'Yes, keep them!');
+        const keep = await confirmCute('You have unpublished changes from last time ~ keep working on them?', 'Yes, keep them!');
         if (keep) {
           draft = normalizeData(stored.draft);
           pendingImages = stored.pendingImages || {};
@@ -312,11 +312,11 @@
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft, pendingImages }));
     } catch (e) {
-      /* photos too big for local save — keep them in memory and save just the words */
+      /* photos too big for local save ~ keep them in memory and save just the words */
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft, pendingImages: {} })); } catch (e2) { /* ignore */ }
       if (!warnedQuota) {
         warnedQuota = true;
-        toast('Heads up: new photos only live in this tab until you publish — publish soon to be safe! 💜', 'pink');
+        toast('Heads up: new photos only live in this tab until you publish ~ publish soon to be safe! 💜', 'pink');
       }
     }
   }
@@ -370,7 +370,7 @@
         const path = UPLOAD_DIR + '/' + (slug(label) || 'photo') + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5) + '.jpg';
         results.push({ path, dataUrl, base64 });
       } catch (e) {
-        toast("One photo didn't work (" + esc(file.name) + ") — try a JPG or PNG, or a screenshot of it!", 'pink');
+        toast("One photo didn't work (" + esc(file.name) + ") ~ try a JPG or PNG, or a screenshot of it!", 'pink');
       }
     }
     return results;
@@ -405,7 +405,7 @@
           '<div class="admin-card-price' + (p.price === null ? ' custom' : '') + '">' +
             (isOnSaleP(p)
               ? '<span class="was">' + esc(p.priceLabel || ('$' + p.price)) + '</span>' + esc(p.saleLabel || ('$' + p.salePrice)) + ' 💸'
-              : esc(p.priceLabel || '—')) +
+              : esc(p.priceLabel || '~')) +
           '</div>' +
           '<div class="admin-card-meta">📷 ' + (p.images || []).length + (p.oneOfAKind ? ' · 🌟 one of a kind' : ' · ✨ ' + unsold + ' ready to ship') + '</div>' +
         '</div>' +
@@ -521,7 +521,7 @@
 
     /* gentle note: sale switch on, but the numbers don't make a deal yet */
     if (!force && currentProduct && $('epSaleOn').checked && !isOnSaleP(currentProduct)) {
-      toast("Just so you know — the sale won't show until the sale price is lower than the regular price!", 'pink');
+      toast("Just so you know ~ the sale won't show until the sale price is lower than the regular price!", 'pink');
     }
 
     /* last check before the editor closes: an availability sticker with no
@@ -530,7 +530,7 @@
       const mismatch = availabilityMismatch(currentProduct);
       if (mismatch) {
         const ok = await confirmCute(
-          'Heads up! This product wears the "' + mismatch + '" sticker, but it has no ready-to-ship listings and the one-of-a-kind switch is off — so shoppers can\'t actually grab one. Save it anyway?',
+          'Heads up! This product wears the "' + mismatch + '" sticker, but it has no ready-to-ship listings and the one-of-a-kind switch is off ~ so shoppers can\'t actually grab one. Save it anyway?',
           'Save anyway', 'Keep editing');
         if (!ok) return;
       }
@@ -574,7 +574,7 @@
     $('priceMultiRow').hidden = mode !== 'multi';
     $('priceFancyRow').hidden = mode !== 'fancy';
     $('customPriceNote').hidden = mode !== 'custom';
-    /* bundles change price by quantity — a sale on top would be double math */
+    /* bundles change price by quantity ~ a sale on top would be double math */
     $('saleGroup').hidden = mode === 'custom' || mode === 'multi';
     $('saleLabelGroup').hidden = mode !== 'fancy';
 
@@ -665,7 +665,7 @@
     if (tiers.length > 1) {
       const n = Math.max(...tiers.map((t) => t.qty)) + 1;
       const c = tierCostAdmin(tiers, n);
-      if (isFinite(c)) text += ' — and the basket does the math: ' + n + ' items = $' + +c.toFixed(2) + ' 🧮';
+      if (isFinite(c)) text += ' ~ and the basket does the math: ' + n + ' items = $' + +c.toFixed(2) + ' 🧮';
     }
     el.textContent = text;
     el.classList.add('happy');
@@ -790,13 +790,13 @@
         if (at >= 0) {
           arr.splice(at, 1); /* peel it off */
         } else if (arr.length >= MAX_BADGES) {
-          toast('Two stickers max — peel one off first! 💜', 'pink');
+          toast('Two stickers max ~ peel one off first! 💜', 'pink');
           return;
         } else {
           arr.push(text);
           /* gentle nudge, not a blocker: sticker promises stock that isn't listed */
           if (isAvailabilityBadge(text) && availabilityMismatch(currentProduct)) {
-            toast("Psst — this product has no ready-to-ship listings yet, so that sticker might confuse shoppers! 💜", 'pink');
+            toast("Psst ~ this product has no ready-to-ship listings yet, so that sticker might confuse shoppers! 💜", 'pink');
           }
         }
         syncBadgeChips();
@@ -817,7 +817,7 @@
       if (arr.length >= MAX_BADGES) {
         if (!this.dataset.warned) {
           this.dataset.warned = '1';
-          toast('Two stickers max — peel a preset off to add your own! 💜', 'pink');
+          toast('Two stickers max ~ peel a preset off to add your own! 💜', 'pink');
         }
       } else {
         arr.push(text);
@@ -895,14 +895,14 @@
       el.textContent = 'Set the regular price first so the deal has something to compare to!';
       el.classList.add('warn');
     } else if (typeof sale !== 'number') {
-      el.textContent = 'Regular price is ' + (currentProduct.priceLabel || '$' + price) + ' — type the new sale price!';
+      el.textContent = 'Regular price is ' + (currentProduct.priceLabel || '$' + price) + ' ~ type the new sale price!';
     } else if (sale >= price) {
-      el.textContent = "Hmm — the sale price isn't lower than the regular price ($" + price + "), so it won't show as a deal yet!";
+      el.textContent = "Hmm ~ the sale price isn't lower than the regular price ($" + price + "), so it won't show as a deal yet!";
       el.classList.add('warn');
     } else {
       const off = Math.round((1 - sale / price) * 100);
       const shows = currentProduct.saleLabel || ('$' + sale);
-      el.textContent = "That's $" + +(price - sale).toFixed(2) + ' off — ' + off + '% off! 🎉 Shoppers see “' +
+      el.textContent = "That's $" + +(price - sale).toFixed(2) + ' off ~ ' + off + '% off! 🎉 Shoppers see “' +
         (currentProduct.priceLabel || '$' + price) + '” crossed out, then “' + shows + '”.';
       el.classList.add('happy');
     }
@@ -915,13 +915,13 @@
     updateOneOffUI();
     markDirty();
     if (this.checked && (currentProduct.listings || []).length) {
-      toast('Your ' + currentProduct.listings.length + ' listing' + (currentProduct.listings.length > 1 ? 's are' : ' is') + ' tucked away safe — flip this off to get them back!');
+      toast('Your ' + currentProduct.listings.length + ' listing' + (currentProduct.listings.length > 1 ? 's are' : ' is') + ' tucked away safe ~ flip this off to get them back!');
     }
   });
 
   function updateOneOffUI() {
     const on = $('epOneOff').checked;
-    $('epOneOffTxt').textContent = on ? '🌟 One-of-a-kind — this product IS the listing!' : '🌟 One-of-a-kind item';
+    $('epOneOffTxt').textContent = on ? '🌟 One-of-a-kind ~ this product IS the listing!' : '🌟 One-of-a-kind item';
     $('listingsSection').hidden = on;
   }
 
@@ -1043,7 +1043,7 @@
         listing.sold = !listing.sold;
         markDirty();
         renderEditorListings();
-        toast(listing.sold ? 'Marked sold — congrats!! 🎉' : 'Back on the shelf!', 'teal');
+        toast(listing.sold ? 'Marked sold ~ congrats!! 🎉' : 'Back on the shelf!', 'teal');
       });
 
       row.querySelector('.l-dup').addEventListener('click', () => {
@@ -1148,7 +1148,7 @@
     if (!listings.length) {
       const none = document.createElement('p');
       none.className = 'field-hint';
-      none.textContent = 'No ready-to-ship listings yet — add one below whenever something is finished and ready for a new home!';
+      none.textContent = 'No ready-to-ship listings yet ~ add one below whenever something is finished and ready for a new home!';
       wrap.appendChild(none);
     }
   }
@@ -1174,7 +1174,7 @@
       grid.innerHTML = '';
       const items = allDraftPhotos().filter(([path]) => !excludePaths.includes(path));
       if (!items.length) {
-        grid.innerHTML = '<p class="picker-hint" style="grid-column:1/-1">No other photos to reuse yet — add some first!</p>';
+        grid.innerHTML = '<p class="picker-hint" style="grid-column:1/-1">No other photos to reuse yet ~ add some first!</p>';
       }
       items.forEach(([path, label]) => {
         const cell = document.createElement('button');
@@ -1323,7 +1323,7 @@
         localStorage.setItem(PREVIEW_KEY, JSON.stringify(payload));
         toast('Preview is on, but brand-new photos may show blank until you publish!', 'pink');
       } catch (e2) {
-        toast("Preview didn't fit in this browser — publish to see it live!", 'pink');
+        toast("Preview didn't fit in this browser ~ publish to see it live!", 'pink');
         return;
       }
     }
@@ -1367,9 +1367,9 @@
       progress(null);
       console.error(err);
       if (err.code === 401) {
-        showLogin('Your key stopped working — paste it again (or ask Nathan for a fresh one)!');
+        showLogin('Your key stopped working ~ paste it again (or ask Nathan for a fresh one)!');
       } else {
-        toast("Publishing hiccuped: " + err.message + " — your changes are safe here, try again in a moment!", 'pink');
+        toast("Publishing hiccuped: " + err.message + " ~ your changes are safe here, try again in a moment!", 'pink');
       }
     }
   });
@@ -1428,7 +1428,7 @@
       token = null;
       localStorage.removeItem(TOKEN_KEY);
       showLogin(err.code === 'no-push'
-        ? 'Your key can peek but not publish — ask Nathan to check it 💜'
+        ? 'Your key can peek but not publish ~ ask Nathan to check it 💜'
         : 'Welcome back! Paste your magic key to unlock the studio.');
     }
   })();

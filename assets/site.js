@@ -1,5 +1,5 @@
 /* ============================================================
-   ALIVIA'S TREASURED THREADS — site behavior
+   ALIVIA'S TREASURED THREADS ~ site behavior
    Loads data/site.json, renders the shop, and runs the
    basket → order flow. No frameworks, no build step.
    ============================================================ */
@@ -37,7 +37,7 @@
         $('productsGrid').innerHTML = '';
         const msg = $('gridEmpty');
         msg.hidden = false;
-        msg.textContent = 'Hmm, the shop shelves are being restocked — please refresh in a moment! 💜';
+        msg.textContent = 'Hmm, the shop shelves are being restocked ~ please refresh in a moment! 💜';
       });
   }
 
@@ -45,7 +45,7 @@
     const ribbon = document.createElement('div');
     ribbon.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2000;background:#FF74D4;color:#fff;' +
       'font-weight:800;font-size:0.8rem;text-align:center;padding:6px 12px;letter-spacing:0.06em;box-shadow:0 2px 10px rgba(224,90,184,.4)';
-    ribbon.textContent = '🧵 PREVIEW — this is how your shop will look once you publish!';
+    ribbon.textContent = '🧵 PREVIEW ~ this is how your shop will look once you publish!';
     document.body.appendChild(ribbon);
     document.querySelector('.site-header').style.top = '31px';
   }
@@ -522,12 +522,12 @@
       if (item.type === 'oneoff' && !p.oneOfAKind) { dropped++; return false; }
       return true;
     });
-    if (dropped > 0) toast('Some treasures in your basket were snapped up — sorry! 💜', 'pink');
+    if (dropped > 0) toast('Some treasures in your basket were snapped up ~ sorry! 💜', 'pink');
     return valid;
   }
 
   function saveBasket() {
-    try { localStorage.setItem(BASKET_KEY, JSON.stringify(basket)); } catch (e) { /* private mode — basket lives for the session only */ }
+    try { localStorage.setItem(BASKET_KEY, JSON.stringify(basket)); } catch (e) { /* private mode ~ basket lives for the session only */ }
   }
 
   function basketCount() {
@@ -702,7 +702,7 @@
     if (basket.length === 0) return '';
     let html = '';
     if (priced > 0) html += 'Estimated total: <strong>$' + total + '</strong>';
-    if (bundleSaved) html += ' <span class="est-note-inline">— bundle deal applied! 🧮✨</span>';
+    if (bundleSaved) html += ' <span class="est-note-inline">~ bundle deal applied! 🧮✨</span>';
     if (unpriced > 0) html += '<span class="est-note">' + (priced > 0 ? '+ ' : '') + unpriced + ' custom item' + (unpriced > 1 ? 's' : '') + ' priced when we chat 💬</span>';
     return html;
   }
@@ -795,7 +795,7 @@
       setTimeout(() => { panel.hidden = true; }, 180);
     }
 
-    /* one-of-a-kind items can't be custom ordered — they're the one and only */
+    /* one-of-a-kind items can't be custom ordered ~ they're the one and only */
     activeProducts.filter((p) => !p.oneOfAKind).forEach((p) => {
       const opt = document.createElement('button');
       opt.type = 'button';
@@ -909,13 +909,13 @@
         const p = productById(item.productId);
         if (!p) return;
         const priceNote = isOnSale(p)
-          ? ' — SALE ' + saleTag(p) + ' (was ' + (p.priceLabel || '$' + p.price) + ')'
-          : (p.priceLabel ? ' — ' + p.priceLabel : '');
+          ? ' ~ SALE ' + saleTag(p) + ' (was ' + (p.priceLabel || '$' + p.price) + ')'
+          : (p.priceLabel ? ' ~ ' + p.priceLabel : '');
         if (item.type === 'listing') {
           const l = listingById(p, item.listingId);
-          lines.push('  ' + (i + 1) + '. ' + (l ? l.name : '?') + ' — ' + p.name + ' (Ready to Ship)' + priceNote);
+          lines.push('  ' + (i + 1) + '. ' + (l ? l.name : '?') + ' ~ ' + p.name + ' (Ready to Ship)' + priceNote);
         } else if (item.type === 'oneoff') {
-          lines.push('  ' + (i + 1) + '. ' + p.name + ' (One of a Kind — Ready to Ship)' + priceNote);
+          lines.push('  ' + (i + 1) + '. ' + p.name + ' (One of a Kind ~ Ready to Ship)' + priceNote);
         } else {
           lines.push('  ' + (i + 1) + '. CUSTOM ' + p.name + ' × ' + (item.qty || 1) + priceNote);
         }
@@ -924,16 +924,16 @@
       if (priced > 0) lines.push('  Estimated total (ready-to-ship & priced items): $' + total);
       if (unpriced > 0) lines.push('  (+ ' + unpriced + ' custom item(s) to price together)');
     } else {
-      lines.push('Items: (no items picked — see notes)');
+      lines.push('Items: (no items picked ~ see notes)');
     }
     lines.push('');
     lines.push('Name: ' + $('name').value.trim());
     lines.push('Email: ' + $('email').value.trim());
-    lines.push('Phone: ' + ($('phone').value.trim() || '—'));
+    lines.push('Phone: ' + ($('phone').value.trim() || '~'));
     const notes = $('notes').value.trim();
     lines.push('');
     lines.push('Notes:');
-    lines.push(notes || '—');
+    lines.push(notes || '~');
     return lines.join('\n');
   }
 
@@ -948,7 +948,7 @@
     const email = $('email').value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setFieldError('email', true); ok = false; }
     if (!ok) {
-      hint.textContent = 'Almost there — check the fields above! 💜';
+      hint.textContent = 'Almost there ~ check the fields above! 💜';
       hint.classList.add('error');
       return;
     }
@@ -976,7 +976,7 @@
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({
             access_key: key,
-            subject: 'New Order — ' + $('name').value.trim(),
+            subject: 'New Order ~ ' + $('name').value.trim(),
             from_name: "Alivia's Treasured Threads Website",
             name: $('name').value.trim(),
             email: email,
@@ -990,7 +990,7 @@
         } else { throw new Error(json.message || 'send failed'); }
       } catch (err) {
         console.error(err);
-        hint.textContent = "Hmm, that didn't send. Please try again — or DM me on Instagram! 💌";
+        hint.textContent = "Hmm, that didn't send. Please try again ~ or DM me on Instagram! 💌";
         hint.classList.add('error');
         submitBtn.disabled = false;
         submitBtn.classList.remove('sending');
@@ -1002,12 +1002,12 @@
     /* fallback: open the visitor's email app pre-filled */
     const to = (s.contactEmail || '').trim();
     if (to && !/example\.com$/i.test(to)) {
-      const subject = encodeURIComponent("Order request — Alivia's Treasured Threads");
+      const subject = encodeURIComponent("Order request ~ Alivia's Treasured Threads");
       const body = encodeURIComponent(message);
       window.location.href = 'mailto:' + to + '?subject=' + subject + '&body=' + body;
-      hint.textContent = 'Your email app should pop open with everything filled in — just hit send! 💌';
+      hint.textContent = 'Your email app should pop open with everything filled in ~ just hit send! 💌';
     } else {
-      hint.textContent = 'The order form is still being set up — please DM me on Instagram and I\'ll get you sorted! 💌';
+      hint.textContent = 'The order form is still being set up ~ please DM me on Instagram and I\'ll get you sorted! 💌';
       hint.classList.add('error');
     }
   });
