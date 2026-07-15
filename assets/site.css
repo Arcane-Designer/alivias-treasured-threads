@@ -627,6 +627,26 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
 .product-card-price { font-weight: 800; color: var(--purple); font-size: 0.95rem; }
 .product-card-price.custom { color: var(--pink-dark); font-style: italic; }
 
+/* sale pricing: old price softly struck out, new price pops in pink */
+.price-was {
+  color: var(--ink-soft);
+  opacity: 0.62;
+  font-weight: 600;
+  font-size: 0.88em;
+  margin-right: 5px;
+  text-decoration-color: var(--pink);
+  text-decoration-thickness: 2px;
+}
+.price-now { color: var(--pink-dark); font-weight: 800; font-size: 1.06em; }
+.price-now::after { content: ' 💸'; font-size: 0.85em; }
+
+.modal-price.sale { background: var(--pink); }
+.modal-price.sale .price-was { color: rgba(255,255,255,0.85); opacity: 1; text-decoration-color: rgba(255,255,255,0.9); }
+.modal-price.sale .price-now { color: #fff; }
+.modal-price.sale .price-now::after { content: ''; }
+
+.co-price .price-now::after { content: ''; }
+
 .product-card-meta {
   margin-top: 6px;
   font-size: 0.78rem;

@@ -402,7 +402,11 @@
         '<img class="admin-card-img" src="' + esc(productCover(p)) + '" alt="" loading="lazy">' +
         '<div class="admin-card-body">' +
           '<div class="admin-card-name">' + esc(p.name || 'Untitled') + '</div>' +
-          '<div class="admin-card-price' + (p.price === null ? ' custom' : '') + '">' + esc(p.priceLabel || '—') + '</div>' +
+          '<div class="admin-card-price' + (p.price === null ? ' custom' : '') + '">' +
+            (isOnSaleP(p)
+              ? '<span class="was">' + esc(p.priceLabel || ('$' + p.price)) + '</span>' + esc(p.saleLabel || ('$' + p.salePrice)) + ' 💸'
+              : esc(p.priceLabel || '—')) +
+          '</div>' +
           '<div class="admin-card-meta">📷 ' + (p.images || []).length + (p.oneOfAKind ? ' · 🌟 one of a kind' : ' · ✨ ' + unsold + ' ready to ship') + '</div>' +
         '</div>' +
         '<div class="admin-card-actions">' +
@@ -479,6 +483,12 @@
     updateArchivedText();
     $('epOneOff').checked = !!currentProduct.oneOfAKind;
     updateOneOffUI();
+    const saleOn = typeof currentProduct.salePrice === 'number';
+    $('epSaleOn').checked = saleOn;
+    $('saleFields').hidden = !saleOn;
+    $('epSalePrice').value = saleOn ? currentProduct.salePrice : '';
+    $('epSaleLabel').value = currentProduct.saleLabel || '';
+    updateSaleMath();
     $('epDelete').style.display = isNew ? 'none' : '';
     $('newListingName').value = '';
     $('newListingPreview').innerHTML = '';
@@ -505,6 +515,11 @@
         toast('Give it a name first! 💜', 'pink');
         return;
       }
+    }
+
+    /* gentle note: sale switch on, but the numbers don't make a deal yet */
+    if (!force && currentProduct && $('epSaleOn').checked && !isOnSaleP(currentProduct)) {
+      toast("Just so you know — the sale won't show until the sale price is lower than the regular price!", 'pink');
     }
 
     /* last check before the editor closes: an availability sticker with no
@@ -553,6 +568,7 @@
       currentProduct.priceLabel = '$' + currentProduct.price;
       $('epPriceLabel').value = currentProduct.priceLabel;
     }
+    updateSaleMath();
     markDirty();
   });
   $('epDesc').addEventListener('input', function () {
@@ -667,6 +683,73 @@
 
   function updateArchivedText() {
     $('epArchivedTxt').textContent = $('epArchived').checked ? 'Hidden from shop 🙈' : 'Showing in shop ✨';
+  }
+
+  /* ---------- sale pricing ---------- */
+  function isOnSaleP(p) {
+    return p && typeof p.price === 'number' && typeof p.salePrice === 'number' && p.salePrice < p.price;
+  }
+
+  $('epSaleOn').addEventListener('change', function () {
+    if (!currentProduct) return;
+    $('saleFields').hidden = !this.checked;
+    if (this.checked) {
+      const v = parseFloat($('epSalePrice').value);
+      currentProduct.salePrice = isNaN(v) ? null : v;
+      currentProduct.saleLabel = $('epSaleLabel').value.trim();
+      if (typeof currentProduct.price !== 'number') {
+        toast('Set a regular price too, so shoppers can see the deal! 💜', 'pink');
+      } else {
+        toast("Tip: pop the 'Sale!' sticker on it so shoppers spot the deal! ✨");
+      }
+      setTimeout(() => $('epSalePrice').focus(), 100);
+    } else {
+      currentProduct.salePrice = null;
+      currentProduct.saleLabel = '';
+    }
+    updateSaleMath();
+    markDirty();
+  });
+
+  $('epSalePrice').addEventListener('input', function () {
+    if (!currentProduct) return;
+    const v = this.value.trim();
+    currentProduct.salePrice = v === '' ? null : Math.max(0, parseFloat(v) || 0);
+    /* keep the visible sale tag in sync while it looks auto-generated */
+    const label = ($('epSaleLabel').value || '').trim();
+    if (v !== '' && (label === '' || /^\$[\d.]*$/.test(label))) {
+      currentProduct.saleLabel = '$' + currentProduct.salePrice;
+      $('epSaleLabel').value = currentProduct.saleLabel;
+    }
+    updateSaleMath();
+    markDirty();
+  });
+
+  $('epSaleLabel').addEventListener('input', function () {
+    if (!currentProduct) return;
+    currentProduct.saleLabel = this.value;
+    markDirty();
+  });
+
+  function updateSaleMath() {
+    const el = $('saleMath');
+    if (!currentProduct || !$('epSaleOn').checked) { el.textContent = ''; return; }
+    const price = currentProduct.price;
+    const sale = currentProduct.salePrice;
+    el.className = 'field-hint';
+    if (typeof price !== 'number') {
+      el.textContent = 'Set a regular price number above so the deal has something to compare to!';
+      el.classList.add('warn');
+    } else if (typeof sale !== 'number') {
+      el.textContent = 'Regular price is ' + (currentProduct.priceLabel || '$' + price) + ' — type the new sale price!';
+    } else if (sale >= price) {
+      el.textContent = "Hmm — the sale price isn't lower than the regular price ($" + price + "), so it won't show as a deal yet!";
+      el.classList.add('warn');
+    } else {
+      const off = Math.round((1 - sale / price) * 100);
+      el.textContent = "That's $" + +(price - sale).toFixed(2) + ' off — ' + off + '% off! 🎉';
+      el.classList.add('happy');
+    }
   }
 
   /* ---------- one-of-a-kind toggle ---------- */

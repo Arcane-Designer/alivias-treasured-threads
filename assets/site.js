@@ -110,6 +110,23 @@
     const t = String(text || '').toLowerCase();
     return t.includes('in stock') || t.includes('almost gone');
   }
+
+  /* ---- sale pricing ---- */
+  function isOnSale(p) {
+    return typeof p.price === 'number' && typeof p.salePrice === 'number' && p.salePrice < p.price;
+  }
+  function saleTag(p) { return p.saleLabel || ('$' + p.salePrice); }
+  function effectivePrice(p) { return isOnSale(p) ? p.salePrice : p.price; }
+  /* label for basket rows / order text */
+  function shownPrice(p) {
+    if (isOnSale(p)) return saleTag(p);
+    return p.priceLabel || (typeof p.price === 'number' ? '$' + p.price : '');
+  }
+  /* struck-through old price + bold new price (safe HTML) */
+  function priceHtml(p) {
+    if (!isOnSale(p)) return esc(p.priceLabel || '');
+    return '<s class="price-was">' + esc(p.priceLabel || ('$' + p.price)) + '</s> <span class="price-now">' + esc(saleTag(p)) + '</span>';
+  }
   function esc(str) {
     return String(str == null ? '' : str)
       .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -184,7 +201,7 @@
         '</div>' +
         '<div class="product-card-info">' +
           '<div class="product-card-name">' + esc(product.name) + '</div>' +
-          '<div class="product-card-price' + (product.price === null ? ' custom' : '') + '">' + esc(product.priceLabel || '') + '</div>' +
+          '<div class="product-card-price' + (product.price === null ? ' custom' : '') + '">' + priceHtml(product) + '</div>' +
           (isOneOff ? '<div class="product-card-meta">🌟 one of a kind</div>' :
             (stock > 0 ? '<div class="product-card-meta">✨ ' + stock + ' ready to ship</div>' : '')) +
         '</div>';
@@ -243,8 +260,8 @@
 
     $('modalName').textContent = product.name;
     const priceEl = $('modalPrice');
-    priceEl.textContent = product.priceLabel || '';
-    priceEl.className = 'modal-price' + (product.price === null ? ' custom' : '');
+    priceEl.innerHTML = priceHtml(product);
+    priceEl.className = 'modal-price' + (product.price === null ? ' custom' : '') + (isOnSale(product) ? ' sale' : '');
     $('modalDesc').textContent = product.description || '';
 
     /* optional link under the description (e.g. a collab shout-out) */
@@ -559,7 +576,8 @@
       const p = productById(item.productId);
       if (!p) return;
       const qty = item.type === 'custom' ? (item.qty || 1) : 1;
-      if (typeof p.price === 'number') { total += p.price * qty; priced += qty; }
+      const unit = effectivePrice(p);
+      if (typeof unit === 'number') { total += unit * qty; priced += qty; }
       else unpriced += qty;
     });
     return { total, priced, unpriced };
@@ -603,7 +621,7 @@
       return '<div class="basket-item" data-index="' + index + '">' +
         '<img src="' + esc(img) + '" alt="">' +
         '<div><div class="bi-name">' + esc(l.name) + '</div>' +
-        '<div class="bi-sub">' + esc(p.name) + ' · ready to ship' + (typeof p.price === 'number' ? ' · ' + esc(p.priceLabel || ('$' + p.price)) : '') + '</div></div>' +
+        '<div class="bi-sub">' + esc(p.name) + ' · ready to ship' + (typeof p.price === 'number' ? ' · ' + esc(shownPrice(p)) + (isOnSale(p) ? ' 💸' : '') : '') + '</div></div>' +
         '<div class="bi-actions"><button type="button" class="bi-remove" aria-label="Remove ' + esc(l.name) + '">✕</button></div>' +
         '</div>';
     }
@@ -611,7 +629,7 @@
       return '<div class="basket-item" data-index="' + index + '">' +
         '<img src="' + esc(coverImg(p)) + '" alt="">' +
         '<div><div class="bi-name">' + esc(p.name) + '</div>' +
-        '<div class="bi-sub">🌟 one of a kind · ready to ship' + (typeof p.price === 'number' ? ' · ' + esc(p.priceLabel || ('$' + p.price)) : '') + '</div></div>' +
+        '<div class="bi-sub">🌟 one of a kind · ready to ship' + (typeof p.price === 'number' ? ' · ' + esc(shownPrice(p)) + (isOnSale(p) ? ' 💸' : '') : '') + '</div></div>' +
         '<div class="bi-actions"><button type="button" class="bi-remove" aria-label="Remove ' + esc(p.name) + '">✕</button></div>' +
         '</div>';
     }
@@ -620,7 +638,7 @@
     return '<div class="basket-item" data-index="' + index + '">' +
       '<img src="' + esc(coverImg(p)) + '" alt="">' +
       '<div><div class="bi-name">Custom ' + esc(p.name) + '</div>' +
-      '<div class="bi-sub custom">made just for you' + (typeof p.price === 'number' ? ' · ' + esc(p.priceLabel || ('$' + p.price)) + ' each' : ' · priced when we chat') + '</div></div>' +
+      '<div class="bi-sub custom">made just for you' + (typeof p.price === 'number' ? ' · ' + esc(shownPrice(p)) + ' each' : ' · priced when we chat') + '</div></div>' +
       '<div class="bi-actions">' +
         '<button type="button" class="bi-remove" aria-label="Remove custom ' + esc(p.name) + '">✕</button>' +
         '<div class="bi-qty"><button type="button" class="q-minus" aria-label="One less">−</button><span class="q">' + qty + '</span><button type="button" class="q-plus" aria-label="One more">+</button></div>' +
@@ -745,7 +763,7 @@
       opt.innerHTML =
         '<img src="' + esc(coverImg(p)) + '" alt="" loading="lazy">' +
         '<span class="co-name">' + esc(p.name) + '</span>' +
-        '<span class="co-price' + (p.price === null ? ' custom' : '') + '">' + esc(p.priceLabel || '') + '</span>';
+        '<span class="co-price' + (p.price === null ? ' custom' : '') + '">' + priceHtml(p) + '</span>';
       opt.addEventListener('click', () => {
         value = p.id;
         const label = btn.querySelector('.css-label');
@@ -849,13 +867,16 @@
       basket.forEach((item, i) => {
         const p = productById(item.productId);
         if (!p) return;
+        const priceNote = isOnSale(p)
+          ? ' — SALE ' + saleTag(p) + ' (was ' + (p.priceLabel || '$' + p.price) + ')'
+          : (p.priceLabel ? ' — ' + p.priceLabel : '');
         if (item.type === 'listing') {
           const l = listingById(p, item.listingId);
-          lines.push('  ' + (i + 1) + '. ' + (l ? l.name : '?') + ' — ' + p.name + ' (Ready to Ship)' + (p.priceLabel ? ' — ' + p.priceLabel : ''));
+          lines.push('  ' + (i + 1) + '. ' + (l ? l.name : '?') + ' — ' + p.name + ' (Ready to Ship)' + priceNote);
         } else if (item.type === 'oneoff') {
-          lines.push('  ' + (i + 1) + '. ' + p.name + ' (One of a Kind — Ready to Ship)' + (p.priceLabel ? ' — ' + p.priceLabel : ''));
+          lines.push('  ' + (i + 1) + '. ' + p.name + ' (One of a Kind — Ready to Ship)' + priceNote);
         } else {
-          lines.push('  ' + (i + 1) + '. CUSTOM ' + p.name + ' × ' + (item.qty || 1) + (p.priceLabel ? ' — ' + p.priceLabel : ''));
+          lines.push('  ' + (i + 1) + '. CUSTOM ' + p.name + ' × ' + (item.qty || 1) + priceNote);
         }
       });
       const { total, priced, unpriced } = basketEstimate();

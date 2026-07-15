@@ -196,6 +196,27 @@
           </div>
         </div>
 
+        <div class="field-group sale-group">
+          <label class="cute-toggle on-checked">
+            <input type="checkbox" id="epSaleOn">
+            <span class="toggle-pill"></span>
+            <span class="toggle-txt">💸 On sale right now!</span>
+          </label>
+          <div id="saleFields" hidden>
+            <div class="field-row" style="margin-top:12px">
+              <div class="field-group">
+                <label class="field-label" for="epSalePrice">Sale price number</label>
+                <input type="number" id="epSalePrice" class="field-input" min="0" step="0.5" placeholder="55">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="epSaleLabel">Sale tag shoppers see</label>
+                <input type="text" id="epSaleLabel" class="field-input" placeholder="$55 · or 'Now just $55!'">
+              </div>
+            </div>
+            <p class="field-hint" id="saleMath"></p>
+          </div>
+        </div>
+
         <div class="field-group">
           <label class="field-label" for="epDesc">Description</label>
           <textarea id="epDesc" class="field-input" rows="4" placeholder="Tell shoppers what makes it special!"></textarea>
