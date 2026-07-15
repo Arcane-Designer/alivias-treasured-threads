@@ -111,15 +111,38 @@
     return t.includes('in stock') || t.includes('almost gone');
   }
 
+  /* ---- bundle (quantity) pricing ---- */
+  function productTiers(p) {
+    const t = (p.priceTiers || []).filter((x) => typeof x.price === 'number' && x.qty >= 1);
+    return t.length ? t : null;
+  }
+  /* cheapest way to buy exactly n items using any mix of the tiers */
+  function tierCost(tiers, n) {
+    const cost = [0];
+    for (let i = 1; i <= n; i++) {
+      let best = Infinity;
+      tiers.forEach((t) => {
+        if (t.qty <= i && cost[i - t.qty] !== Infinity) best = Math.min(best, cost[i - t.qty] + t.price);
+      });
+      cost[i] = best;
+    }
+    return cost[n];
+  }
+
   /* ---- sale pricing ---- */
   function isOnSale(p) {
-    return typeof p.price === 'number' && typeof p.salePrice === 'number' && p.salePrice < p.price;
+    return !productTiers(p) && typeof p.price === 'number' && typeof p.salePrice === 'number' && p.salePrice < p.price;
   }
   function saleTag(p) { return p.saleLabel || ('$' + p.salePrice); }
   function effectivePrice(p) { return isOnSale(p) ? p.salePrice : p.price; }
   /* label for basket rows / order text */
   function shownPrice(p) {
     if (isOnSale(p)) return saleTag(p);
+    const tiers = productTiers(p);
+    if (tiers) {
+      const one = tiers.find((t) => t.qty === 1);
+      return one ? '$' + one.price + ' each' : 'bundle pricing';
+    }
     return p.priceLabel || (typeof p.price === 'number' ? '$' + p.price : '');
   }
   /* struck-through old price + bold new price (safe HTML) */
@@ -571,16 +594,32 @@
   }
 
   function basketEstimate() {
-    let total = 0, priced = 0, unpriced = 0;
+    let total = 0, priced = 0, unpriced = 0, bundleSaved = false;
+    /* count everything per product so bundle deals apply across the whole basket */
+    const perProduct = {};
     basket.forEach((item) => {
-      const p = productById(item.productId);
-      if (!p) return;
       const qty = item.type === 'custom' ? (item.qty || 1) : 1;
-      const unit = effectivePrice(p);
-      if (typeof unit === 'number') { total += unit * qty; priced += qty; }
-      else unpriced += qty;
+      perProduct[item.productId] = (perProduct[item.productId] || 0) + qty;
     });
-    return { total, priced, unpriced };
+    Object.entries(perProduct).forEach(([pid, count]) => {
+      const p = productById(pid);
+      if (!p) return;
+      const tiers = productTiers(p);
+      if (tiers) {
+        const c = tierCost(tiers, count);
+        if (isFinite(c)) {
+          total += c;
+          priced += count;
+          const one = tiers.find((t) => t.qty === 1);
+          if (one && c < one.price * count) bundleSaved = true;
+          return;
+        }
+      }
+      const unit = effectivePrice(p);
+      if (typeof unit === 'number') { total += unit * count; priced += count; }
+      else unpriced += count;
+    });
+    return { total: +total.toFixed(2), priced, unpriced, bundleSaved };
   }
 
   /* --- flying star + fab bump --- */
@@ -658,10 +697,11 @@
   }
 
   function estimateHTML() {
-    const { total, priced, unpriced } = basketEstimate();
+    const { total, priced, unpriced, bundleSaved } = basketEstimate();
     if (basket.length === 0) return '';
     let html = '';
     if (priced > 0) html += 'Estimated total: <strong>$' + total + '</strong>';
+    if (bundleSaved) html += '<span class="est-note">bundle deal applied! 🧮✨</span>';
     if (unpriced > 0) html += '<span class="est-note">' + (priced > 0 ? '+ ' : '') + unpriced + ' custom item' + (unpriced > 1 ? 's' : '') + ' priced when we chat 💬</span>';
     return html;
   }

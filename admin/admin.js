@@ -559,6 +559,7 @@
   let priceMode = 'custom';
 
   function detectPriceMode(p) {
+    if (Array.isArray(p.priceTiers) && p.priceTiers.some((t) => typeof t.price === 'number')) return 'multi';
     if (typeof p.price !== 'number') return 'custom';
     if (p.priceLabel && p.priceLabel !== '$' + p.price) return 'fancy';
     return 'simple';
@@ -570,37 +571,145 @@
       c.classList.toggle('active', c.dataset.mode === mode);
     });
     $('priceSimpleRow').hidden = mode !== 'simple';
+    $('priceMultiRow').hidden = mode !== 'multi';
     $('priceFancyRow').hidden = mode !== 'fancy';
     $('customPriceNote').hidden = mode !== 'custom';
-    $('saleGroup').hidden = mode === 'custom';
+    /* bundles change price by quantity — a sale on top would be double math */
+    $('saleGroup').hidden = mode === 'custom' || mode === 'multi';
     $('saleLabelGroup').hidden = mode !== 'fancy';
 
     if (fromUser && currentProduct) {
-      if (mode === 'custom') {
-        currentProduct.price = null;
-        currentProduct.priceLabel = 'Custom Order';
-        /* a custom-order product has no fixed price to discount */
+      if (mode !== 'multi') delete currentProduct.priceTiers;
+      if (mode === 'custom' || mode === 'multi') {
         currentProduct.salePrice = null;
         currentProduct.saleLabel = '';
         $('epSaleOn').checked = false;
         $('saleFields').hidden = true;
+      }
+      if (mode === 'custom') {
+        currentProduct.price = null;
+        currentProduct.priceLabel = 'Custom Order';
       } else if (mode === 'simple') {
         const v = parseFloat($('epPriceSimple').value);
         currentProduct.price = isNaN(v) ? null : v;
         currentProduct.priceLabel = isNaN(v) ? '' : '$' + v;
-      } else {
+      } else if (mode === 'fancy') {
         currentProduct.priceLabel = $('epPriceLabel').value.trim();
         const v = parseFloat($('epPrice').value);
         currentProduct.price = isNaN(v) ? null : v;
+      } else {
+        /* multi: start the ladder from the existing single price, if any */
+        if (!Array.isArray(currentProduct.priceTiers) || !currentProduct.priceTiers.length) {
+          currentProduct.priceTiers = typeof currentProduct.price === 'number'
+            ? [{ qty: 1, price: currentProduct.price }] : [];
+        }
+        const one = currentProduct.priceTiers.find((t) => t.qty === 1);
+        currentProduct.price = one ? one.price : null;
+        if (currentProduct.priceTiers.length) currentProduct.priceLabel = tierAutoLabel(currentProduct.priceTiers);
       }
       updateSaleMath();
       markDirty();
     }
+    if (mode === 'multi') renderTierRows();
   }
 
   document.querySelectorAll('#priceModeChips .mode-chip').forEach((chip) => {
     chip.addEventListener('click', () => setPriceMode(chip.dataset.mode, true));
   });
+
+  /* ---------- bundle price tiers ---------- */
+  const MAX_TIERS = 10;
+
+  function tierCostAdmin(tiers, n) {
+    const cost = [0];
+    for (let i = 1; i <= n; i++) {
+      let best = Infinity;
+      tiers.forEach((t) => {
+        if (t.qty <= i && cost[i - t.qty] !== Infinity) best = Math.min(best, cost[i - t.qty] + t.price);
+      });
+      cost[i] = best;
+    }
+    return cost[n];
+  }
+
+  function tierAutoLabel(tiers) {
+    return tiers.map((t) => (t.qty === 1 ? '$' + t.price + ' each' : t.qty + ' for $' + t.price)).join(' · ');
+  }
+
+  /* read the row inputs -> product data + auto price tag */
+  function applyTiers() {
+    if (!currentProduct) return;
+    const tiers = [];
+    $('tierRows').querySelectorAll('input').forEach((input, i) => {
+      const v = parseFloat(input.value);
+      if (!isNaN(v)) tiers.push({ qty: i + 1, price: Math.max(0, v) });
+    });
+    currentProduct.priceTiers = tiers;
+    const one = tiers.find((t) => t.qty === 1);
+    currentProduct.price = one ? one.price : null;
+    currentProduct.priceLabel = tiers.length ? tierAutoLabel(tiers) : '';
+    updateMultiPreview();
+  }
+
+  function updateMultiPreview() {
+    const el = $('multiPreview');
+    const tiers = (currentProduct && currentProduct.priceTiers) || [];
+    el.className = 'field-hint';
+    if (!tiers.length) { el.textContent = 'Fill in at least the price for 1 item!'; return; }
+    if (!tiers.find((t) => t.qty === 1)) {
+      el.textContent = 'Add the price for 1 item too, so every amount has a price!';
+      el.classList.add('warn');
+      return;
+    }
+    let text = 'Shoppers see: “' + tierAutoLabel(tiers) + '”';
+    if (tiers.length > 1) {
+      const n = Math.max(...tiers.map((t) => t.qty)) + 1;
+      const c = tierCostAdmin(tiers, n);
+      if (isFinite(c)) text += ' — and the basket does the math: ' + n + ' items = $' + +c.toFixed(2) + ' 🧮';
+    }
+    el.textContent = text;
+    el.classList.add('happy');
+  }
+
+  function renderTierRows() {
+    const wrap = $('tierRows');
+    wrap.innerHTML = '';
+    const tiers = (currentProduct && currentProduct.priceTiers) || [];
+    const byQty = {};
+    tiers.forEach((t) => { byQty[t.qty] = t.price; });
+    const maxFilled = tiers.length ? Math.max(...tiers.map((t) => t.qty)) : 0;
+    const rows = Math.min(MAX_TIERS, Math.max(1, maxFilled + 1));
+
+    for (let q = 1; q <= rows; q++) {
+      const row = document.createElement('div');
+      row.className = 'tier-row';
+      row.innerHTML =
+        '<span class="tier-qty">' + (q === 1 ? '1 item' : q + ' items') + '</span>' +
+        '<span class="tier-dollar">$</span>' +
+        '<input type="number" class="field-input" min="0" step="0.5" placeholder="' + (q === 1 ? '4' : 'skip or fill') + '">';
+      const input = row.querySelector('input');
+      if (byQty[q] !== undefined) input.value = byQty[q];
+      input.addEventListener('input', function () {
+        applyTiers();
+        markDirty();
+        /* typing in the last row grows a fresh one below (up to 10) */
+        const inputs = [...$('tierRows').querySelectorAll('input')];
+        if (this === inputs[inputs.length - 1] && this.value !== '' && inputs.length < MAX_TIERS) {
+          const wasFocused = document.activeElement === this;
+          const myIndex = inputs.length - 1;
+          renderTierRows();
+          if (wasFocused) {
+            const fresh = [...$('tierRows').querySelectorAll('input')][myIndex];
+            fresh.focus();
+            const len = fresh.value.length;
+            fresh.setSelectionRange && fresh.type === 'text' && fresh.setSelectionRange(len, len);
+          }
+        }
+      });
+      wrap.appendChild(row);
+    }
+    updateMultiPreview();
+  }
 
   $('epPriceSimple').addEventListener('input', function () {
     if (!currentProduct) return;

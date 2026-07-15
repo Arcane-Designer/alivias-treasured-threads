@@ -189,6 +189,7 @@
           <label class="field-label">How is it priced?</label>
           <div class="mode-chips" id="priceModeChips">
             <button type="button" class="mode-chip" data-mode="simple">💲 One price</button>
+            <button type="button" class="mode-chip" data-mode="multi">🧮 Bundle prices</button>
             <button type="button" class="mode-chip" data-mode="fancy">✍️ Fancy tag</button>
             <button type="button" class="mode-chip" data-mode="custom">🧵 Custom order</button>
           </div>
@@ -199,6 +200,12 @@
             <label class="field-label" for="epPriceSimple">Price ($)</label>
             <input type="number" id="epPriceSimple" class="field-input" min="0" step="0.5" placeholder="20">
           </div>
+        </div>
+
+        <div class="field-group" id="priceMultiRow" hidden>
+          <label class="field-label">Bundle deals <span class="tiny-note">fill in the prices you offer — skip any amount you don't</span></label>
+          <div class="tier-rows" id="tierRows"></div>
+          <p class="field-hint" id="multiPreview"></p>
         </div>
 
         <div class="field-row" id="priceFancyRow" hidden>

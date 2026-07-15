@@ -580,6 +580,26 @@ textarea.field-input { resize: vertical; }
   box-shadow: 0 3px 12px var(--purple-glow);
 }
 
+/* bundle price tiers */
+.tier-rows { display: flex; flex-direction: column; gap: 8px; }
+.tier-row {
+  display: grid;
+  grid-template-columns: 92px 20px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.tier-row .tier-qty {
+  font-weight: 800;
+  font-size: 0.88rem;
+  text-align: right;
+  color: var(--ink-soft);
+}
+.tier-row .tier-dollar { font-weight: 800; color: var(--purple); text-align: center; }
+.tier-row .field-input { max-width: 160px; }
+#multiPreview { margin-top: 10px; font-weight: 700; }
+#multiPreview.happy { color: var(--teal-dark); }
+#multiPreview.warn { color: var(--pink-dark); }
+
 .custom-price-note {
   background: var(--purple-pale);
   border-radius: var(--radius-sm);
