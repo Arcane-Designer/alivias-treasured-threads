@@ -702,7 +702,7 @@
     if (basket.length === 0) return '';
     let html = '';
     if (priced > 0) html += 'Estimated total: <strong>$' + total + '</strong>';
-    if (bundleSaved) html += ' <span class="est-note-inline">~ bundle deal applied! 🧮✨</span>';
+    if (bundleSaved) html += ' <span class="est-note-inline">~ bundle deal applied! ✨</span>';
     if (unpriced > 0) html += '<span class="est-note">' + (priced > 0 ? '+ ' : '') + unpriced + ' custom item' + (unpriced > 1 ? 's' : '') + ' priced when we chat 💬</span>';
     return html;
   }
