@@ -1250,6 +1250,7 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
 }
 .basket-estimate strong { color: var(--purple-dark); font-size: 1.05rem; }
 .basket-estimate .est-note { display: block; font-size: 0.75rem; font-weight: 600; color: var(--ink-soft); margin-top: 2px; }
+.est-note-inline { font-weight: 700; color: var(--teal-dark); }
 
 /* form fields */
 .form-group { margin-bottom: 20px; }
