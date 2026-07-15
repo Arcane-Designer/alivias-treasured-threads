@@ -137,8 +137,7 @@
       "description": "Handmade fabric bookmarks in tons of fun patterns. Also available as corner bookmarks! Perfect little gifts for the book lover in your life.",
       "archived": false,
       "images": [
-        "images/products/bookmarks-1.jpg",
-        "images/products/bookmarks-2.jpg"
+        "images/uploads/bookmarks-mrmec355ly1.jpg"
       ],
       "listings": [
         {
@@ -300,7 +299,8 @@
           "id": "coaster-pink",
           "name": "Pretty in Pink Coaster",
           "images": [
-            "images/available/pretty-in-pink-coaster.jpg"
+            "images/available/pretty-in-pink-coaster.jpg",
+            "images/uploads/pretty-in-pink-coaster-mrmef0ywfna.jpg"
           ],
           "sold": false
         },
@@ -308,7 +308,8 @@
           "id": "coaster-papaya-racing",
           "name": "Papaya Racing Coaster",
           "images": [
-            "images/available/papaya-racing-coaster.jpg"
+            "images/available/papaya-racing-coaster.jpg",
+            "images/uploads/papaya-racing-coaster-mrmeenvngc3.jpg"
           ],
           "sold": false
         },
