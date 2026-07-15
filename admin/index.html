@@ -185,18 +185,36 @@
           <input type="text" id="epName" class="field-input" placeholder="What's it called?">
         </div>
 
-        <div class="field-row">
-          <div class="field-group">
-            <label class="field-label" for="epPriceLabel">Price tag shoppers see</label>
-            <input type="text" id="epPriceLabel" class="field-input" placeholder="$12 · or 'Custom Order'">
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="epPrice">Price number <span class="tiny-note">for basket math</span></label>
-            <input type="number" id="epPrice" class="field-input" min="0" step="0.5" placeholder="leave empty for custom">
+        <div class="field-group">
+          <label class="field-label">How is it priced?</label>
+          <div class="mode-chips" id="priceModeChips">
+            <button type="button" class="mode-chip" data-mode="simple">💲 One price</button>
+            <button type="button" class="mode-chip" data-mode="fancy">✍️ Fancy tag</button>
+            <button type="button" class="mode-chip" data-mode="custom">🧵 Custom order</button>
           </div>
         </div>
 
-        <div class="field-group sale-group">
+        <div class="field-row" id="priceSimpleRow" hidden>
+          <div class="field-group">
+            <label class="field-label" for="epPriceSimple">Price ($)</label>
+            <input type="number" id="epPriceSimple" class="field-input" min="0" step="0.5" placeholder="20">
+          </div>
+        </div>
+
+        <div class="field-row" id="priceFancyRow" hidden>
+          <div class="field-group">
+            <label class="field-label" for="epPriceLabel">Price tag shoppers see</label>
+            <input type="text" id="epPriceLabel" class="field-input" placeholder="$4 each or 2 for $6">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="epPrice">Price of one ($) <span class="tiny-note">so the basket can estimate totals</span></label>
+            <input type="number" id="epPrice" class="field-input" min="0" step="0.5" placeholder="4">
+          </div>
+        </div>
+
+        <p class="field-hint custom-price-note" id="customPriceNote" hidden>Shoppers will see <strong>“Custom Order”</strong> and message you to dream up the details and price together 💬</p>
+
+        <div class="field-group sale-group" id="saleGroup">
           <label class="cute-toggle on-checked">
             <input type="checkbox" id="epSaleOn">
             <span class="toggle-pill"></span>
@@ -205,12 +223,12 @@
           <div id="saleFields" hidden>
             <div class="field-row" style="margin-top:12px">
               <div class="field-group">
-                <label class="field-label" for="epSalePrice">Sale price number</label>
-                <input type="number" id="epSalePrice" class="field-input" min="0" step="0.5" placeholder="55">
+                <label class="field-label" for="epSalePrice">Sale price ($)</label>
+                <input type="number" id="epSalePrice" class="field-input" min="0" step="0.5" placeholder="15">
               </div>
-              <div class="field-group">
-                <label class="field-label" for="epSaleLabel">Sale tag shoppers see</label>
-                <input type="text" id="epSaleLabel" class="field-input" placeholder="$55 · or 'Now just $55!'">
+              <div class="field-group" id="saleLabelGroup" hidden>
+                <label class="field-label" for="epSaleLabel">Fancier sale wording <span class="tiny-note">optional</span></label>
+                <input type="text" id="epSaleLabel" class="field-input" placeholder="NOW $3 each!">
               </div>
             </div>
             <p class="field-hint" id="saleMath"></p>

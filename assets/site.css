@@ -627,18 +627,28 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
 .product-card-price { font-weight: 800; color: var(--purple); font-size: 0.95rem; }
 .product-card-price.custom { color: var(--pink-dark); font-style: italic; }
 
-/* sale pricing: old price softly struck out, new price pops in pink */
+/* sale pricing: old price small + softly struck out, new price big & bold */
 .price-was {
   color: var(--ink-soft);
-  opacity: 0.62;
+  opacity: 0.6;
   font-weight: 600;
-  font-size: 0.88em;
+  font-size: 0.82em;
   margin-right: 5px;
   text-decoration-color: var(--pink);
   text-decoration-thickness: 2px;
 }
 .price-now { color: var(--pink-dark); font-weight: 800; font-size: 1.06em; }
 .price-now::after { content: ' 💸'; font-size: 0.85em; }
+
+/* on cards the two prices stack: little crossed-out tag above, big deal below */
+.product-card-price.on-sale {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+.product-card-price.on-sale .price-was { font-size: 0.74rem; margin: 0 0 -1px; }
+.product-card-price.on-sale .price-now { font-size: 1.24rem; line-height: 1.25; }
 
 .modal-price.sale { background: var(--pink); }
 .modal-price.sale .price-was { color: rgba(255,255,255,0.85); opacity: 1; text-decoration-color: rgba(255,255,255,0.9); }

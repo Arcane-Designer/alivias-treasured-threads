@@ -560,6 +560,33 @@ textarea.field-input { resize: vertical; }
 
 .toggle-txt { font-weight: 800; font-size: 0.88rem; }
 
+/* price mode chips */
+.mode-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mode-chip {
+  padding: 9px 16px;
+  border-radius: 30px;
+  border: 2px dashed var(--neutral-dark);
+  background: var(--white);
+  color: var(--ink-soft);
+  font-weight: 800;
+  font-size: 0.85rem;
+  transition: all var(--transition);
+}
+.mode-chip:hover { border-color: var(--purple-light); color: var(--purple); }
+.mode-chip.active {
+  background: var(--purple);
+  border: 2px solid var(--purple);
+  color: #fff;
+  box-shadow: 0 3px 12px var(--purple-glow);
+}
+
+.custom-price-note {
+  background: var(--purple-pale);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin: -6px 0 18px;
+}
+
 /* badge sticker chips */
 .badge-chips {
   display: flex;

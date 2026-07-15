@@ -472,6 +472,8 @@
     $('editorTitle').textContent = isNew ? 'New product ✨' : 'Edit product';
     $('epName').value = currentProduct.name || '';
     $('epName').classList.remove('invalid');
+    setPriceMode(detectPriceMode(currentProduct), false);
+    $('epPriceSimple').value = typeof currentProduct.price === 'number' ? currentProduct.price : '';
     $('epPriceLabel').value = currentProduct.priceLabel || '';
     $('epPrice').value = typeof currentProduct.price === 'number' ? currentProduct.price : '';
     $('epDesc').value = currentProduct.description || '';
@@ -553,21 +555,73 @@
     this.classList.remove('invalid');
     markDirty();
   });
+  /* ---------- pricing modes: one price / fancy tag / custom order ---------- */
+  let priceMode = 'custom';
+
+  function detectPriceMode(p) {
+    if (typeof p.price !== 'number') return 'custom';
+    if (p.priceLabel && p.priceLabel !== '$' + p.price) return 'fancy';
+    return 'simple';
+  }
+
+  function setPriceMode(mode, fromUser) {
+    priceMode = mode;
+    document.querySelectorAll('#priceModeChips .mode-chip').forEach((c) => {
+      c.classList.toggle('active', c.dataset.mode === mode);
+    });
+    $('priceSimpleRow').hidden = mode !== 'simple';
+    $('priceFancyRow').hidden = mode !== 'fancy';
+    $('customPriceNote').hidden = mode !== 'custom';
+    $('saleGroup').hidden = mode === 'custom';
+    $('saleLabelGroup').hidden = mode !== 'fancy';
+
+    if (fromUser && currentProduct) {
+      if (mode === 'custom') {
+        currentProduct.price = null;
+        currentProduct.priceLabel = 'Custom Order';
+        /* a custom-order product has no fixed price to discount */
+        currentProduct.salePrice = null;
+        currentProduct.saleLabel = '';
+        $('epSaleOn').checked = false;
+        $('saleFields').hidden = true;
+      } else if (mode === 'simple') {
+        const v = parseFloat($('epPriceSimple').value);
+        currentProduct.price = isNaN(v) ? null : v;
+        currentProduct.priceLabel = isNaN(v) ? '' : '$' + v;
+      } else {
+        currentProduct.priceLabel = $('epPriceLabel').value.trim();
+        const v = parseFloat($('epPrice').value);
+        currentProduct.price = isNaN(v) ? null : v;
+      }
+      updateSaleMath();
+      markDirty();
+    }
+  }
+
+  document.querySelectorAll('#priceModeChips .mode-chip').forEach((chip) => {
+    chip.addEventListener('click', () => setPriceMode(chip.dataset.mode, true));
+  });
+
+  $('epPriceSimple').addEventListener('input', function () {
+    if (!currentProduct) return;
+    const v = this.value.trim();
+    currentProduct.price = v === '' ? null : Math.max(0, parseFloat(v) || 0);
+    currentProduct.priceLabel = v === '' ? '' : '$' + currentProduct.price;
+    updateSaleMath();
+    markDirty();
+  });
+
   $('epPriceLabel').addEventListener('input', function () {
     if (!currentProduct) return;
     currentProduct.priceLabel = this.value;
+    updateSaleMath();
     markDirty();
   });
+
   $('epPrice').addEventListener('input', function () {
     if (!currentProduct) return;
     const v = this.value.trim();
     currentProduct.price = v === '' ? null : Math.max(0, parseFloat(v) || 0);
-    /* keep the visible price tag in sync when it looks auto-generated */
-    const label = ($('epPriceLabel').value || '').trim();
-    if (v !== '' && (label === '' || /^\$[\d.]*$/.test(label))) {
-      currentProduct.priceLabel = '$' + currentProduct.price;
-      $('epPriceLabel').value = currentProduct.priceLabel;
-    }
     updateSaleMath();
     markDirty();
   });
@@ -696,12 +750,8 @@
     if (this.checked) {
       const v = parseFloat($('epSalePrice').value);
       currentProduct.salePrice = isNaN(v) ? null : v;
-      currentProduct.saleLabel = $('epSaleLabel').value.trim();
-      if (typeof currentProduct.price !== 'number') {
-        toast('Set a regular price too, so shoppers can see the deal! 💜', 'pink');
-      } else {
-        toast("Tip: pop the 'Sale!' sticker on it so shoppers spot the deal! ✨");
-      }
+      currentProduct.saleLabel = priceMode === 'fancy' ? $('epSaleLabel').value.trim() : '';
+      toast("Tip: pop the 'Sale!' sticker on it so shoppers spot the deal! ✨");
       setTimeout(() => $('epSalePrice').focus(), 100);
     } else {
       currentProduct.salePrice = null;
@@ -715,12 +765,6 @@
     if (!currentProduct) return;
     const v = this.value.trim();
     currentProduct.salePrice = v === '' ? null : Math.max(0, parseFloat(v) || 0);
-    /* keep the visible sale tag in sync while it looks auto-generated */
-    const label = ($('epSaleLabel').value || '').trim();
-    if (v !== '' && (label === '' || /^\$[\d.]*$/.test(label))) {
-      currentProduct.saleLabel = '$' + currentProduct.salePrice;
-      $('epSaleLabel').value = currentProduct.saleLabel;
-    }
     updateSaleMath();
     markDirty();
   });
@@ -728,17 +772,18 @@
   $('epSaleLabel').addEventListener('input', function () {
     if (!currentProduct) return;
     currentProduct.saleLabel = this.value;
+    updateSaleMath();
     markDirty();
   });
 
   function updateSaleMath() {
     const el = $('saleMath');
-    if (!currentProduct || !$('epSaleOn').checked) { el.textContent = ''; return; }
+    if (!currentProduct || !$('epSaleOn').checked || priceMode === 'custom') { el.textContent = ''; return; }
     const price = currentProduct.price;
     const sale = currentProduct.salePrice;
     el.className = 'field-hint';
     if (typeof price !== 'number') {
-      el.textContent = 'Set a regular price number above so the deal has something to compare to!';
+      el.textContent = 'Set the regular price first so the deal has something to compare to!';
       el.classList.add('warn');
     } else if (typeof sale !== 'number') {
       el.textContent = 'Regular price is ' + (currentProduct.priceLabel || '$' + price) + ' — type the new sale price!';
@@ -747,7 +792,9 @@
       el.classList.add('warn');
     } else {
       const off = Math.round((1 - sale / price) * 100);
-      el.textContent = "That's $" + +(price - sale).toFixed(2) + ' off — ' + off + '% off! 🎉';
+      const shows = currentProduct.saleLabel || ('$' + sale);
+      el.textContent = "That's $" + +(price - sale).toFixed(2) + ' off — ' + off + '% off! 🎉 Shoppers see “' +
+        (currentProduct.priceLabel || '$' + price) + '” crossed out, then “' + shows + '”.';
       el.classList.add('happy');
     }
   }

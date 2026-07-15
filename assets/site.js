@@ -201,7 +201,7 @@
         '</div>' +
         '<div class="product-card-info">' +
           '<div class="product-card-name">' + esc(product.name) + '</div>' +
-          '<div class="product-card-price' + (product.price === null ? ' custom' : '') + '">' + priceHtml(product) + '</div>' +
+          '<div class="product-card-price' + (product.price === null ? ' custom' : '') + (isOnSale(product) ? ' on-sale' : '') + '">' + priceHtml(product) + '</div>' +
           (isOneOff ? '<div class="product-card-meta">🌟 one of a kind</div>' :
             (stock > 0 ? '<div class="product-card-meta">✨ ' + stock + ' ready to ship</div>' : '')) +
         '</div>';
