@@ -154,7 +154,17 @@
       headers: { 'Accept': 'application/vnd.github.raw+json' },
     });
     const text = await res.text();
-    return JSON.parse(text);
+    return normalizeData(JSON.parse(text));
+  }
+
+  /* older data used a single `badge` string; the shop now supports up to two badges */
+  function normalizeData(d) {
+    (d.products || []).forEach((p) => {
+      if (!Array.isArray(p.badges)) p.badges = (p.badge && String(p.badge).trim()) ? [p.badge] : [];
+      p.badges = p.badges.filter(Boolean).slice(0, 2);
+      delete p.badge;
+    });
+    return d;
   }
 
   /* one commit containing the JSON + any new photos */
@@ -260,7 +270,7 @@
       if (storedDirty) {
         const keep = await confirmCute('You have unpublished changes from last time — keep working on them?', 'Yes, keep them!');
         if (keep) {
-          draft = stored.draft;
+          draft = normalizeData(stored.draft);
           pendingImages = stored.pendingImages || {};
         } else {
           localStorage.removeItem(DRAFT_KEY);
@@ -437,7 +447,7 @@
       price: null,
       priceLabel: 'Custom Order',
       description: '',
-      badge: '',
+      badges: [],
       archived: false,
       images: [],
       listings: [],
@@ -459,7 +469,9 @@
     $('epPriceLabel').value = currentProduct.priceLabel || '';
     $('epPrice').value = typeof currentProduct.price === 'number' ? currentProduct.price : '';
     $('epDesc').value = currentProduct.description || '';
-    $('epBadge').value = currentProduct.badge || '';
+    if (!Array.isArray(currentProduct.badges)) currentProduct.badges = [];
+    $('epBadge').value = currentProduct.badges.find((b) => !BADGE_PRESETS.includes(b)) || '';
+    delete $('epBadge').dataset.warned;
     syncBadgeChips();
     $('epArchived').checked = !!currentProduct.archived;
     updateArchivedText();
@@ -531,22 +543,24 @@
     currentProduct.description = this.value;
     markDirty();
   });
-  $('epBadge').addEventListener('input', function () {
-    if (!currentProduct) return;
-    currentProduct.badge = this.value;
-    syncBadgeChips();
-    markDirty();
-  });
-
-  /* ---------- badge sticker presets (tap to toggle) ---------- */
+  /* ---------- badge stickers: up to two, tap to toggle ---------- */
+  const MAX_BADGES = 2;
   const BADGE_PRESETS = [
     'NEW!',
-    'Now available in mini!',
     'Back in stock!',
-    'Seasonal drop 🎃',
-    'Limited edition ✨',
+    'Seasonal drop!',
+    'Limited edition!',
+    'Almost gone!',
+    'Fan favorite!',
     'Sale!',
+    'Now available in mini!',
   ];
+
+  function badgeList() {
+    if (!currentProduct) return [];
+    if (!Array.isArray(currentProduct.badges)) currentProduct.badges = [];
+    return currentProduct.badges;
+  }
 
   (function buildBadgeChips() {
     const wrap = $('epBadgeChips');
@@ -558,10 +572,16 @@
       chip.setAttribute('aria-pressed', 'false');
       chip.addEventListener('click', () => {
         if (!currentProduct) return;
-        /* tapping the active sticker peels it off; tapping another swaps it on */
-        const next = currentProduct.badge === text ? '' : text;
-        currentProduct.badge = next;
-        $('epBadge').value = next;
+        const arr = badgeList();
+        const at = arr.indexOf(text);
+        if (at >= 0) {
+          arr.splice(at, 1); /* peel it off */
+        } else if (arr.length >= MAX_BADGES) {
+          toast('Two stickers max — peel one off first! 💜', 'pink');
+          return;
+        } else {
+          arr.push(text);
+        }
         syncBadgeChips();
         markDirty();
       });
@@ -569,10 +589,33 @@
     });
   })();
 
+  /* the text field manages one hand-written sticker alongside the presets */
+  $('epBadge').addEventListener('input', function () {
+    if (!currentProduct) return;
+    const arr = badgeList();
+    const text = this.value.trim();
+    const customIdx = arr.findIndex((b) => !BADGE_PRESETS.includes(b));
+    if (customIdx >= 0) arr.splice(customIdx, 1);
+    if (text && !arr.includes(text)) {
+      if (arr.length >= MAX_BADGES) {
+        if (!this.dataset.warned) {
+          this.dataset.warned = '1';
+          toast('Two stickers max — peel a preset off to add your own! 💜', 'pink');
+        }
+      } else {
+        arr.push(text);
+        delete this.dataset.warned;
+      }
+    }
+    if (!text) delete this.dataset.warned;
+    syncBadgeChips();
+    markDirty();
+  });
+
   function syncBadgeChips() {
-    const current = currentProduct ? (currentProduct.badge || '') : '';
+    const arr = currentProduct ? (currentProduct.badges || []) : [];
     $('epBadgeChips').querySelectorAll('.badge-chip').forEach((chip) => {
-      const on = chip.textContent === current;
+      const on = arr.includes(chip.textContent);
       chip.classList.toggle('active', on);
       chip.setAttribute('aria-pressed', on ? 'true' : 'false');
     });

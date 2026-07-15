@@ -586,6 +586,12 @@ button { cursor: pointer; font-family: inherit; color: inherit; background: none
 }
 .sticker-row .sticker-stock { margin-left: auto; white-space: nowrap; }
 
+/* a second badge goes purple with an opposite tilt, like two stickers slapped on */
+.sticker-row .sticker-badge + .sticker-badge {
+  background: var(--purple);
+  transform: rotate(2deg);
+}
+
 .product-card-info { padding: 15px 18px 16px; }
 
 .product-card-name {

@@ -84,6 +84,11 @@
   function listingById(product, id) { return (product.listings || []).find((l) => l.id === id); }
   function unsoldListings(p) { return (p.listings || []).filter((l) => !l.sold); }
   function coverImg(p) { return resolveImg((p.images && p.images[0]) || PLACEHOLDER_IMG); }
+  /* products may carry up to two badges; older data used a single `badge` string */
+  function productBadges(p) {
+    const list = Array.isArray(p.badges) ? p.badges : (p.badge ? [p.badge] : []);
+    return list.filter(Boolean).slice(0, 2);
+  }
   function esc(str) {
     return String(str == null ? '' : str)
       .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -148,7 +153,7 @@
             '<img class="' + (i === 0 ? 'active' : '') + '" src="' + esc(src) + '" alt="' + (i === 0 ? esc(product.name) : '') + '" loading="lazy" decoding="async"' + (i > 0 ? ' aria-hidden="true"' : '') + '>'
           ).join('') +
           '<div class="sticker-row">' +
-            (product.badge ? '<span class="sticker sticker-badge">' + esc(product.badge) + '</span>' : '') +
+            productBadges(product).map((b) => '<span class="sticker sticker-badge">' + esc(b) + '</span>').join('') +
             (stock > 0 ? '<span class="sticker sticker-stock">In stock!</span>' : '') +
           '</div>' +
         '</div>' +
