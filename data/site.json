@@ -20,6 +20,29 @@
   },
   "products": [
     {
+      "id": "p-mrlk6gshtsmk",
+      "name": "Strawberry Picnic Bundle",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This bundle includes 4 bookmarks, a zipper pouch, a set of four coasters, and a mini tote bag all in a cheerful yellow, pink, and blue color scheme! The best part? It’s priced way better than buying each item alone! ",
+      "badges": [
+        "Limited edition!",
+        "Seasonal drop!"
+      ],
+      "archived": false,
+      "oneOfAKind": true,
+      "images": [
+        "images/uploads/strawberry-picnic-bundle-mrlk89rnc3t.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89t47gl.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89udkdl.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89vk5xq.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlkg2ys2tr.jpg"
+      ],
+      "listings": [],
+      "salePrice": 60,
+      "saleLabel": ""
+    },
+    {
       "id": "hooded-cape",
       "name": "Hooded Cape",
       "price": null,
@@ -445,26 +468,6 @@
       ],
       "listings": [],
       "badges": []
-    },
-    {
-      "id": "p-mrlk6gshtsmk",
-      "name": "Strawberry Picnic Bundle",
-      "price": 67,
-      "priceLabel": "$67",
-      "description": "This bundle includes 4 bookmarks, a zipper pouch, a set of four coasters, and a mini tote bag all in a cheerful yellow, pink, and blue color scheme! The best part? It’s priced way better than buying each item alone! ",
-      "badges": [],
-      "archived": false,
-      "oneOfAKind": true,
-      "images": [
-        "images/uploads/strawberry-picnic-bundle-mrlk89rnc3t.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlk89t47gl.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlk89udkdl.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlk89vk5xq.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlkg2ys2tr.jpg"
-      ],
-      "listings": [],
-      "salePrice": 60,
-      "saleLabel": ""
     }
   ]
 }
