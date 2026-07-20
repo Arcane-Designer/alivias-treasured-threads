@@ -43,6 +43,28 @@
       "saleLabel": ""
     },
     {
+      "id": "p-mrsqof4x8ebz",
+      "name": "Summer Harvest Bundle ",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This bundle includes a mini tote bag, zipper bag, four coasters, and four bookmarks in a dark green and mushroom color palette! Buy all together to get the better price. \nBunny not included!",
+      "badges": [
+        "Limited edition!"
+      ],
+      "archived": false,
+      "oneOfAKind": true,
+      "images": [
+        "images/uploads/summer-harvest-bundle-mrsqr2duphe.jpg",
+        "images/uploads/summer-harvest-bundle-mrsqr2fgw19.jpg",
+        "images/uploads/summer-harvest-bundle-mrsqr2h4qrk.jpg",
+        "images/uploads/summer-harvest-bundle-mrsqr2iupu5.jpg",
+        "images/uploads/summer-harvest-bundle-mrsqr2ka042.jpg"
+      ],
+      "listings": [],
+      "salePrice": 60,
+      "saleLabel": ""
+    },
+    {
       "id": "mini-zipper-pouch",
       "name": "Mini Zipper Pouch",
       "price": 7,
