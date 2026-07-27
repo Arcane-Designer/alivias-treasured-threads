@@ -20,29 +20,6 @@
   },
   "products": [
     {
-      "id": "p-mrlk6gshtsmk",
-      "name": "Strawberry Picnic Bundle",
-      "price": 67,
-      "priceLabel": "$67",
-      "description": "This bundle includes 4 bookmarks, a zipper pouch, a set of four coasters, and a mini tote bag all in a cheerful yellow, pink, and blue color scheme! The best part? It’s priced way better than buying each item alone! ",
-      "badges": [
-        "Limited edition!",
-        "Seasonal drop!"
-      ],
-      "archived": true,
-      "oneOfAKind": true,
-      "images": [
-        "images/uploads/strawberry-picnic-bundle-mrlk89rnc3t.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlk89t47gl.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlk89udkdl.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlk89vk5xq.jpg",
-        "images/uploads/strawberry-picnic-bundle-mrlkg2ys2tr.jpg"
-      ],
-      "listings": [],
-      "salePrice": 60,
-      "saleLabel": ""
-    },
-    {
       "id": "p-mrsqof4x8ebz",
       "name": "Summer Harvest Bundle ",
       "price": 67,
@@ -59,6 +36,28 @@
         "images/uploads/summer-harvest-bundle-mrsqr2h4qrk.jpg",
         "images/uploads/summer-harvest-bundle-mrsqr2iupu5.jpg",
         "images/uploads/summer-harvest-bundle-mrsqr2ka042.jpg"
+      ],
+      "listings": [],
+      "salePrice": 60,
+      "saleLabel": ""
+    },
+    {
+      "id": "p-ms3nk6mp2otm",
+      "name": "Sunny Sky Bundle ",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This bundle includes a mini tote bag, four bookmarks, four coasters, and a zipper bag in a blue and yellow color scheme with a cute cloud print! Buy the bundle to get a discounted price on everything.",
+      "badges": [
+        "Limited edition!"
+      ],
+      "archived": false,
+      "oneOfAKind": true,
+      "images": [
+        "images/uploads/sunny-sky-bundle-ms3nn5pss1u.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5rkjrl.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5t9i3w.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5v0wib.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5woax8.jpg"
       ],
       "listings": [],
       "salePrice": 60,
@@ -459,6 +458,29 @@
       ],
       "listings": [],
       "badges": []
+    },
+    {
+      "id": "p-mrlk6gshtsmk",
+      "name": "Strawberry Picnic Bundle",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This bundle includes 4 bookmarks, a zipper pouch, a set of four coasters, and a mini tote bag all in a cheerful yellow, pink, and blue color scheme! The best part? It’s priced way better than buying each item alone! ",
+      "badges": [
+        "Limited edition!",
+        "Seasonal drop!"
+      ],
+      "archived": true,
+      "oneOfAKind": true,
+      "images": [
+        "images/uploads/strawberry-picnic-bundle-mrlk89rnc3t.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89t47gl.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89udkdl.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlk89vk5xq.jpg",
+        "images/uploads/strawberry-picnic-bundle-mrlkg2ys2tr.jpg"
+      ],
+      "listings": [],
+      "salePrice": 60,
+      "saleLabel": ""
     },
     {
       "id": "heart-bag",
