@@ -289,6 +289,14 @@
             "images/uploads/corner-bookmark-green-mrmdofmmd4a.jpg"
           ],
           "sold": false
+        },
+        {
+          "id": "l-ms3maccio56j",
+          "name": "Hightop Bookmark",
+          "images": [
+            "images/uploads/hightop-bookmark-ms3maa4ppzf.jpg"
+          ],
+          "sold": false
         }
       ],
       "badges": [],
@@ -370,7 +378,7 @@
       "description": "A mini tote bag, perfect for quick outings or when you need to travel light. Features an interior pocket and a snap closure.",
       "archived": false,
       "images": [
-        "images/products/mini-tote-bag-1.jpg"
+        "images/uploads/jackie-mini-tote-bag-ms3m7hjifr8.jpg"
       ],
       "listings": [],
       "badges": [
