@@ -77,11 +77,32 @@
       "images": [
         "images/products/mini-zipper-pouch-1.jpg",
         "images/products/mini-zipper-pouch-2.jpg",
+        "images/uploads/keene-s-mini-zipper-pouch-msaq23knt6j.jpg",
         "images/products/mini-zipper-pouch-3.jpg",
+        "images/uploads/keene-s-mini-zipper-pouch-msaq23mdhcs.jpg",
         "images/products/mini-zipper-pouch-4.jpg"
       ],
-      "listings": [],
-      "badges": []
+      "listings": [
+        {
+          "id": "l-msaq1g5k73hc",
+          "name": "Polka Dot Pouch",
+          "images": [
+            "images/uploads/mushroom-pouch-msaq0ny5yhp.jpg"
+          ],
+          "sold": false
+        },
+        {
+          "id": "l-msaq307gqoud",
+          "name": "Mushroom Pouch",
+          "images": [
+            "images/uploads/mushroom-pouch-msaq2xs1unp.jpg"
+          ],
+          "sold": false
+        }
+      ],
+      "badges": [
+        "Back in stock!"
+      ]
     },
     {
       "id": "annas-everyday-tote",
