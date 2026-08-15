@@ -20,6 +20,28 @@
   },
   "products": [
     {
+      "id": "p-msur1234kr0k",
+      "name": "Apple Cider Bundle",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This Apple Cider Bundle includes a Jackie Mini Tote, a zipper pouch, two pot holders, and three bookmarks in a cute apple inspired color scheme. Buy it as a bundle to save!",
+      "badges": [
+        "Limited edition!"
+      ],
+      "archived": false,
+      "oneOfAKind": false,
+      "images": [
+        "images/uploads/apple-cider-bundle-msur3jkm4l7.jpg",
+        "images/uploads/apple-cider-bundle-msur3jmgkl6.jpg",
+        "images/uploads/apple-cider-bundle-msur3jo9xsp.jpg",
+        "images/uploads/apple-cider-bundle-msur3jpyuus.jpg",
+        "images/uploads/apple-cider-bundle-msur3jru2va.jpg"
+      ],
+      "listings": [],
+      "salePrice": 60,
+      "saleLabel": ""
+    },
+    {
       "id": "p-mrsqof4x8ebz",
       "name": "Summer Harvest Bundle ",
       "price": 67,
