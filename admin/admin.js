@@ -165,6 +165,7 @@
       p.badges = p.badges.filter(Boolean).slice(0, 2);
       delete p.badge;
     });
+    if (!Array.isArray(d.reviews)) d.reviews = [];
     return d;
   }
 
@@ -385,6 +386,7 @@
 
   function renderAll() {
     renderProducts();
+    renderReviews();
     renderSettings();
     updatePublishBar();
   }
@@ -458,7 +460,8 @@
       images: [],
       listings: [],
     };
-    draft.products.push(p);
+    /* new products start at the top of the shop; she can nudge them anywhere after */
+    draft.products.unshift(p);
     openEditor(p.id, true);
   }
 
@@ -1257,7 +1260,8 @@
       if (!existing) pendingImages[path] = { dataUrl, base64 };
       if (!listing.images.includes(path)) listing.images.push(path);
     });
-    currentProduct.listings.push(listing);
+    /* newest listing goes first */
+    currentProduct.listings.unshift(listing);
 
     /* one tap, both places: mirror the photos into the product gallery */
     if ($('newListingAlsoProduct').checked) {
@@ -1277,6 +1281,95 @@
   });
 
   $('newListingName').addEventListener('input', function () { this.classList.remove('invalid'); });
+
+  /* ================================================
+     reviews tab
+     ================================================ */
+  function reviewsArr() {
+    if (!Array.isArray(draft.reviews)) draft.reviews = [];
+    return draft.reviews;
+  }
+
+  $('revMasterToggle').addEventListener('change', function () {
+    if (!draft) return;
+    if (!draft.settings) draft.settings = {};
+    draft.settings.reviewsOn = this.checked;
+    markDirty();
+    toast(this.checked ? 'Review slider is ON ✨' : 'Review slider is hidden for now');
+  });
+
+  $('addReviewBtn').addEventListener('click', () => {
+    reviewsArr().unshift({ id: uid('r'), name: '', text: '', stars: 5, show: true });
+    markDirty();
+    renderReviews();
+    const first = $('reviewAdminList').querySelector('.rev-name-input');
+    if (first) first.focus();
+  });
+
+  function renderReviews() {
+    $('revMasterToggle').checked = (draft.settings || {}).reviewsOn !== false;
+    const wrap = $('reviewAdminList');
+    wrap.innerHTML = '';
+    const arr = reviewsArr();
+
+    if (!arr.length) {
+      wrap.innerHTML = '<p class="field-hint" style="margin-top:14px">No reviews saved yet. When a kind note lands in your email, add it here!</p>';
+      return;
+    }
+
+    arr.forEach((rev, i) => {
+      const row = document.createElement('div');
+      row.className = 'review-admin-row' + (rev.show ? '' : ' is-off');
+      row.innerHTML =
+        '<div class="rev-row-top">' +
+          '<label class="cute-check" style="margin-top:0">' +
+            '<input type="checkbox" class="rev-show" ' + (rev.show ? 'checked' : '') + '>' +
+            '<span class="check-box" aria-hidden="true">✓</span> Show on site' +
+          '</label>' +
+          '<div class="rev-star-picker">' +
+            [1, 2, 3, 4, 5].map((n) =>
+              '<button type="button" class="rev-star' + (n <= (rev.stars || 5) ? ' on' : '') + '" data-n="' + n + '" aria-label="' + n + ' stars">★</button>'
+            ).join('') +
+          '</div>' +
+          '<div class="listing-actions">' +
+            '<button type="button" class="icon-btn mini rev-up" aria-label="Move up" ' + (i === 0 ? 'disabled style="opacity:.35"' : '') + '>↑</button>' +
+            '<button type="button" class="icon-btn mini rev-dn" aria-label="Move down" ' + (i === arr.length - 1 ? 'disabled style="opacity:.35"' : '') + '>↓</button>' +
+            '<button type="button" class="icon-btn mini rev-del" aria-label="Delete review">🗑</button>' +
+          '</div>' +
+        '</div>' +
+        '<input type="text" class="field-input rev-name-input" value="' + esc(rev.name || '') + '" placeholder="Customer\'s name">' +
+        '<textarea class="field-input rev-text-input" rows="3" placeholder="Their kind words…">' + esc(rev.text || '') + '</textarea>';
+
+      row.querySelector('.rev-show').addEventListener('change', function () {
+        rev.show = this.checked;
+        row.classList.toggle('is-off', !rev.show);
+        markDirty();
+      });
+      row.querySelectorAll('.rev-star').forEach((sb) => {
+        sb.addEventListener('click', () => {
+          rev.stars = parseInt(sb.dataset.n, 10);
+          row.querySelectorAll('.rev-star').forEach((b) => b.classList.toggle('on', parseInt(b.dataset.n, 10) <= rev.stars));
+          markDirty();
+        });
+      });
+      row.querySelector('.rev-name-input').addEventListener('input', function () { rev.name = this.value; markDirty(); });
+      row.querySelector('.rev-text-input').addEventListener('input', function () { rev.text = this.value; markDirty(); });
+      row.querySelector('.rev-up').addEventListener('click', () => {
+        arr.splice(i, 1); arr.splice(i - 1, 0, rev); markDirty(); renderReviews();
+      });
+      row.querySelector('.rev-dn').addEventListener('click', () => {
+        arr.splice(i, 1); arr.splice(i + 1, 0, rev); markDirty(); renderReviews();
+      });
+      row.querySelector('.rev-del').addEventListener('click', async () => {
+        const ok = await confirmCute('Delete this review from ' + (rev.name || 'this customer') + '?', 'Delete it');
+        if (!ok) return;
+        arr.splice(arr.indexOf(rev), 1);
+        markDirty();
+        renderReviews();
+      });
+      wrap.appendChild(row);
+    });
+  }
 
   /* ================================================
      settings tab
@@ -1303,8 +1396,9 @@
         t.classList.toggle('active', t === tab);
         t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
       });
-      $('panel-products').hidden = tab.dataset.tab !== 'products';
-      $('panel-settings').hidden = tab.dataset.tab !== 'settings';
+      document.querySelectorAll('.tab-panel').forEach((p) => {
+        p.hidden = p.id !== 'panel-' + tab.dataset.tab;
+      });
     });
   });
 

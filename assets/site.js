@@ -66,8 +66,89 @@
     basket = loadBasket();
     renderGrid();
     renderBasketUI();
+    renderReviewCarousel();
     bindGlobalUI();
     handleDeepLink();
+  }
+
+  /* ================================================
+     REVIEWS CAROUSEL
+     ================================================ */
+  let revIndex = 0;
+  let revCount = 0;
+  let revTimer = null;
+
+  function renderReviewCarousel() {
+    const s = DATA.settings || {};
+    const shown = (DATA.reviews || []).filter((r) => r.show && (r.text || '').trim());
+    if (s.reviewsOn === false || !shown.length) return; /* section stays hidden */
+
+    const track = $('reviewTrack');
+    const dots = $('reviewDots');
+    track.innerHTML = shown.map((r) => {
+      const stars = Math.min(5, Math.max(1, parseInt(r.stars, 10) || 5));
+      return '<div class="review-slide"><div class="review-card">' +
+        '<span class="review-quote" aria-hidden="true">“</span>' +
+        '<div class="review-stars" aria-label="' + stars + ' out of 5 stars">' +
+          '★'.repeat(stars) + (stars < 5 ? '<span class="dim">' + '★'.repeat(5 - stars) + '</span>' : '') +
+        '</div>' +
+        '<p class="review-text">' + esc(r.text) + '</p>' +
+        '<div class="review-name">~ ' + esc(r.name || 'a happy customer') + '</div>' +
+      '</div></div>';
+    }).join('');
+
+    dots.innerHTML = '';
+    shown.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'review-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Review ' + (i + 1));
+      dot.addEventListener('click', () => { goToReview(i); restartRevTimer(); });
+      dots.appendChild(dot);
+    });
+
+    revCount = shown.length;
+    revIndex = 0;
+    $('reviews').hidden = false;
+
+    const multi = revCount > 1;
+    $('reviewPrev').style.display = multi ? '' : 'none';
+    $('reviewNext').style.display = multi ? '' : 'none';
+    dots.style.display = multi ? '' : 'none';
+    if (!multi) return;
+
+    $('reviewPrev').addEventListener('click', () => { goToReview(revIndex - 1); restartRevTimer(); });
+    $('reviewNext').addEventListener('click', () => { goToReview(revIndex + 1); restartRevTimer(); });
+
+    /* swipe to browse faster */
+    let startX = 0;
+    const viewport = $('reviewViewport');
+    viewport.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; stopRevTimer(); }, { passive: true });
+    viewport.addEventListener('touchend', (e) => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 42) goToReview(revIndex + (diff > 0 ? 1 : -1));
+      restartRevTimer();
+    }, { passive: true });
+
+    /* pause the auto-shuffle while reading */
+    viewport.addEventListener('mouseenter', stopRevTimer);
+    viewport.addEventListener('mouseleave', restartRevTimer);
+
+    restartRevTimer();
+  }
+
+  function goToReview(index) {
+    if (!revCount) return;
+    revIndex = (index + revCount) % revCount;
+    $('reviewTrack').style.transform = 'translateX(-' + (revIndex * 100) + '%)';
+    $('reviewDots').querySelectorAll('.review-dot').forEach((d, i) => d.classList.toggle('active', i === revIndex));
+  }
+
+  function stopRevTimer() { clearInterval(revTimer); revTimer = null; }
+  function restartRevTimer() {
+    stopRevTimer();
+    if (revCount > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      revTimer = setInterval(() => goToReview(revIndex + 1), 5500);
+    }
   }
 
   /* ---------------- settings ---------------- */
@@ -88,6 +169,11 @@
       successTitle: s.successTitle,
       successBody: s.successBody,
       modalOneOffText: s.oneOffNote,
+      reviewsScript: s.reviewsScript,
+      reviewsTitle: s.reviewsTitle,
+      leaveScript: s.leaveScript,
+      leaveTitle: s.leaveTitle,
+      leaveReviewIntro: s.leaveReviewIntro,
     };
     Object.entries(textFields).forEach(([id, val]) => {
       if (val) $(id).textContent = val;
@@ -1040,6 +1126,85 @@
       holder.appendChild(c);
     }
   }
+
+  /* ================================================
+     LEAVE A REVIEW
+     ================================================ */
+  let pickedStars = 5;
+
+  document.querySelectorAll('#starPicker .star-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pickedStars = parseInt(btn.dataset.stars, 10);
+      document.querySelectorAll('#starPicker .star-btn').forEach((b) => {
+        b.classList.toggle('on', parseInt(b.dataset.stars, 10) <= pickedStars);
+      });
+    });
+  });
+
+  ['revName', 'revText'].forEach((id) => {
+    $(id).addEventListener('input', () => setFieldError(id, false));
+  });
+
+  $('reviewForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const hintEl = $('reviewHint');
+    hintEl.textContent = '';
+    hintEl.classList.remove('error');
+
+    let ok = true;
+    if (!$('revName').value.trim()) { setFieldError('revName', true); ok = false; }
+    if (!$('revText').value.trim()) { setFieldError('revText', true); ok = false; }
+    if (!ok) return;
+
+    const s = DATA.settings || {};
+    const name = $('revName').value.trim();
+    const message = 'NEW REVIEW 🌟\n\nStars: ' + '★'.repeat(pickedStars) + ' (' + pickedStars + '/5)\nName: ' + name +
+      '\n\nReview:\n' + $('revText').value.trim() +
+      '\n\n(To show it on the site: open your Studio → Reviews → Add a review, paste it in, and check "show"!)';
+
+    const key = (s.web3formsKey || '').trim();
+    const btn = $('reviewSubmitBtn');
+
+    if (key && !/YOUR_ACCESS_KEY/i.test(key)) {
+      btn.disabled = true;
+      btn.textContent = 'Sending… 🪡';
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            access_key: key,
+            subject: 'New review 🌟 from ' + name,
+            from_name: "Alivia's Treasured Threads Website",
+            name: name,
+            stars: pickedStars + '/5',
+            message: message,
+          }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (res.ok && json.success !== false) {
+          $('reviewForm').hidden = true;
+          $('reviewThanks').hidden = false;
+        } else { throw new Error(json.message || 'send failed'); }
+      } catch (err) {
+        console.error(err);
+        hintEl.textContent = "Hmm, that didn't send. Please try again ~ or DM me on Instagram! 💌";
+        hintEl.classList.add('error');
+        btn.disabled = false;
+        btn.textContent = 'Send My Review 💌';
+      }
+      return;
+    }
+
+    const to = (s.contactEmail || '').trim();
+    if (to && !/example\.com$/i.test(to)) {
+      window.location.href = 'mailto:' + to + '?subject=' + encodeURIComponent("Review ~ Alivia's Treasured Threads") + '&body=' + encodeURIComponent(message);
+      hintEl.textContent = 'Your email app should pop open with your review ~ just hit send! 💌';
+    } else {
+      hintEl.textContent = 'The review form is still being set up ~ please DM me on Instagram instead! 💌';
+      hintEl.classList.add('error');
+    }
+  });
 
   /* ================================================
      GLOBAL UI

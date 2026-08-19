@@ -58,6 +58,7 @@
 
       <nav class="tabs" role="tablist">
         <button class="tab active" data-tab="products" role="tab" aria-selected="true">🧺 My Products</button>
+        <button class="tab" data-tab="reviews" role="tab" aria-selected="false">💌 Reviews</button>
         <button class="tab" data-tab="settings" role="tab" aria-selected="false">🎀 Shop Settings</button>
       </nav>
 
@@ -65,6 +66,24 @@
       <section class="tab-panel" id="panel-products">
         <div class="admin-grid" id="adminGrid">
           <!-- product cards injected -->
+        </div>
+      </section>
+
+      <!-- ---------- REVIEWS TAB ---------- -->
+      <section class="tab-panel" id="panel-reviews" hidden>
+        <div class="settings-card" style="max-width:720px">
+          <label class="cute-toggle on-checked" style="margin-bottom:6px">
+            <input type="checkbox" id="revMasterToggle">
+            <span class="toggle-pill"></span>
+            <span class="toggle-txt">Show the review slider on my shop</span>
+          </label>
+          <p class="field-hint" style="margin-bottom:18px">
+            When shoppers send a review, it lands in your email 💌 Add your favorites here,
+            and only the ones with a checkmark appear in the slider. Share
+            <strong>your shop link + /#review</strong> to ask past customers for one!
+          </p>
+          <button type="button" class="btn btn-teal btn-small" id="addReviewBtn">+ Add a review</button>
+          <div class="review-admin-list" id="reviewAdminList"></div>
         </div>
       </section>
 
@@ -109,6 +128,32 @@
           <div class="field-group">
             <label class="field-label" for="setShopSubtitle">Sentence under the title</label>
             <textarea id="setShopSubtitle" class="field-input" rows="2" data-setting="shopSubtitle"></textarea>
+          </div>
+
+          <h3 class="settings-heading">Reviews section</h3>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="setReviewsScript">Little script words</label>
+              <input type="text" id="setReviewsScript" class="field-input" data-setting="reviewsScript">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="setReviewsTitle">Big title</label>
+              <input type="text" id="setReviewsTitle" class="field-input" data-setting="reviewsTitle">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="setLeaveScript">"Leave a review" script words</label>
+              <input type="text" id="setLeaveScript" class="field-input" data-setting="leaveScript">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="setLeaveTitle">"Leave a review" title</label>
+              <input type="text" id="setLeaveTitle" class="field-input" data-setting="leaveTitle">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setLeaveIntro">"Leave a review" intro sentence</label>
+            <textarea id="setLeaveIntro" class="field-input" rows="2" data-setting="leaveReviewIntro"></textarea>
           </div>
 
           <h3 class="settings-heading">One-of-a-kind products</h3>

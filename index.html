@@ -144,6 +144,32 @@
     </div>
   </section>
 
+  <!-- ============ REVIEWS ============ -->
+  <section class="section reviews-section" id="reviews" hidden>
+    <div class="section-inner">
+      <div class="section-title">
+        <span class="script" id="reviewsScript">kind words</span>
+        <span class="serif" id="reviewsTitle">What People Are Saying</span>
+      </div>
+      <div class="thread-divider" aria-hidden="true">
+        <svg viewBox="0 0 220 26" width="220" height="26">
+          <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#8FF0D6" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+          <path d="M206 13 L216 10.5" stroke="#23A583" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="207" cy="13" r="2.2" fill="#23A583"/>
+        </svg>
+      </div>
+
+      <div class="review-carousel" id="reviewCarousel" aria-roledescription="carousel" aria-label="Customer reviews">
+        <button type="button" class="review-nav prev" id="reviewPrev" aria-label="Previous review">‹</button>
+        <div class="review-viewport" id="reviewViewport">
+          <div class="review-track" id="reviewTrack"></div>
+        </div>
+        <button type="button" class="review-nav next" id="reviewNext" aria-label="Next review">›</button>
+      </div>
+      <div class="review-dots" id="reviewDots"></div>
+    </div>
+  </section>
+
   <!-- ============ ORDER ============ -->
   <div class="scallop scallop-order" aria-hidden="true"></div>
   <section class="section form-section" id="order">
@@ -217,6 +243,51 @@
         <h3 id="successTitle">Thanks so much!</h3>
         <p id="successBody">I got your message and will be in touch soon. Can't wait to work with you!</p>
         <a href="#" id="successIg" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-small" style="margin-top:18px">Follow along on Instagram</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEAVE A REVIEW ============ -->
+  <section class="section leave-review-section" id="review">
+    <div class="section-inner">
+      <div class="section-title">
+        <span class="script" id="leaveScript">your turn</span>
+        <span class="serif" id="leaveTitle">Leave a Review</span>
+      </div>
+      <p class="form-intro" id="leaveReviewIntro" style="margin-bottom:26px">
+        Took home a treasure? I'd love to hear how you like it! Your note might even end up on the site 💜
+      </p>
+
+      <form class="review-form" id="reviewForm" novalidate>
+        <input type="checkbox" name="botcheck" class="sr-only" style="display:none" tabindex="-1" autocomplete="off">
+        <div class="form-group">
+          <label class="form-label" for="revName">Your Name <span class="required">*</span></label>
+          <input type="text" id="revName" class="form-input" required autocomplete="name" placeholder="Who's this kind note from?">
+          <span class="field-error" data-for="revName">Please tell me your name!</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stars</label>
+          <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Star rating">
+            <button type="button" class="star-btn on" data-stars="1" aria-label="1 star">★</button>
+            <button type="button" class="star-btn on" data-stars="2" aria-label="2 stars">★</button>
+            <button type="button" class="star-btn on" data-stars="3" aria-label="3 stars">★</button>
+            <button type="button" class="star-btn on" data-stars="4" aria-label="4 stars">★</button>
+            <button type="button" class="star-btn on" data-stars="5" aria-label="5 stars">★</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="revText">Your Review <span class="required">*</span></label>
+          <textarea id="revText" class="form-textarea" required placeholder="What did you take home? How do you like it?"></textarea>
+          <span class="field-error" data-for="revText">Tell me a little something first!</span>
+        </div>
+        <button type="submit" class="btn btn-teal btn-big review-submit" id="reviewSubmitBtn">Send My Review 💌</button>
+        <p class="form-hint" id="reviewHint"></p>
+      </form>
+
+      <div class="review-thanks" id="reviewThanks" hidden>
+        <div class="checkmark">💜</div>
+        <h3>Thank you!!</h3>
+        <p>Alivia will read your kind words soon. Reviews she features may appear right here on the site!</p>
       </div>
     </div>
   </section>

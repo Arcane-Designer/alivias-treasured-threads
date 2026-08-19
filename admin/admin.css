@@ -816,6 +816,42 @@ textarea.field-input { resize: vertical; }
 .add-listing-form .field-input { margin-bottom: 10px; }
 .add-listing-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
+/* ============ REVIEWS TAB ============ */
+.review-admin-list { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+
+.review-admin-row {
+  border: 2px dashed var(--pink-light);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: opacity var(--transition);
+}
+.review-admin-row.is-off { opacity: 0.55; border-color: var(--neutral-dark); }
+
+.rev-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.rev-row-top .cute-check { margin: 0; }
+
+.rev-star-picker { display: flex; gap: 3px; }
+.rev-star {
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--neutral-dark);
+  transition: transform var(--transition), color var(--transition);
+}
+.rev-star.on { color: var(--pink); }
+.rev-star:hover { transform: scale(1.2); }
+
+.rev-text-input { resize: vertical; }
+
 /* ============ PHOTO LIBRARY PICKER ============ */
 .picker-overlay {
   position: fixed;
