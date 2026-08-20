@@ -1,0 +1,14 @@
+{
+  "name": "att-review-inbox",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-01",
+  "kv_namespaces": [
+    {
+      "binding": "REVIEWS",
+      "id": "9e2aefdea2c14eb88a6bd115fd95a96e"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

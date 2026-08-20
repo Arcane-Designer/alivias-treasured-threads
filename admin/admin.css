@@ -817,6 +817,67 @@ textarea.field-input { resize: vertical; }
 .add-listing-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
 /* ============ REVIEWS TAB ============ */
+.review-inbox {
+  border: 2px dashed var(--teal-light);
+  border-radius: var(--radius-sm);
+  background: var(--teal-pale);
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.inbox-heading {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.inbox-count {
+  background: var(--pink);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 800;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 7px;
+  box-shadow: 0 0 0 2px #fff;
+}
+.inbox-count:empty { display: none; }
+
+#inboxRefresh { margin-left: auto; }
+
+.inbox-list { display: flex; flex-direction: column; gap: 10px; }
+
+.inbox-card {
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  border: 1.5px dashed var(--teal-light);
+  padding: 12px 14px;
+  animation: cellIn 0.25s ease;
+}
+
+.inbox-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.inbox-stars { color: var(--pink); letter-spacing: 2px; font-size: 0.9rem; }
+.inbox-when { font-size: 0.72rem; font-weight: 700; color: var(--ink-soft); margin-left: auto; }
+
+.inbox-text { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.55; margin-bottom: 10px; }
+
+.inbox-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
 .review-btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .review-admin-list { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
 #pasteReviewInput { margin-bottom: 4px; }

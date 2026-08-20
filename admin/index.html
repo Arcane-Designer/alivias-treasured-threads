@@ -82,9 +82,16 @@
             and only the ones with a checkmark appear in the slider. Share
             <strong>your shop link + /#review</strong> to ask past customers for one!
           </p>
+          <div class="review-inbox" id="reviewInbox" hidden>
+            <h4 class="inbox-heading">📬 New from your site <span class="inbox-count" id="inboxCount"></span>
+              <button type="button" class="icon-btn mini" id="inboxRefresh" aria-label="Check for new reviews" title="Check again">↻</button>
+            </h4>
+            <div class="inbox-list" id="inboxList"></div>
+          </div>
+
           <div class="review-btn-row">
             <button type="button" class="btn btn-teal btn-small" id="addReviewBtn">+ Write one myself</button>
-            <button type="button" class="btn btn-pink btn-small" id="pasteReviewBtn">📥 Paste a submitted review</button>
+            <button type="button" class="btn btn-pink btn-small" id="pasteReviewBtn">📥 Paste from an email</button>
           </div>
           <div class="review-admin-list" id="reviewAdminList"></div>
         </div>
@@ -157,6 +164,10 @@
           <div class="field-group">
             <label class="field-label" for="setLeaveIntro">"Leave a review" intro sentence</label>
             <textarea id="setLeaveIntro" class="field-input" rows="2" data-setting="leaveReviewIntro"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="setInboxUrl">Review inbox address <span class="tiny-note">(Nathan's Cloudflare setup ~ don't change unless he says so)</span></label>
+            <input type="url" id="setInboxUrl" class="field-input" data-setting="reviewInboxUrl" spellcheck="false">
           </div>
 
           <h3 class="settings-heading">One-of-a-kind products</h3>

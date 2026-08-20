@@ -399,6 +399,7 @@
     renderReviews();
     renderSettings();
     updatePublishBar();
+    loadInbox();
   }
 
   function renderProducts() {
@@ -1316,6 +1317,103 @@
     if (first) first.focus();
   });
 
+  /* ---- the automatic inbox: reviews submitted on the site, one tap to add ---- */
+  function inboxUrl() {
+    return ((draft && draft.settings && draft.settings.reviewInboxUrl) || '').trim().replace(/\/+$/, '');
+  }
+
+  async function loadInbox() {
+    const base = inboxUrl();
+    const wrap = $('reviewInbox');
+    if (!base || !token) { wrap.hidden = true; return; }
+    try {
+      const res = await fetch(base + '/inbox', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (!res.ok) throw new Error('inbox said ' + res.status);
+      const { items } = await res.json();
+      renderInbox(items || []);
+    } catch (e) {
+      /* inbox is a bonus ~ if it's napping, the email + paste path still works */
+      wrap.hidden = true;
+    }
+  }
+
+  function renderInbox(items) {
+    const wrap = $('reviewInbox');
+    const list = $('inboxList');
+    if (!items.length) {
+      /* keep the section visible-but-quiet so she knows the inbox is alive */
+      wrap.hidden = false;
+      $('inboxCount').textContent = '';
+      list.innerHTML = '<p class="field-hint">Nothing new right now ~ reviews people send on the site will pop up here!</p>';
+      return;
+    }
+    wrap.hidden = false;
+    $('inboxCount').textContent = items.length;
+    list.innerHTML = '';
+    items.forEach((item) => {
+      const stars = Math.min(5, Math.max(1, parseInt(item.stars, 10) || 5));
+      const when = item.at ? new Date(item.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+      const card = document.createElement('div');
+      card.className = 'inbox-card';
+      card.innerHTML =
+        '<div class="inbox-card-top">' +
+          '<strong>' + esc(item.name || 'Someone') + '</strong>' +
+          '<span class="inbox-stars">' + '★'.repeat(stars) + '</span>' +
+          (when ? '<span class="inbox-when">' + esc(when) + '</span>' : '') +
+        '</div>' +
+        '<p class="inbox-text">' + esc(item.text || '') + '</p>' +
+        '<div class="inbox-actions">' +
+          '<button type="button" class="btn btn-teal btn-small ib-add">Add to my reviews ✨</button>' +
+          '<button type="button" class="ghost-btn danger ib-dismiss">Dismiss</button>' +
+        '</div>';
+
+      card.querySelector('.ib-add').addEventListener('click', async () => {
+        reviewsArr().unshift({ id: uid('r'), name: item.name || '', text: item.text || '', stars, show: true });
+        markDirty();
+        renderReviews();
+        card.remove();
+        toast('Added! Publish when you\'re ready ✨', 'teal');
+        removeFromInbox(item.id);
+        refreshInboxCount();
+      });
+
+      card.querySelector('.ib-dismiss').addEventListener('click', async () => {
+        const ok = await confirmCute('Dismiss the review from ' + (item.name || 'this person') + '? It won\'t be saved anywhere.', 'Dismiss it');
+        if (!ok) return;
+        card.remove();
+        removeFromInbox(item.id);
+        refreshInboxCount();
+      });
+
+      list.appendChild(card);
+    });
+  }
+
+  function refreshInboxCount() {
+    const left = $('inboxList').querySelectorAll('.inbox-card').length;
+    $('inboxCount').textContent = left || '';
+    if (!left) {
+      $('inboxList').innerHTML = '<p class="field-hint">Inbox is all caught up! 💜</p>';
+    }
+  }
+
+  async function removeFromInbox(id) {
+    const base = inboxUrl();
+    if (!base || !id) return;
+    try {
+      await fetch(base + '/inbox/' + encodeURIComponent(id), {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+    } catch (e) { /* it will simply reappear next visit ~ harmless */ }
+  }
+
+  $('inboxRefresh').addEventListener('click', () => {
+    $('inboxList').innerHTML = '<p class="field-hint">Checking…</p>';
+    loadInbox();
+    toast('Checking for new reviews… 📬');
+  });
+
   /* ---- paste a review that was submitted through the site ---- */
   function decodeReviewCode(text) {
     const m = String(text || '').match(/ATT-REV:([A-Za-z0-9+/=\s]+?):END/);
@@ -1449,6 +1547,7 @@
       document.querySelectorAll('.tab-panel').forEach((p) => {
         p.hidden = p.id !== 'panel-' + tab.dataset.tab;
       });
+      if (tab.dataset.tab === 'reviews') loadInbox(); /* fresh peek each visit */
     });
   });
 

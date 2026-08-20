@@ -1171,10 +1171,25 @@
 
     const key = (s.web3formsKey || '').trim();
     const btn = $('reviewSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending… 🪡';
+
+    /* drop it in Alivia's Studio inbox (a tiny Cloudflare Worker) so she can
+       add it with one tap ~ the email below is her notification */
+    let storedInInbox = false;
+    const inboxUrl = (s.reviewInboxUrl || '').trim().replace(/\/+$/, '');
+    if (inboxUrl) {
+      try {
+        const r = await fetch(inboxUrl + '/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, stars: pickedStars, text: revText }),
+        });
+        storedInInbox = r.ok;
+      } catch (err) { /* inbox is best-effort; email still goes out */ }
+    }
 
     if (key && !/YOUR_ACCESS_KEY/i.test(key)) {
-      btn.disabled = true;
-      btn.textContent = 'Sending… 🪡';
       try {
         const res = await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
@@ -1195,14 +1210,28 @@
         } else { throw new Error(json.message || 'send failed'); }
       } catch (err) {
         console.error(err);
-        hintEl.textContent = "Hmm, that didn't send. Please try again ~ or DM me on Instagram! 💌";
-        hintEl.classList.add('error');
-        btn.disabled = false;
-        btn.textContent = 'Send My Review 💌';
+        if (storedInInbox) {
+          /* the email hiccuped but the review reached Alivia's Studio inbox */
+          $('reviewForm').hidden = true;
+          $('reviewThanks').hidden = false;
+        } else {
+          hintEl.textContent = "Hmm, that didn't send. Please try again ~ or DM me on Instagram! 💌";
+          hintEl.classList.add('error');
+          btn.disabled = false;
+          btn.textContent = 'Send My Review 💌';
+        }
       }
       return;
     }
 
+    if (storedInInbox) {
+      $('reviewForm').hidden = true;
+      $('reviewThanks').hidden = false;
+      return;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send My Review 💌';
     const to = (s.contactEmail || '').trim();
     if (to && !/example\.com$/i.test(to)) {
       window.location.href = 'mailto:' + to + '?subject=' + encodeURIComponent("Review ~ Alivia's Treasured Threads") + '&body=' + encodeURIComponent(message);
