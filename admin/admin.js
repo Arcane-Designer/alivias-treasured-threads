@@ -313,8 +313,18 @@
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft, pendingImages }));
     } catch (e) {
-      /* photos too big for local save ~ keep them in memory and save just the words */
-      try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft, pendingImages: {} })); } catch (e2) { /* ignore */ }
+      /* photos too big for local save ~ keep them in memory, and save a copy of the
+         draft WITHOUT the not-yet-uploaded photo paths, so a later restore can never
+         reference photo bytes that no longer exist */
+      try {
+        const stripped = JSON.parse(JSON.stringify(draft));
+        const pend = new Set(Object.keys(pendingImages));
+        (stripped.products || []).forEach((p) => {
+          p.images = (p.images || []).filter((x) => !pend.has(x));
+          (p.listings || []).forEach((l) => { l.images = (l.images || []).filter((x) => !pend.has(x)); });
+        });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft: stripped, pendingImages: {} }));
+      } catch (e2) { /* ignore */ }
       if (!warnedQuota) {
         warnedQuota = true;
         toast('Heads up: new photos only live in this tab until you publish ~ publish soon to be safe! 💜', 'pink');
@@ -1306,6 +1316,46 @@
     if (first) first.focus();
   });
 
+  /* ---- paste a review that was submitted through the site ---- */
+  function decodeReviewCode(text) {
+    const m = String(text || '').match(/ATT-REV:([A-Za-z0-9+/=\s]+?):END/);
+    if (!m) return null;
+    try {
+      const obj = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s+/g, '')))));
+      return {
+        name: String(obj.n || '').slice(0, 80),
+        stars: Math.min(5, Math.max(1, parseInt(obj.s, 10) || 5)),
+        text: String(obj.t || ''),
+      };
+    } catch (e) { return null; }
+  }
+
+  $('pasteReviewBtn').addEventListener('click', () => {
+    $('pasteReviewInput').value = '';
+    $('pasteOverlay').hidden = false;
+    setTimeout(() => $('pasteReviewInput').focus(), 100);
+  });
+  $('pasteClose').addEventListener('click', () => { $('pasteOverlay').hidden = true; });
+  $('pasteCancel').addEventListener('click', () => { $('pasteOverlay').hidden = true; });
+  $('pasteOverlay').addEventListener('click', (e) => { if (e.target === $('pasteOverlay')) $('pasteOverlay').hidden = true; });
+
+  $('pasteAdd').addEventListener('click', () => {
+    const raw = $('pasteReviewInput').value.trim();
+    if (!raw) { $('pasteReviewInput').focus(); return; }
+    const decoded = decodeReviewCode(raw);
+    if (decoded) {
+      reviewsArr().unshift({ id: uid('r'), name: decoded.name, text: decoded.text, stars: decoded.stars, show: true });
+      toast('Review from ' + (decoded.name || 'a customer') + ' added ~ publish when ready! ✨', 'teal');
+    } else {
+      /* no code found: treat the paste as the review text itself */
+      reviewsArr().unshift({ id: uid('r'), name: '', text: raw, stars: 5, show: true });
+      toast("Added as a new review ~ just fill in their name! 💜");
+    }
+    $('pasteOverlay').hidden = true;
+    markDirty();
+    renderReviews();
+  });
+
   function renderReviews() {
     $('revMasterToggle').checked = (draft.settings || {}).reviewsOn !== false;
     const wrap = $('reviewAdminList');
@@ -1434,8 +1484,49 @@
     toast('Back to a clean slate!');
   });
 
+  /* photo paths the draft mentions that exist neither in the repo nor as
+     freshly-added photos in this tab ~ publishing them would mean broken images */
+  async function findMissingUploadRefs() {
+    const refs = [...new Set(JSON.stringify(draft).match(/images\/uploads\/[^"\\]+/g) || [])];
+    const unknown = refs.filter((p) => !pendingImages[p]);
+    if (!unknown.length) return [];
+    const ref = await ghJson(repoBase + '/git/ref/heads/' + GH_BRANCH);
+    const commit = await ghJson(repoBase + '/git/commits/' + ref.object.sha);
+    const tree = await ghJson(repoBase + '/git/trees/' + commit.tree.sha + '?recursive=1');
+    const have = new Set((tree.tree || []).map((t) => t.path));
+    return unknown.filter((p) => !have.has(p));
+  }
+
+  function stripImageRefs(paths) {
+    const bad = new Set(paths);
+    const touched = [];
+    (draft.products || []).forEach((p) => {
+      const before = (p.images || []).length;
+      p.images = (p.images || []).filter((x) => !bad.has(x));
+      let hit = before !== p.images.length;
+      (p.listings || []).forEach((l) => {
+        const b2 = (l.images || []).length;
+        l.images = (l.images || []).filter((x) => !bad.has(x));
+        if (b2 !== l.images.length) hit = true;
+      });
+      if (hit) touched.push(p.name || 'a product');
+    });
+    return touched;
+  }
+
   $('publishBtn').addEventListener('click', async () => {
     if (!isDirty()) return;
+
+    /* best-effort safety net: never publish photo paths that would 404 */
+    try {
+      progress('Double-checking your photos…');
+      const missing = await findMissingUploadRefs();
+      if (missing.length) {
+        const names = stripImageRefs(missing);
+        renderProducts();
+        toast(missing.length + ' photo' + (missing.length > 1 ? 's' : '') + " never finished uploading, so " + (missing.length > 1 ? 'they were' : 'it was') + ' removed from ' + names.join(', ') + ' ~ just re-add and publish again! 💜', 'pink');
+      }
+    } catch (e) { /* the publish itself still validates against the live repo */ }
 
     const draftJson = JSON.stringify(draft, null, 2) + '\n';
     const used = Object.entries(pendingImages).filter(([path]) => draftJson.includes(path));
@@ -1500,6 +1591,7 @@
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     if (!$('confirmOverlay').hidden) return; /* let the buttons decide */
+    if (!$('pasteOverlay').hidden) { $('pasteOverlay').hidden = true; return; }
     if (!$('pickerOverlay').hidden) { closePicker([]); return; }
     if (!$('editorOverlay').hidden) closeEditor();
   });

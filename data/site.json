@@ -105,18 +105,14 @@
       "images": [
         "images/products/mini-zipper-pouch-1.jpg",
         "images/products/mini-zipper-pouch-2.jpg",
-        "images/uploads/keene-s-mini-zipper-pouch-msaq23knt6j.jpg",
         "images/products/mini-zipper-pouch-3.jpg",
-        "images/uploads/keene-s-mini-zipper-pouch-msaq23mdhcs.jpg",
         "images/products/mini-zipper-pouch-4.jpg"
       ],
       "listings": [
         {
           "id": "l-msaq1g5k73hc",
           "name": "Polka Dot Pouch",
-          "images": [
-            "images/uploads/mushroom-pouch-msaq0ny5yhp.jpg"
-          ],
+          "images": [],
           "sold": false
         },
         {
@@ -432,11 +428,7 @@
         {
           "id": "l-mshwiv36uu6e",
           "name": "Off The Wall Mini Tote",
-          "images": [
-            "images/uploads/off-the-wall-mini-tote-mshwj9qjxz5.jpg",
-            "images/uploads/off-the-wall-mini-tote-mshwj9s5dhs.jpg",
-            "images/uploads/off-the-wall-mini-tote-mshwj9tjxv2.jpg"
-          ],
+          "images": [],
           "sold": false
         }
       ],

@@ -24,7 +24,10 @@
 
   if (previewData) {
     showPreviewRibbon();
-    init(previewData);
+    /* wait for the whole script to finish loading before booting, exactly like
+       the network path does ~ running init synchronously here hits variables
+       declared further down the file */
+    queueMicrotask(() => init(previewData));
   } else {
     fetch('data/site.json?v=' + Date.now())
       .then((r) => {
@@ -1158,9 +1161,13 @@
 
     const s = DATA.settings || {};
     const name = $('revName').value.trim();
+    const revText = $('revText').value.trim();
+    /* magic import line: the Studio's "Paste a submitted review" button turns
+       this into a filled-in review with zero retyping */
+    const code = 'ATT-REV:' + btoa(unescape(encodeURIComponent(JSON.stringify({ n: name, s: pickedStars, t: revText })))) + ':END';
     const message = 'NEW REVIEW 🌟\n\nStars: ' + '★'.repeat(pickedStars) + ' (' + pickedStars + '/5)\nName: ' + name +
-      '\n\nReview:\n' + $('revText').value.trim() +
-      '\n\n(To show it on the site: open your Studio → Reviews → Add a review, paste it in, and check "show"!)';
+      '\n\nReview:\n' + revText +
+      '\n\n✂️ Add it to your site without retyping:\nStudio → Reviews → 📥 Paste a submitted review → paste this whole line:\n\n' + code;
 
     const key = (s.web3formsKey || '').trim();
     const btn = $('reviewSubmitBtn');

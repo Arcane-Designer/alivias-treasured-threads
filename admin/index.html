@@ -82,7 +82,10 @@
             and only the ones with a checkmark appear in the slider. Share
             <strong>your shop link + /#review</strong> to ask past customers for one!
           </p>
-          <button type="button" class="btn btn-teal btn-small" id="addReviewBtn">+ Add a review</button>
+          <div class="review-btn-row">
+            <button type="button" class="btn btn-teal btn-small" id="addReviewBtn">+ Write one myself</button>
+            <button type="button" class="btn btn-pink btn-small" id="pasteReviewBtn">📥 Paste a submitted review</button>
+          </div>
           <div class="review-admin-list" id="reviewAdminList"></div>
         </div>
       </section>
@@ -366,6 +369,26 @@
       <div class="editor-foot">
         <button class="ghost-btn danger" id="epDelete">🗑 Delete product</button>
         <button class="btn btn-gradient" id="epDone">Done ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PASTE-A-REVIEW DIALOG ================= -->
+  <div class="picker-overlay" id="pasteOverlay" hidden>
+    <div class="picker-card" role="dialog" aria-modal="true" aria-label="Paste a submitted review">
+      <div class="picker-head">
+        <h3>📥 Paste a submitted review</h3>
+        <button class="icon-btn" id="pasteClose" aria-label="Close">×</button>
+      </div>
+      <p class="picker-hint">
+        When someone sends a review through your site, the email includes a code line
+        that starts with <strong>ATT-REV:</strong> ~ copy it (or the whole email) and paste it here.
+        Their name, stars, and words fill themselves in!
+      </p>
+      <textarea class="field-input" id="pasteReviewInput" rows="5" placeholder="Paste the email or the ATT-REV code here…"></textarea>
+      <div class="picker-foot">
+        <button class="ghost-btn" id="pasteCancel">Never mind</button>
+        <button class="btn btn-gradient" id="pasteAdd">Add it ✨</button>
       </div>
     </div>
   </div>
