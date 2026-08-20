@@ -576,5 +576,24 @@
       "badges": []
     }
   ],
-  "reviews": []
+  "reviews": [
+    {
+      "id": "r-mt0zbtzo9r6y",
+      "name": "Josie M",
+      "text": "I got the most adorable strawberry design bundle, I love it and get compliments on it whenever I use the bag. Well made, and well worth the price!",
+      "stars": 5,
+      "show": true,
+      "source": "site",
+      "at": "2026-08-20T02:09:48.823Z"
+    },
+    {
+      "id": "r-mt0zbsnjaowo",
+      "name": "Lexi",
+      "text": "I have two mini totes and a pencil roll from Alivia and they are my absolute favorites. I use them everyday and have had them for over a year. The products are such nice quality and durable! Will always be a returning customer",
+      "stars": 5,
+      "show": true,
+      "source": "site",
+      "at": "2026-08-20T01:31:42.358Z"
+    }
+  ]
 }
