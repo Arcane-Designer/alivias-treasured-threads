@@ -36,7 +36,7 @@
         "Limited edition!"
       ],
       "archived": false,
-      "oneOfAKind": false,
+      "oneOfAKind": true,
       "images": [
         "images/uploads/apple-cider-bundle-msur3jkm4l7.jpg",
         "images/uploads/apple-cider-bundle-msur3jmgkl6.jpg",
@@ -113,9 +113,7 @@
         {
           "id": "l-msaq1g5k73hc",
           "name": "Polka Dot Pouch",
-          "images": [
-            "images/uploads/polka-dot-pouch-mt0u7se94vr.jpg"
-          ],
+          "images": [],
           "sold": false
         },
         {
@@ -425,19 +423,13 @@
       "description": "A mini tote bag, perfect for quick outings or when you need to travel light. Features an interior pocket and a snap closure.",
       "archived": false,
       "images": [
-        "images/uploads/jackie-mini-tote-bag-ms3m7hjifr8.jpg",
-        "images/uploads/jackie-mini-tote-bag-mt0u8vdjo05.jpg",
-        "images/uploads/jackie-mini-tote-bag-mt0u8veyioq.jpg",
-        "images/uploads/jackie-mini-tote-bag-mt0u8vge44b.jpg"
+        "images/uploads/jackie-mini-tote-bag-ms3m7hjifr8.jpg"
       ],
       "listings": [
         {
           "id": "l-mshwiv36uu6e",
           "name": "Off The Wall Mini Tote",
-          "images": [
-            "images/uploads/off-the-wall-mini-tote-mt0u8mmzf8e.jpg",
-            "images/uploads/off-the-wall-mini-tote-mt0u8moardv.jpg"
-          ],
+          "images": [],
           "sold": false
         }
       ],
