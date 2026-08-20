@@ -1306,95 +1306,40 @@
     if (!draft.settings) draft.settings = {};
     draft.settings.reviewsOn = this.checked;
     markDirty();
+    renderReviews();
     toast(this.checked ? 'Review slider is ON ✨' : 'Review slider is hidden for now');
   });
 
   $('addReviewBtn').addEventListener('click', () => {
-    reviewsArr().unshift({ id: uid('r'), name: '', text: '', stars: 5, show: true });
+    reviewsArr().unshift({ id: uid('r'), name: '', text: '', stars: 5, show: true, source: 'mine', at: new Date().toISOString() });
     markDirty();
     renderReviews();
     const first = $('reviewAdminList').querySelector('.rev-name-input');
     if (first) first.focus();
   });
 
-  /* ---- the automatic inbox: reviews submitted on the site, one tap to add ---- */
+  /* ---- the pool: reviews submitted on the site, waiting to be selected ---- */
+  let inboxItems = [];
+  let inboxNote = '';
+
   function inboxUrl() {
     return ((draft && draft.settings && draft.settings.reviewInboxUrl) || '').trim().replace(/\/+$/, '');
   }
 
   async function loadInbox() {
     const base = inboxUrl();
-    const wrap = $('reviewInbox');
-    if (!base || !token) { wrap.hidden = true; return; }
+    if (!base || !token) { inboxItems = []; inboxNote = ''; renderReviews(); return; }
     try {
       const res = await fetch(base + '/inbox', { headers: { 'Authorization': 'Bearer ' + token } });
       if (!res.ok) throw new Error('inbox said ' + res.status);
       const { items } = await res.json();
-      renderInbox(items || []);
+      inboxItems = items || [];
+      inboxNote = '';
     } catch (e) {
-      /* inbox is a bonus ~ if it's napping, the email + paste path still works */
-      wrap.hidden = true;
+      inboxItems = [];
+      inboxNote = "Couldn't reach the review inbox just now ~ site reviews will appear once it's back!";
     }
-  }
-
-  function renderInbox(items) {
-    const wrap = $('reviewInbox');
-    const list = $('inboxList');
-    if (!items.length) {
-      /* keep the section visible-but-quiet so she knows the inbox is alive */
-      wrap.hidden = false;
-      $('inboxCount').textContent = '';
-      list.innerHTML = '<p class="field-hint">Nothing new right now ~ reviews people send on the site will pop up here!</p>';
-      return;
-    }
-    wrap.hidden = false;
-    $('inboxCount').textContent = items.length;
-    list.innerHTML = '';
-    items.forEach((item) => {
-      const stars = Math.min(5, Math.max(1, parseInt(item.stars, 10) || 5));
-      const when = item.at ? new Date(item.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
-      const card = document.createElement('div');
-      card.className = 'inbox-card';
-      card.innerHTML =
-        '<div class="inbox-card-top">' +
-          '<strong>' + esc(item.name || 'Someone') + '</strong>' +
-          '<span class="inbox-stars">' + '★'.repeat(stars) + '</span>' +
-          (when ? '<span class="inbox-when">' + esc(when) + '</span>' : '') +
-        '</div>' +
-        '<p class="inbox-text">' + esc(item.text || '') + '</p>' +
-        '<div class="inbox-actions">' +
-          '<button type="button" class="btn btn-teal btn-small ib-add">Add to my reviews ✨</button>' +
-          '<button type="button" class="ghost-btn danger ib-dismiss">Dismiss</button>' +
-        '</div>';
-
-      card.querySelector('.ib-add').addEventListener('click', async () => {
-        reviewsArr().unshift({ id: uid('r'), name: item.name || '', text: item.text || '', stars, show: true });
-        markDirty();
-        renderReviews();
-        card.remove();
-        toast('Added! Publish when you\'re ready ✨', 'teal');
-        removeFromInbox(item.id);
-        refreshInboxCount();
-      });
-
-      card.querySelector('.ib-dismiss').addEventListener('click', async () => {
-        const ok = await confirmCute('Dismiss the review from ' + (item.name || 'this person') + '? It won\'t be saved anywhere.', 'Dismiss it');
-        if (!ok) return;
-        card.remove();
-        removeFromInbox(item.id);
-        refreshInboxCount();
-      });
-
-      list.appendChild(card);
-    });
-  }
-
-  function refreshInboxCount() {
-    const left = $('inboxList').querySelectorAll('.inbox-card').length;
-    $('inboxCount').textContent = left || '';
-    if (!left) {
-      $('inboxList').innerHTML = '<p class="field-hint">Inbox is all caught up! 💜</p>';
-    }
+    renderReviews();
   }
 
   async function removeFromInbox(id) {
@@ -1409,59 +1354,89 @@
   }
 
   $('inboxRefresh').addEventListener('click', () => {
-    $('inboxList').innerHTML = '<p class="field-hint">Checking…</p>';
-    loadInbox();
     toast('Checking for new reviews… 📬');
+    loadInbox();
   });
 
-  /* ---- paste a review that was submitted through the site ---- */
-  function decodeReviewCode(text) {
-    const m = String(text || '').match(/ATT-REV:([A-Za-z0-9+/=\s]+?):END/);
-    if (!m) return null;
-    try {
-      const obj = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s+/g, '')))));
-      return {
-        name: String(obj.n || '').slice(0, 80),
-        stars: Math.min(5, Math.max(1, parseInt(obj.s, 10) || 5)),
-        text: String(obj.t || ''),
-      };
-    } catch (e) { return null; }
-  }
-
-  $('pasteReviewBtn').addEventListener('click', () => {
-    $('pasteReviewInput').value = '';
-    $('pasteOverlay').hidden = false;
-    setTimeout(() => $('pasteReviewInput').focus(), 100);
-  });
-  $('pasteClose').addEventListener('click', () => { $('pasteOverlay').hidden = true; });
-  $('pasteCancel').addEventListener('click', () => { $('pasteOverlay').hidden = true; });
-  $('pasteOverlay').addEventListener('click', (e) => { if (e.target === $('pasteOverlay')) $('pasteOverlay').hidden = true; });
-
-  $('pasteAdd').addEventListener('click', () => {
-    const raw = $('pasteReviewInput').value.trim();
-    if (!raw) { $('pasteReviewInput').focus(); return; }
-    const decoded = decodeReviewCode(raw);
-    if (decoded) {
-      reviewsArr().unshift({ id: uid('r'), name: decoded.name, text: decoded.text, stars: decoded.stars, show: true });
-      toast('Review from ' + (decoded.name || 'a customer') + ' added ~ publish when ready! ✨', 'teal');
-    } else {
-      /* no code found: treat the paste as the review text itself */
-      reviewsArr().unshift({ id: uid('r'), name: '', text: raw, stars: 5, show: true });
-      toast("Added as a new review ~ just fill in their name! 💜");
-    }
-    $('pasteOverlay').hidden = true;
+  /* ---- selecting a site-submitted review moves it into her permanent list ---- */
+  function selectFromPool(item) {
+    const stars = Math.min(5, Math.max(1, parseInt(item.stars, 10) || 5));
+    reviewsArr().unshift({
+      id: uid('r'),
+      name: item.name || '',
+      text: item.text || '',
+      stars: stars,
+      show: true,
+      source: 'site',
+      at: item.at || new Date().toISOString(),
+    });
+    inboxItems = inboxItems.filter((x) => x.id !== item.id);
+    removeFromInbox(item.id);
     markDirty();
     renderReviews();
-  });
+    toast('On the shop it goes ~ publish when ready! ✨', 'teal');
+  }
 
   function renderReviews() {
-    $('revMasterToggle').checked = (draft.settings || {}).reviewsOn !== false;
+    const on = (draft.settings || {}).reviewsOn !== false;
+    $('revMasterToggle').checked = on;
+    /* the toggle gates the whole area */
+    $('reviewsBody').hidden = !on;
+    if (!on) return;
+
+    /* strip of what's currently live, in display order */
+    const shown = reviewsArr().filter((r) => r.show);
+    $('showingCount').textContent = shown.length || '';
+    $('showingStrip').innerHTML = shown.length
+      ? shown.map((r) => '<span class="strip-card"><span class="s">' + '★'.repeat(Math.min(5, Math.max(1, parseInt(r.stars, 10) || 5))) + '</span> ' + esc(r.name || 'no name yet') + '</span>').join('')
+      : '<span class="strip-empty">Nothing selected yet ~ tick the reviews below you want on your shop!</span>';
+
     const wrap = $('reviewAdminList');
     wrap.innerHTML = '';
-    const arr = reviewsArr();
 
-    if (!arr.length) {
-      wrap.innerHTML = '<p class="field-hint" style="margin-top:14px">No reviews saved yet. When a kind note lands in your email, add it here!</p>';
+    if (inboxNote) {
+      const note = document.createElement('p');
+      note.className = 'field-hint';
+      note.textContent = inboxNote;
+      wrap.appendChild(note);
+    }
+
+    /* fresh-from-the-site reviews first (newest on top), unselected until she ticks them */
+    inboxItems.forEach((item) => {
+      const stars = Math.min(5, Math.max(1, parseInt(item.stars, 10) || 5));
+      const when = item.at ? new Date(item.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+      const row = document.createElement('div');
+      row.className = 'review-admin-row pool-row';
+      row.innerHTML =
+        '<div class="rev-row-top">' +
+          '<label class="cute-check" style="margin-top:0">' +
+            '<input type="checkbox" class="pool-select">' +
+            '<span class="check-box" aria-hidden="true">✓</span> Show on site' +
+          '</label>' +
+          '<span class="mini-chip new">📬 from your site</span>' +
+          '<span class="inbox-stars">' + '★'.repeat(stars) + '</span>' +
+          (when ? '<span class="inbox-when">' + esc(when) + '</span>' : '') +
+          '<div class="listing-actions">' +
+            '<button type="button" class="icon-btn mini pool-del" aria-label="Delete review">🗑</button>' +
+          '</div>' +
+        '</div>' +
+        '<strong class="pool-name">' + esc(item.name || 'Someone') + '</strong>' +
+        '<p class="inbox-text" style="margin:0">' + esc(item.text || '') + '</p>';
+
+      row.querySelector('.pool-select').addEventListener('change', () => selectFromPool(item));
+      row.querySelector('.pool-del').addEventListener('click', async () => {
+        const ok = await confirmCute('Delete the review from ' + (item.name || 'this person') + '? This is its only copy, so it can\'t be brought back.', 'Delete it');
+        if (!ok) return;
+        inboxItems = inboxItems.filter((x) => x.id !== item.id);
+        removeFromInbox(item.id);
+        renderReviews();
+      });
+      wrap.appendChild(row);
+    });
+
+    const arr = reviewsArr();
+    if (!arr.length && !inboxItems.length) {
+      wrap.innerHTML = '<p class="field-hint" style="margin-top:14px">No reviews yet! Share your shop link + /#review with past customers, or write one yourself.</p>';
       return;
     }
 
@@ -1474,6 +1449,8 @@
             '<input type="checkbox" class="rev-show" ' + (rev.show ? 'checked' : '') + '>' +
             '<span class="check-box" aria-hidden="true">✓</span> Show on site' +
           '</label>' +
+          '<span class="mini-chip' + (rev.source === 'site' ? ' new' : '') + '">' + (rev.source === 'site' ? '📬 from your site' : '✍️ written by me') + '</span>' +
+          (rev.at ? '<span class="inbox-when">' + esc(new Date(rev.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })) + '</span>' : '') +
           '<div class="rev-star-picker">' +
             [1, 2, 3, 4, 5].map((n) =>
               '<button type="button" class="rev-star' + (n <= (rev.stars || 5) ? ' on' : '') + '" data-n="' + n + '" aria-label="' + n + ' stars">★</button>'
@@ -1690,7 +1667,6 @@
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     if (!$('confirmOverlay').hidden) return; /* let the buttons decide */
-    if (!$('pasteOverlay').hidden) { $('pasteOverlay').hidden = true; return; }
     if (!$('pickerOverlay').hidden) { closePicker([]); return; }
     if (!$('editorOverlay').hidden) closeEditor();
   });

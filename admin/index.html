@@ -71,29 +71,30 @@
 
       <!-- ---------- REVIEWS TAB ---------- -->
       <section class="tab-panel" id="panel-reviews" hidden>
-        <div class="settings-card" style="max-width:720px">
+        <div class="settings-card" style="max-width:760px">
           <label class="cute-toggle on-checked" style="margin-bottom:6px">
             <input type="checkbox" id="revMasterToggle">
             <span class="toggle-pill"></span>
             <span class="toggle-txt">Show the review slider on my shop</span>
           </label>
-          <p class="field-hint" style="margin-bottom:18px">
-            When shoppers send a review, it lands in your email 💌 Add your favorites here,
-            and only the ones with a checkmark appear in the slider. Share
-            <strong>your shop link + /#review</strong> to ask past customers for one!
-          </p>
-          <div class="review-inbox" id="reviewInbox" hidden>
-            <h4 class="inbox-heading">📬 New from your site <span class="inbox-count" id="inboxCount"></span>
-              <button type="button" class="icon-btn mini" id="inboxRefresh" aria-label="Check for new reviews" title="Check again">↻</button>
-            </h4>
-            <div class="inbox-list" id="inboxList"></div>
-          </div>
 
-          <div class="review-btn-row">
-            <button type="button" class="btn btn-teal btn-small" id="addReviewBtn">+ Write one myself</button>
-            <button type="button" class="btn btn-pink btn-small" id="pasteReviewBtn">📥 Paste from an email</button>
+          <div id="reviewsBody" hidden>
+            <p class="field-hint" style="margin-bottom:16px">
+              Every review you've ever gotten lives here ~ tick the ones you want on your shop.
+              Want more? Share <strong>your shop link + /#review</strong> with past customers!
+            </p>
+
+            <div class="showing-strip-wrap">
+              <h4 class="inbox-heading">✨ Showing on your shop <span class="inbox-count" id="showingCount"></span></h4>
+              <div class="showing-strip" id="showingStrip"></div>
+            </div>
+
+            <div class="review-btn-row">
+              <button type="button" class="btn btn-teal btn-small" id="addReviewBtn">+ Write one myself</button>
+              <button type="button" class="ghost-btn" id="inboxRefresh">↻ Check for new reviews</button>
+            </div>
+            <div class="review-admin-list" id="reviewAdminList"></div>
           </div>
-          <div class="review-admin-list" id="reviewAdminList"></div>
         </div>
       </section>
 
@@ -380,26 +381,6 @@
       <div class="editor-foot">
         <button class="ghost-btn danger" id="epDelete">🗑 Delete product</button>
         <button class="btn btn-gradient" id="epDone">Done ✓</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= PASTE-A-REVIEW DIALOG ================= -->
-  <div class="picker-overlay" id="pasteOverlay" hidden>
-    <div class="picker-card" role="dialog" aria-modal="true" aria-label="Paste a submitted review">
-      <div class="picker-head">
-        <h3>📥 Paste a submitted review</h3>
-        <button class="icon-btn" id="pasteClose" aria-label="Close">×</button>
-      </div>
-      <p class="picker-hint">
-        When someone sends a review through your site, the email includes a code line
-        that starts with <strong>ATT-REV:</strong> ~ copy it (or the whole email) and paste it here.
-        Their name, stars, and words fill themselves in!
-      </p>
-      <textarea class="field-input" id="pasteReviewInput" rows="5" placeholder="Paste the email or the ATT-REV code here…"></textarea>
-      <div class="picker-foot">
-        <button class="ghost-btn" id="pasteCancel">Never mind</button>
-        <button class="btn btn-gradient" id="pasteAdd">Add it ✨</button>
       </div>
     </div>
   </div>

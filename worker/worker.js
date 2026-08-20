@@ -74,11 +74,9 @@ async function submit(request, env, cors) {
   if (list.keys.length >= MAX_INBOX) return json({ error: 'inbox full' }, 503, cors);
 
   const id = 'rev:' + Date.now() + '-' + crypto.randomUUID().slice(0, 8);
-  await env.REVIEWS.put(
-    id,
-    JSON.stringify({ name, text, stars, at: new Date().toISOString() }),
-    { expirationTtl: 60 * 60 * 24 * 180 } /* tidy itself after 6 months */
-  );
+  /* no expiry: submissions stay until Alivia selects or trashes them,
+     so her Studio can always reach every review the site ever received */
+  await env.REVIEWS.put(id, JSON.stringify({ name, text, stars, at: new Date().toISOString() }));
   return json({ ok: true }, 200, cors);
 }
 

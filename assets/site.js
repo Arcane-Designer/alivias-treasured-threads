@@ -1148,6 +1148,26 @@
     $(id).addEventListener('input', () => setFieldError(id, false));
   });
 
+  function showReviewThanks() {
+    $('reviewForm').hidden = true;
+    $('reviewThanks').hidden = false;
+    /* remember on this device so an accidental refresh doesn't invite doubles */
+    try { localStorage.setItem('att-reviewed', '1'); } catch (e) { /* fine */ }
+  }
+
+  /* returning device that already sent a review: show thanks + a way back in */
+  if (localStorage.getItem('att-reviewed') === '1') {
+    $('reviewForm').hidden = true;
+    $('reviewThanks').hidden = false;
+    $('reviewAgainBtn').hidden = false;
+  }
+  $('reviewAgainBtn').addEventListener('click', () => {
+    $('reviewThanks').hidden = true;
+    $('reviewAgainBtn').hidden = true;
+    $('reviewForm').hidden = false;
+    $('revName').focus();
+  });
+
   $('reviewForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const hintEl = $('reviewHint');
@@ -1162,12 +1182,9 @@
     const s = DATA.settings || {};
     const name = $('revName').value.trim();
     const revText = $('revText').value.trim();
-    /* magic import line: the Studio's "Paste a submitted review" button turns
-       this into a filled-in review with zero retyping */
-    const code = 'ATT-REV:' + btoa(unescape(encodeURIComponent(JSON.stringify({ n: name, s: pickedStars, t: revText })))) + ':END';
     const message = 'NEW REVIEW 🌟\n\nStars: ' + '★'.repeat(pickedStars) + ' (' + pickedStars + '/5)\nName: ' + name +
       '\n\nReview:\n' + revText +
-      '\n\n✂️ Add it to your site without retyping:\nStudio → Reviews → 📥 Paste a submitted review → paste this whole line:\n\n' + code;
+      '\n\nIt\'s waiting in your Studio → Reviews tab ~ tick the checkbox to show it on the site!';
 
     const key = (s.web3formsKey || '').trim();
     const btn = $('reviewSubmitBtn');
@@ -1205,15 +1222,13 @@
         });
         const json = await res.json().catch(() => ({}));
         if (res.ok && json.success !== false) {
-          $('reviewForm').hidden = true;
-          $('reviewThanks').hidden = false;
+          showReviewThanks();
         } else { throw new Error(json.message || 'send failed'); }
       } catch (err) {
         console.error(err);
         if (storedInInbox) {
           /* the email hiccuped but the review reached Alivia's Studio inbox */
-          $('reviewForm').hidden = true;
-          $('reviewThanks').hidden = false;
+          showReviewThanks();
         } else {
           hintEl.textContent = "Hmm, that didn't send. Please try again ~ or DM me on Instagram! 💌";
           hintEl.classList.add('error');
@@ -1225,8 +1240,7 @@
     }
 
     if (storedInInbox) {
-      $('reviewForm').hidden = true;
-      $('reviewThanks').hidden = false;
+      showReviewThanks();
       return;
     }
 

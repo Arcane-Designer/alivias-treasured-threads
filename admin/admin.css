@@ -817,13 +817,37 @@ textarea.field-input { resize: vertical; }
 .add-listing-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
 /* ============ REVIEWS TAB ============ */
-.review-inbox {
-  border: 2px dashed var(--teal-light);
+.showing-strip-wrap {
+  border: 2px dashed var(--purple-light);
   border-radius: var(--radius-sm);
-  background: var(--teal-pale);
-  padding: 14px;
-  margin-bottom: 18px;
+  background: var(--purple-pale);
+  padding: 12px 14px;
+  margin-bottom: 16px;
 }
+
+.showing-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.strip-card {
+  flex: 0 0 auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  box-shadow: 0 1px 5px rgba(45, 35, 56, 0.1);
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.strip-card .s { color: var(--pink); letter-spacing: 1px; margin-right: 4px; }
+
+.strip-empty { font-size: 0.8rem; color: var(--ink-soft); font-weight: 600; }
+
+.pool-row { border-color: var(--teal-light); background: var(--teal-pale); }
+.pool-row .pool-name { font-size: 0.92rem; }
 
 .inbox-heading {
   font-family: var(--font-display);
