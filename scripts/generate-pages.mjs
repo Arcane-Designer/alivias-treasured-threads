@@ -163,7 +163,6 @@ function actionsHtml(p) {
     parts.push(`<button type="button" class="btn btn-primary" id="addOneOffBtn">Add to basket</button>`);
   }
   if (!p.oneOfAKind) parts.push(`<a class="btn btn-secondary" href="../../custom/?design=${encodeURIComponent(p.id)}#customRequest">Request a custom version</a>`);
-  parts.push(`<a class="btn btn-outline" href="../../checkout/">View checkout</a>`);
   return `<div class="product-actions">${parts.join('\n')}</div>`;
 }
 
@@ -266,7 +265,6 @@ ${jsonLdProduct(p, pageUrl)}
           ${descLink}
           ${listingsHtml(p)}
           ${actionsHtml(p)}
-          <p class="checkout-note" style="margin-top:1rem">Basket items are finished pieces. Custom requests use a separate form and do not collect payment.</p>
         </div>
       </div>
     </div>

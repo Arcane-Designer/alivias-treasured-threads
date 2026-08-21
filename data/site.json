@@ -62,7 +62,7 @@
     "faq2Answer": "Ready to ship means the piece is already sewn and waiting; what you see is what arrives. Made to order means I make it after you ask, so we can pick the fabric and details together first.",
     "faq3Question": "Can I request a custom fabric or size?",
     "faq3Answer": "Yes! Open Custom, select one or more designs, choose the quantity for each, and describe what you have in mind. I'll confirm fabric availability, timing, and price when I reply.",
-    "productOrderNote": "Basket items are finished pieces. Custom requests use a separate form and do not collect payment.",
+    "productOrderNote": "Ready-to-buy pieces appear above.",
     "footerTagline": "Handmade with love, one stitch at a time."
   },
   "products": [
@@ -527,6 +527,7 @@
     {
       "id": "craft-roll",
       "name": "Craft Roll",
+      "itemType": "Books & Crafts",
       "price": 19,
       "priceLabel": "$19",
       "description": "A roll-up organizer for brushes, pens, markers, or other craft tools. Rolls up compactly with a yarn or ribbon tie.",
@@ -535,7 +536,14 @@
         "images/products/pencil-brush-roll-3.jpg",
         "images/products/pencil-brush-roll-4.jpg"
       ],
-      "listings": [],
+      "listings": [
+        {
+          "id": "craft-roll-ready",
+          "name": "Craft Roll",
+          "images": [],
+          "sold": false
+        }
+      ],
       "badges": []
     },
     {
