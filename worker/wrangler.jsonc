@@ -9,6 +9,16 @@
       "id": "9e2aefdea2c14eb88a6bd115fd95a96e"
     }
   ],
+  "d1_databases": [
+    {
+      "binding": "ORDERS",
+      "database_name": "att-orders-production",
+      "database_id": "d59154ed-2a99-4ae2-93bd-e9da93e23c88"
+    }
+  ],
+  "secrets": {
+    "required": ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"]
+  },
   "observability": {
     "enabled": true
   },
@@ -17,5 +27,32 @@
     "SHIPPING_RATE_CENTS": "600",
     "SITE_URL": "https://arcane-designer.github.io/alivias-treasured-threads",
     "CATALOG_URL": "https://arcane-designer.github.io/alivias-treasured-threads/data/site.json"
+  },
+  "env": {
+    "staging": {
+      "name": "att-checkout-staging",
+      "secrets": {
+        "required": ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"]
+      },
+      "kv_namespaces": [
+        {
+          "binding": "REVIEWS",
+          "id": "9e2aefdea2c14eb88a6bd115fd95a96e"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "ORDERS",
+          "database_name": "att-orders-staging",
+          "database_id": "abd27648-f20c-4f50-9e22-5d55a23adff4"
+        }
+      ],
+      "vars": {
+        "PAYMENTS_MODE": "test",
+        "SHIPPING_RATE_CENTS": "600",
+        "SITE_URL": "http://localhost:4173",
+        "CATALOG_URL": "https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/mara/alivia-storefront-2/data/site.json"
+      }
+    }
   }
 }
