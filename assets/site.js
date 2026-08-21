@@ -392,6 +392,68 @@
     return { total, priced, unpriced };
   }
 
+  function basketItemHtml(item, idx, extraClass) {
+    const p = productById(item.productId);
+    if (!p) return '';
+    let title = p.name;
+    let sub = '';
+    let img = coverImg(p);
+    if (item.type === 'listing') {
+      const l = (p.listings || []).find((x) => x.id === item.listingId);
+      title = l ? l.name : p.name;
+      sub =
+        p.name +
+        ' · ready to ship' +
+        (typeof shownPrice(p) === 'number' ? ' · $' + shownPrice(p) : '');
+      if (l && l.images && l.images[0]) img = resolveImg(l.images[0]);
+    } else if (item.type === 'oneoff') {
+      sub =
+        'one of a kind · ready to ship' +
+        (typeof shownPrice(p) === 'number' ? ' · $' + shownPrice(p) : '');
+    } else {
+      sub =
+        'made just for you' +
+        (typeof shownPrice(p) === 'number'
+          ? ' · $' + shownPrice(p) + ' each'
+          : ' · priced when we chat');
+    }
+    const qtyControls =
+      item.type === 'custom'
+        ? '<div class="bi-qty">' +
+          '<button type="button" data-qty-minus="' +
+          idx +
+          '" aria-label="Decrease">−</button>' +
+          '<span>' +
+          (item.qty || 1) +
+          '</span>' +
+          '<button type="button" data-qty-plus="' +
+          idx +
+          '" aria-label="Increase">+</button>' +
+          '</div>'
+        : '';
+    return (
+      '<div class="bi' +
+      (extraClass || '') +
+      '">' +
+      '<img class="bi-img" src="' +
+      esc(img) +
+      '" alt="' +
+      esc(title) +
+      '">' +
+      '<div class="bi-body"><div class="bi-name">' +
+      esc(title) +
+      '</div><div class="bi-sub' +
+      (item.type === 'custom' ? ' custom' : '') +
+      '">' +
+      esc(sub) +
+      '</div>' +
+      qtyControls +
+      '</div><button type="button" class="bi-remove" data-remove="' +
+      idx +
+      '" aria-label="Remove">✕</button></div>'
+    );
+  }
+
   function renderBasketUI() {
     const fab = $('basketFab');
     const countEl = $('basketCount');
@@ -415,69 +477,7 @@
         if (drawerEmpty) drawerEmpty.hidden = false;
       } else {
         if (drawerEmpty) drawerEmpty.hidden = true;
-        drawerItems.innerHTML = basket
-          .map((item, idx) => {
-            const p = productById(item.productId);
-            if (!p) return '';
-            let title = p.name;
-            let sub = '';
-            let img = coverImg(p);
-            if (item.type === 'listing') {
-              const l = (p.listings || []).find((x) => x.id === item.listingId);
-              title = l ? l.name : p.name;
-              sub =
-                p.name +
-                ' · ready to ship' +
-                (typeof shownPrice(p) === 'number' ? ' · $' + shownPrice(p) : '');
-              if (l && l.images && l.images[0]) img = resolveImg(l.images[0]);
-            } else if (item.type === 'oneoff') {
-              sub =
-                'one of a kind · ready to ship' +
-                (typeof shownPrice(p) === 'number' ? ' · $' + shownPrice(p) : '');
-            } else {
-              sub =
-                'made just for you' +
-                (typeof shownPrice(p) === 'number'
-                  ? ' · $' + shownPrice(p) + ' each'
-                  : ' · priced when we chat');
-            }
-            const qtyControls =
-              item.type === 'custom'
-                ? '<div class="bi-qty">' +
-                  '<button type="button" data-qty-minus="' +
-                  idx +
-                  '" aria-label="Decrease">−</button>' +
-                  '<span>' +
-                  (item.qty || 1) +
-                  '</span>' +
-                  '<button type="button" data-qty-plus="' +
-                  idx +
-                  '" aria-label="Increase">+</button>' +
-                  '</div>'
-                : '';
-            return (
-              '<div class="bi">' +
-              '<img class="bi-img" src="' +
-              esc(img) +
-              '" alt="">' +
-              '<div class="bi-body">' +
-              '<div class="bi-name">' +
-              esc(title) +
-              '</div>' +
-              '<div class="bi-sub' +
-              (item.type === 'custom' ? ' custom' : '') +
-              '">' +
-              esc(sub) +
-              '</div>' +
-              qtyControls +
-              '</div>' +
-              '<button type="button" class="bi-remove" data-remove="' +
-              idx +
-              '" aria-label="Remove">✕</button>' +
-              '</div>'
-            );
-          })
-          .join('');
+        drawerItems.innerHTML = basket.map((item, idx) => basketItemHtml(item, idx, '')).join('');
       }
     }
     if (drawerEst) {
@@ -506,38 +506,18 @@
         if (basketEstimate) basketEstimate.hidden = true;
       } else {
         if (basketEmptyMsg) basketEmptyMsg.hidden = true;
-        orderList.innerHTML = basket
-          .map((item, idx) => {
-            const p = productById(item.productId);
-            if (!p) return '';
-            let label = p.name;
-            if (item.type === 'listing') {
-              const l = (p.listings || []).find((x) => x.id === item.listingId);
-              label = (l ? l.name : p.name) + ' (ready to ship)';
-            } else if (item.type === 'oneoff') label += ' (one of a kind)';
-            else label += ' ×' + (item.qty || 1) + ' (custom)';
-            return (
-              '<div class="bi" style="border:0;padding:0.4rem 0">' +
-              '<div class="bi-body"><div class="bi-name">' +
-              esc(label) +
-              '</div></div>' +
-              '<button type="button" class="bi-remove" data-remove="' +
-              idx +
-              '" aria-label="Remove">✕</button></div>'
-            );
-          })
-          .join('');
+        orderList.innerHTML = basket.map((item, idx) => basketItemHtml(item, idx, ' order-bi')).join('');
         if (basketEstimate) {
           const { total, priced, unpriced } = estimate();
           let html = '';
-          if (priced > 0) html += 'Estimate: $' + total;
+          if (priced > 0) html += 'Estimated total: $' + total;
           if (unpriced > 0) {
-            html +=
-              (priced > 0 ? ' · ' : '') +
+            html += '<span class="est-note">' +
+              (priced > 0 ? '+ ' : '') +
               unpriced +
               ' custom item' +
               (unpriced > 1 ? 's' : '') +
-              ' to price together';
+              ' to price together</span>';
           }
           basketEstimate.innerHTML = html;
           basketEstimate.hidden = false;
@@ -922,6 +902,17 @@
     if (!grid) return;
     let currentSeason = 'all';
     let currentType = 'all';
+    const typeOrder = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles'];
+
+    function groupedType(p) {
+      const value = ((p.itemType || '') + ' ' + (p.name || '')).toLowerCase();
+      if (/bundle/.test(value)) return 'Bundles';
+      if (/cape/.test(value)) return 'Capes';
+      if (/tote|bag|pouch/.test(value)) return 'Bags & Pouches';
+      if (/bookmark|craft roll|sewing roll|pencil roll|brush roll|organizer/.test(value)) return 'Books & Crafts';
+      if (/coaster|pot holder|potholder|kitchen/.test(value)) return 'Home & Kitchen';
+      return 'Other';
+    }
 
     function seasonsInData() {
       const set = new Set();
@@ -937,22 +928,8 @@
     }
     function typesInData() {
       const set = new Set();
-      activeProducts.forEach((p) => {
-        if (p.itemType) set.add(String(p.itemType));
-        else {
-          const n = (p.name || '').toLowerCase();
-          if (/tote|bag/.test(n)) set.add('Bags');
-          else if (/bookmark/.test(n)) set.add('Bookmarks');
-          else if (/pouch/.test(n)) set.add('Pouches');
-          else if (/coaster/.test(n)) set.add('Coasters');
-          else if (/cape/.test(n)) set.add('Capes');
-          else if (/pot holder|potholder/.test(n)) set.add('Kitchen');
-          else if (/roll/.test(n)) set.add('Organizers');
-          else if (/bundle/.test(n)) set.add('Bundles');
-          else set.add('Other');
-        }
-      });
-      return Array.from(set).sort();
+      activeProducts.forEach((p) => set.add(groupedType(p)));
+      return [...typeOrder.filter((type) => set.has(type)), ...Array.from(set).filter((type) => !typeOrder.includes(type)).sort()];
     }
 
     function filtered() {
@@ -965,26 +942,7 @@
         });
       }
       if (currentType !== 'all') {
-        list = list.filter((p) => {
-          if (p.itemType) return p.itemType === currentType;
-          const n = (p.name || '').toLowerCase();
-          const map = {
-            Bags: /tote|bag/,
-            Bookmarks: /bookmark/,
-            Pouches: /pouch/,
-            Coasters: /coaster/,
-            Capes: /cape/,
-            Kitchen: /pot holder|potholder/,
-            Organizers: /roll/,
-            Bundles: /bundle/,
-            Other: null,
-          };
-          const re = map[currentType];
-          if (!re) {
-            return !/tote|bag|bookmark|pouch|coaster|cape|pot holder|potholder|roll|bundle/.test(n);
-          }
-          return re.test(n);
-        });
+        list = list.filter((p) => groupedType(p) === currentType);
       }
       return list;
     }
@@ -1016,7 +974,16 @@
 
     /* init from URL */
     currentSeason = params.get('season') || 'all';
-    currentType = params.get('type') || 'all';
+    const requestedType = params.get('type') || 'all';
+    const typeAliases = {
+      Bags: 'Bags & Pouches',
+      Pouches: 'Bags & Pouches',
+      Bookmarks: 'Books & Crafts',
+      Organizers: 'Books & Crafts',
+      Coasters: 'Home & Kitchen',
+      Kitchen: 'Home & Kitchen',
+    };
+    currentType = typeAliases[requestedType] || requestedType;
     syncUrl();
 
     /* Season/type chips are data-driven, so (re)build them once products have

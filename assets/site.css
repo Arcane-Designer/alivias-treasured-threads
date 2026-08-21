@@ -757,16 +757,22 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
   margin-inline: auto;
   align-items: start;
 }
-.order-basket-list { margin-bottom: 0.5rem; }
+.order-basket-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 0.5rem; }
+.order-basket-list .order-bi { background: #fff; border-color: var(--purple-light); }
+.order-basket-list .bi-img { width: 62px; height: 62px; }
 .basket-empty-msg { font-size: 0.92rem; margin: 0; }
 .basket-estimate {
-  font-weight: 700;
-  font-size: 0.92rem;
-  color: var(--ink-soft);
-  margin-top: 0.9rem;
-  padding-top: 0.8rem;
-  border-top: 2px dashed var(--neutral-dark);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--purple-dark);
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 2px dashed var(--pink-light);
+  border-radius: 14px;
+  background: var(--pink-pale);
 }
+.basket-estimate .est-note { margin-top: 0.15rem; }
 .form-group { margin-bottom: 1.2rem; }
 .form-label {
   display: block;
