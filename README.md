@@ -1,10 +1,10 @@
-# Alivia's Treasured Threads — Storefront 2.0 (staging)
+# Alivia's Treasured Threads - Storefront 2.0 (staging)
 
 Polished multi-page storefront rebuild for **staging / isolated worktree use only**.
 Do not deploy, push, or point live GitHub Pages at this tree until you explicitly promote it.
 
 - **Canonical content:** `data/site.json` (unchanged contract for Alivia's Studio)
-- **Admin:** `admin/` preserved — same GitHub magic-key publish flow
+- **Admin:** `admin/` preserved; same GitHub magic-key publish flow
 - **Reviews:** form → Cloudflare Worker inbox + Web3Forms email (unchanged)
 - **Orders:** basket → Web3Forms / mailto fallback (unchanged)
 
@@ -30,7 +30,7 @@ Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads
 v4 (2026-08-21, after Alivia's review): the original live-site brand walked back in
 at ~80% on top of the v3 architecture. Restored from the live site: the purple/pink/
 teal palette (`#8E79DD` / `#FF74D4` / `#4FE4BC`), Dancing Script + Cormorant Garamond
-for scripts/headings, the stacked script-over-serif wordmark (the home link — no Home
+for scripts/headings, the stacked script-over-serif wordmark (the home link; no Home
 nav item), stitched dashed borders and "sewn patch" cards with tiny tilts, thread-and-
 needle dividers, polka-dot paper, the gingham band, pill buttons with inner stitching,
 the purple circle basket FAB with pink count, the stitched basket drawer, lively review
@@ -71,7 +71,7 @@ node scripts/generate-pages.mjs --base https://arcane-designer.github.io/alivias
 
 Outputs:
 
-- `product/<id>/index.html` for every product (including archived — stable URLs)
+- `product/<id>/index.html` for every product (including archived, for stable URLs)
 - `sitemap.xml` (active products only)
 - `robots.txt`
 
@@ -94,7 +94,7 @@ It does **not** deploy Pages or push to `main`. Read the comments in that file b
 
 ---
 
-## Checkout field setup (later — no keys tonight)
+## Checkout field setup (later, with no keys tonight)
 
 Optional per-product fields in `site.json` (Studio can grow UI later):
 
@@ -122,7 +122,7 @@ JSON-LD `Offer` is emitted only when those same conditions hold (no false mercha
 |------|--------|
 | `settings.*` | Brand strings, Instagram, contact email, Web3Forms key, review inbox URL |
 | `products[]` | `id`, `name`, `price` / `priceLabel`, `description`, `images`, `listings`, `badges`, `archived`, `oneOfAKind`, `salePrice`, `priceTiers`, optional `descriptionLink` |
-| Optional future | `checkoutUrl` / `paymentLink`, `season`, `itemType`, `tags` — filters already read them when present |
+| Optional future | `checkoutUrl` / `paymentLink`, `season`, `itemType`, `tags`; filters already read them when present |
 | `reviews[]` | Curated; `show: true` to display |
 
 Admin continues to own writes to this file. Do not put secrets in browser-readable JSON beyond the existing public Web3Forms access key pattern.

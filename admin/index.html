@@ -59,7 +59,7 @@
       <nav class="tabs" role="tablist">
         <button class="tab active" data-tab="products" role="tab" aria-selected="true">🧺 My Products</button>
         <button class="tab" data-tab="reviews" role="tab" aria-selected="false">💌 Reviews</button>
-        <button class="tab" data-tab="settings" role="tab" aria-selected="false">🎀 Shop Settings</button>
+        <button class="tab" data-tab="settings" role="tab" aria-selected="false">✏️ Pages &amp; Text</button>
       </nav>
 
       <!-- ---------- PRODUCTS TAB ---------- -->
@@ -100,124 +100,158 @@
 
       <!-- ---------- SETTINGS TAB ---------- -->
       <section class="tab-panel" id="panel-settings" hidden>
-        <div class="settings-card">
-          <h3 class="settings-heading">Top of the page</h3>
-          <div class="field-group">
-            <label class="field-label" for="setTagline">Big tagline</label>
-            <input type="text" id="setTagline" class="field-input" data-setting="tagline">
+        <div class="settings-intro">
+          <div>
+            <span class="settings-kicker">Edit the site one page at a time</span>
+            <h3>Choose where you want to make a change</h3>
+            <p>Each field is labeled with the section it controls. Product names, photos, descriptions, and prices still live under My Products.</p>
           </div>
-          <div class="field-group">
-            <label class="field-label" for="setHeroSub">Little welcome sentence (under the tagline)</label>
-            <textarea id="setHeroSub" class="field-input" rows="3" data-setting="heroSub"></textarea>
-          </div>
+          <a class="ghost-btn" href="../" target="_blank" rel="noopener">Open my site</a>
+        </div>
 
-          <h3 class="settings-heading">About me</h3>
-          <div class="field-group">
-            <label class="field-label" for="setAboutHeading">Greeting</label>
-            <input type="text" id="setAboutHeading" class="field-input" data-setting="aboutHeading">
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setAboutText1">Your bio ~ first paragraph</label>
-            <textarea id="setAboutText1" class="field-input" rows="4" data-setting="aboutText1"></textarea>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setAboutText2">Your bio ~ second paragraph</label>
-            <textarea id="setAboutText2" class="field-input" rows="3" data-setting="aboutText2"></textarea>
-          </div>
+        <div class="settings-workspace">
+          <nav class="settings-steps" aria-label="Website pages">
+            <button type="button" class="settings-step active" data-settings-step="home" aria-current="step"><span>1</span> Home</button>
+            <button type="button" class="settings-step" data-settings-step="shop"><span>2</span> Shop &amp; order</button>
+            <button type="button" class="settings-step" data-settings-step="custom"><span>3</span> Custom</button>
+            <button type="button" class="settings-step" data-settings-step="about"><span>4</span> About &amp; FAQ</button>
+            <button type="button" class="settings-step" data-settings-step="site"><span>5</span> Contact &amp; site</button>
+          </nav>
 
-          <h3 class="settings-heading">Shop section</h3>
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="setShopScript">Little script words</label>
-              <input type="text" id="setShopScript" class="field-input" data-setting="shopScript">
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="setShopTitle">Big title</label>
-              <input type="text" id="setShopTitle" class="field-input" data-setting="shopTitle">
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setShopSubtitle">Sentence under the title</label>
-            <textarea id="setShopSubtitle" class="field-input" rows="2" data-setting="shopSubtitle"></textarea>
-          </div>
+          <div class="settings-pages">
+            <section class="settings-card settings-page" data-settings-page="home">
+              <div class="settings-page-head">
+                <div><span class="settings-location">Homepage</span><h3>Home page text</h3></div>
+                <a href="../" target="_blank" rel="noopener">View page</a>
+              </div>
+              <h4 class="settings-heading">Top welcome</h4>
+              <div class="field-group"><label class="field-label" for="setTagline">Main headline</label><input type="text" id="setTagline" class="field-input" data-setting="tagline"></div>
+              <div class="field-group"><label class="field-label" for="setHeroSub">Welcome sentence</label><textarea id="setHeroSub" class="field-input" rows="3" data-setting="heroSub"></textarea></div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setHeroShopCta">Shop button</label><input type="text" id="setHeroShopCta" class="field-input" data-setting="heroShopCta"></div>
+                <div class="field-group"><label class="field-label" for="setHeroCustomCta">Custom button</label><input type="text" id="setHeroCustomCta" class="field-input" data-setting="heroCustomCta"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setHeroCaption">Featured photo caption</label><textarea id="setHeroCaption" class="field-input" rows="2" data-setting="heroCaption"></textarea></div>
 
-          <h3 class="settings-heading">Reviews section</h3>
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="setReviewsScript">Little script words</label>
-              <input type="text" id="setReviewsScript" class="field-input" data-setting="reviewsScript">
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="setReviewsTitle">Big title</label>
-              <input type="text" id="setReviewsTitle" class="field-input" data-setting="reviewsTitle">
-            </div>
-          </div>
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="setLeaveScript">"Leave a review" script words</label>
-              <input type="text" id="setLeaveScript" class="field-input" data-setting="leaveScript">
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="setLeaveTitle">"Leave a review" title</label>
-              <input type="text" id="setLeaveTitle" class="field-input" data-setting="leaveTitle">
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setLeaveIntro">"Leave a review" intro sentence</label>
-            <textarea id="setLeaveIntro" class="field-input" rows="2" data-setting="leaveReviewIntro"></textarea>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setInboxUrl">Review inbox address <span class="tiny-note">(Nathan's Cloudflare setup ~ don't change unless he says so)</span></label>
-            <input type="url" id="setInboxUrl" class="field-input" data-setting="reviewInboxUrl" spellcheck="false">
-          </div>
+              <h4 class="settings-heading">Available now</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setAvailableScript">Small script words</label><input type="text" id="setAvailableScript" class="field-input" data-setting="homeAvailableScript"></div>
+                <div class="field-group"><label class="field-label" for="setAvailableTitle">Section title</label><input type="text" id="setAvailableTitle" class="field-input" data-setting="homeAvailableTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setAvailableIntro">Sentence under the title</label><textarea id="setAvailableIntro" class="field-input" rows="2" data-setting="homeAvailableIntro"></textarea></div>
+              <div class="field-group"><label class="field-label" for="setAvailableCta">Shop link</label><input type="text" id="setAvailableCta" class="field-input" data-setting="homeAvailableCta"></div>
 
-          <h3 class="settings-heading">One-of-a-kind products</h3>
-          <div class="field-group">
-            <label class="field-label" for="setOneOffNote">Little note shown on one-of-a-kind items</label>
-            <textarea id="setOneOffNote" class="field-input" rows="2" data-setting="oneOffNote"></textarea>
-          </div>
+              <h4 class="settings-heading">Seasonal feature</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setSeasonScript">Small script words</label><input type="text" id="setSeasonScript" class="field-input" data-setting="seasonScript"></div>
+                <div class="field-group"><label class="field-label" for="setSeasonTitle">Section title</label><input type="text" id="setSeasonTitle" class="field-input" data-setting="seasonTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setSeasonBody">Seasonal message</label><textarea id="setSeasonBody" class="field-input" rows="3" data-setting="seasonBody"></textarea></div>
+              <div class="field-group"><label class="field-label" for="setSeasonCta">Seasonal button</label><input type="text" id="setSeasonCta" class="field-input" data-setting="seasonCta"></div>
 
-          <h3 class="settings-heading">Order section</h3>
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="setOrderScript">Little script words</label>
-              <input type="text" id="setOrderScript" class="field-input" data-setting="orderScript">
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="setOrderTitle">Big title</label>
-              <input type="text" id="setOrderTitle" class="field-input" data-setting="orderTitle">
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setOrderIntro">Intro sentence</label>
-            <textarea id="setOrderIntro" class="field-input" rows="3" data-setting="orderIntro"></textarea>
-          </div>
+              <h4 class="settings-heading">Browse by type</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setTypeTitle">Section title</label><input type="text" id="setTypeTitle" class="field-input" data-setting="typeTitle"></div>
+                <div class="field-group"><label class="field-label" for="setTypeIntro">Intro sentence</label><input type="text" id="setTypeIntro" class="field-input" data-setting="typeIntro"></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setBagsTitle">Bags title</label><input type="text" id="setBagsTitle" class="field-input" data-setting="typeBagsTitle"></div>
+                <div class="field-group"><label class="field-label" for="setBagsBody">Bags description</label><input type="text" id="setBagsBody" class="field-input" data-setting="typeBagsBody"></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setBookmarksTitle">Bookmarks title</label><input type="text" id="setBookmarksTitle" class="field-input" data-setting="typeBookmarksTitle"></div>
+                <div class="field-group"><label class="field-label" for="setBookmarksBody">Bookmarks description</label><input type="text" id="setBookmarksBody" class="field-input" data-setting="typeBookmarksBody"></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setCoastersTitle">Coasters title</label><input type="text" id="setCoastersTitle" class="field-input" data-setting="typeCoastersTitle"></div>
+                <div class="field-group"><label class="field-label" for="setCoastersBody">Coasters description</label><input type="text" id="setCoastersBody" class="field-input" data-setting="typeCoastersBody"></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setCapesTitle">Capes title</label><input type="text" id="setCapesTitle" class="field-input" data-setting="typeCapesTitle"></div>
+                <div class="field-group"><label class="field-label" for="setCapesBody">Capes description</label><input type="text" id="setCapesBody" class="field-input" data-setting="typeCapesBody"></div>
+              </div>
+              <div class="settings-footer-nav"><span>Page 1 of 5</span><button type="button" class="btn btn-gradient btn-small" data-settings-next="shop">Next: Shop &amp; order</button></div>
+            </section>
 
-          <h3 class="settings-heading">Thank-you note (after an order is sent)</h3>
-          <div class="field-group">
-            <label class="field-label" for="setSuccessTitle">Title</label>
-            <input type="text" id="setSuccessTitle" class="field-input" data-setting="successTitle">
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setSuccessBody">Message</label>
-            <textarea id="setSuccessBody" class="field-input" rows="2" data-setting="successBody"></textarea>
-          </div>
+            <section class="settings-card settings-page" data-settings-page="shop" hidden>
+              <div class="settings-page-head"><div><span class="settings-location">Shop page</span><h3>Shop and order text</h3></div><a href="../shop/" target="_blank" rel="noopener">View page</a></div>
+              <h4 class="settings-heading">Collection intro</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setShopScript">Small script words</label><input type="text" id="setShopScript" class="field-input" data-setting="shopScript"></div>
+                <div class="field-group"><label class="field-label" for="setShopTitle">Page title</label><input type="text" id="setShopTitle" class="field-input" data-setting="shopTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setShopSubtitle">Sentence under the title</label><textarea id="setShopSubtitle" class="field-input" rows="2" data-setting="shopSubtitle"></textarea></div>
+              <div class="field-group"><label class="field-label" for="setProductOrderNote">Note on each product page</label><textarea id="setProductOrderNote" class="field-input" rows="2" data-setting="productOrderNote"></textarea></div>
 
-          <h3 class="settings-heading">Where people find you</h3>
-          <div class="field-group">
-            <label class="field-label" for="setInstagram">Instagram link</label>
-            <input type="url" id="setInstagram" class="field-input" data-setting="instagramUrl" placeholder="https://instagram.com/…">
-          </div>
+              <h4 class="settings-heading">Order form</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setOrderScript">Small script words</label><input type="text" id="setOrderScript" class="field-input" data-setting="orderScript"></div>
+                <div class="field-group"><label class="field-label" for="setOrderTitle">Section title</label><input type="text" id="setOrderTitle" class="field-input" data-setting="orderTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setOrderIntro">Intro sentence</label><textarea id="setOrderIntro" class="field-input" rows="3" data-setting="orderIntro"></textarea></div>
+              <h4 class="settings-heading">Thank-you message</h4>
+              <div class="field-group"><label class="field-label" for="setSuccessTitle">Title</label><input type="text" id="setSuccessTitle" class="field-input" data-setting="successTitle"></div>
+              <div class="field-group"><label class="field-label" for="setSuccessBody">Message</label><textarea id="setSuccessBody" class="field-input" rows="2" data-setting="successBody"></textarea></div>
+              <div class="settings-footer-nav"><button type="button" class="ghost-btn" data-settings-next="home">Back: Home</button><span>Page 2 of 5</span><button type="button" class="btn btn-gradient btn-small" data-settings-next="custom">Next: Custom</button></div>
+            </section>
 
-          <h3 class="settings-heading">Order form delivery <span class="tiny-note">(Nathan can help with these!)</span></h3>
-          <div class="field-group">
-            <label class="field-label" for="setEmail">Email where orders should arrive</label>
-            <input type="email" id="setEmail" class="field-input" data-setting="contactEmail" placeholder="you@email.com">
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="setW3f">Web3Forms key (makes the order form send email automatically)</label>
-            <input type="text" id="setW3f" class="field-input" data-setting="web3formsKey" placeholder="paste key from web3forms.com" spellcheck="false">
-            <p class="field-hint">No key yet? The form politely falls back to opening the shopper's email app instead.</p>
+            <section class="settings-card settings-page" data-settings-page="custom" hidden>
+              <div class="settings-page-head"><div><span class="settings-location">Custom page</span><h3>Custom order text</h3></div><a href="../custom/" target="_blank" rel="noopener">View page</a></div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setCustomScript">Small script words</label><input type="text" id="setCustomScript" class="field-input" data-setting="customScript"></div>
+                <div class="field-group"><label class="field-label" for="setCustomTitle">Page title</label><input type="text" id="setCustomTitle" class="field-input" data-setting="customTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setCustomIntro">Page introduction</label><textarea id="setCustomIntro" class="field-input" rows="4" data-setting="customIntro"></textarea></div>
+              <h4 class="settings-heading">Fabrics</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setFabricsScript">Small script words</label><input type="text" id="setFabricsScript" class="field-input" data-setting="fabricsScript"></div>
+                <div class="field-group"><label class="field-label" for="setFabricsTitle">Section title</label><input type="text" id="setFabricsTitle" class="field-input" data-setting="fabricsTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setFabricsBody">Fabrics message</label><textarea id="setFabricsBody" class="field-input" rows="3" data-setting="fabricsBody"></textarea></div>
+              <div class="settings-footer-nav"><button type="button" class="ghost-btn" data-settings-next="shop">Back: Shop</button><span>Page 3 of 5</span><button type="button" class="btn btn-gradient btn-small" data-settings-next="about">Next: About &amp; FAQ</button></div>
+            </section>
+
+            <section class="settings-card settings-page" data-settings-page="about" hidden>
+              <div class="settings-page-head"><div><span class="settings-location">About page</span><h3>About, reviews, and FAQ</h3></div><a href="../about/" target="_blank" rel="noopener">View page</a></div>
+              <h4 class="settings-heading">About me</h4>
+              <div class="field-group"><label class="field-label" for="setAboutHeading">Greeting</label><input type="text" id="setAboutHeading" class="field-input" data-setting="aboutHeading"></div>
+              <div class="field-group"><label class="field-label" for="setAboutText1">Bio, first paragraph</label><textarea id="setAboutText1" class="field-input" rows="4" data-setting="aboutText1"></textarea></div>
+              <div class="field-group"><label class="field-label" for="setAboutText2">Bio, second paragraph</label><textarea id="setAboutText2" class="field-input" rows="3" data-setting="aboutText2"></textarea></div>
+
+              <h4 class="settings-heading">Reviews</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setReviewsScript">Small script words</label><input type="text" id="setReviewsScript" class="field-input" data-setting="reviewsScript"></div>
+                <div class="field-group"><label class="field-label" for="setReviewsTitle">Section title</label><input type="text" id="setReviewsTitle" class="field-input" data-setting="reviewsTitle"></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setLeaveScript">Review form script words</label><input type="text" id="setLeaveScript" class="field-input" data-setting="leaveScript"></div>
+                <div class="field-group"><label class="field-label" for="setLeaveTitle">Review form title</label><input type="text" id="setLeaveTitle" class="field-input" data-setting="leaveTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setLeaveIntro">Review form introduction</label><textarea id="setLeaveIntro" class="field-input" rows="2" data-setting="leaveReviewIntro"></textarea></div>
+
+              <h4 class="settings-heading">FAQ</h4>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label" for="setFaqScript">Small script words</label><input type="text" id="setFaqScript" class="field-input" data-setting="faqScript"></div>
+                <div class="field-group"><label class="field-label" for="setFaqTitle">Section title</label><input type="text" id="setFaqTitle" class="field-input" data-setting="faqTitle"></div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setFaqIntro">FAQ introduction</label><textarea id="setFaqIntro" class="field-input" rows="2" data-setting="faqIntro"></textarea></div>
+              <div class="field-group"><label class="field-label" for="setFaq1Question">Question 1</label><input type="text" id="setFaq1Question" class="field-input" data-setting="faq1Question"><label class="field-label answer-label" for="setFaq1Answer">Answer 1</label><textarea id="setFaq1Answer" class="field-input" rows="4" data-setting="faq1Answer"></textarea></div>
+              <div class="field-group"><label class="field-label" for="setFaq2Question">Question 2</label><input type="text" id="setFaq2Question" class="field-input" data-setting="faq2Question"><label class="field-label answer-label" for="setFaq2Answer">Answer 2</label><textarea id="setFaq2Answer" class="field-input" rows="4" data-setting="faq2Answer"></textarea></div>
+              <div class="field-group"><label class="field-label" for="setFaq3Question">Question 3</label><input type="text" id="setFaq3Question" class="field-input" data-setting="faq3Question"><label class="field-label answer-label" for="setFaq3Answer">Answer 3</label><textarea id="setFaq3Answer" class="field-input" rows="4" data-setting="faq3Answer"></textarea></div>
+              <div class="settings-footer-nav"><button type="button" class="ghost-btn" data-settings-next="custom">Back: Custom</button><span>Page 4 of 5</span><button type="button" class="btn btn-gradient btn-small" data-settings-next="site">Next: Contact &amp; site</button></div>
+            </section>
+
+            <section class="settings-card settings-page" data-settings-page="site" hidden>
+              <div class="settings-page-head"><div><span class="settings-location">Whole site</span><h3>Contact and site details</h3></div><a href="../" target="_blank" rel="noopener">View site</a></div>
+              <div class="field-group"><label class="field-label" for="setFooterTagline">Footer tagline</label><input type="text" id="setFooterTagline" class="field-input" data-setting="footerTagline"></div>
+              <div class="field-group"><label class="field-label" for="setInstagram">Instagram link</label><input type="url" id="setInstagram" class="field-input" data-setting="instagramUrl" placeholder="https://instagram.com/..."></div>
+              <h4 class="settings-heading">Order form delivery <span class="tiny-note">Nathan can help with these</span></h4>
+              <div class="field-group"><label class="field-label" for="setEmail">Email where orders should arrive</label><input type="email" id="setEmail" class="field-input" data-setting="contactEmail" placeholder="you@email.com"></div>
+              <div class="field-group"><label class="field-label" for="setW3f">Web3Forms key</label><input type="password" id="setW3f" class="field-input" data-setting="web3formsKey" placeholder="Paste the key from web3forms.com" spellcheck="false" autocomplete="off"><p class="field-hint">This makes the order form send email automatically. Keep it private.</p></div>
+              <h4 class="settings-heading">Review inbox <span class="tiny-note">Nathan can help with this</span></h4>
+              <div class="field-group"><label class="field-label" for="setInboxUrl">Review inbox address</label><input type="url" id="setInboxUrl" class="field-input" data-setting="reviewInboxUrl" spellcheck="false"></div>
+              <div class="settings-footer-nav"><button type="button" class="ghost-btn" data-settings-next="about">Back: About &amp; FAQ</button><span>Page 5 of 5</span></div>
+            </section>
           </div>
         </div>
       </section>

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Alivia's Treasured Threads — static page generator (zero deps)
+ * Alivia's Treasured Threads - static page generator (zero deps)
  *
  * Reads data/site.json and writes:
  *   product/<id>/index.html   for every product (archived included for stable URLs)
@@ -204,14 +204,14 @@ function galleryHtml(p) {
 
 function productPage(p, settings) {
   const pageUrl = `${BASE}/product/${encodeURIComponent(p.id)}/`;
-  const title = `${p.name} — ${settings.brandName || "Alivia's Treasured Threads"}`;
-  const desc = (p.description || `${p.name} — handmade by Alivia.`).replace(/\s+/g, ' ').trim().slice(0, 160);
+  const title = `${p.name} | ${settings.brandName || "Alivia's Treasured Threads"}`;
+  const desc = (p.description || `${p.name}, handmade with care.`).replace(/\s+/g, ' ').trim().slice(0, 160);
   const ogImg = `${BASE}/${coverPath(p).replace(/^\//, '')}`;
   const badges = (p.badges || [])
     .map((b) => `<span class="sticker sticker-inline">${esc(b)}</span>`)
     .join('');
   const archivedNote = p.archived
-    ? `<p class="muted" style="margin-bottom:1rem">This piece isn't currently listed in the shop — the page stays up for reference.</p>`
+    ? `<p class="muted" style="margin-bottom:1rem">This piece isn't currently listed in the shop. The page stays up for reference.</p>`
     : '';
   const descLink =
     p.descriptionLink && p.descriptionLink.url
@@ -245,7 +245,7 @@ ${jsonLdProduct(p, pageUrl)}
   <a class="sr-only" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="header-inner">
-      <a href="../../" class="brand-link" aria-label="Alivia's Treasured Threads — home">
+      <a href="../../" class="brand-link" aria-label="Alivia's Treasured Threads home">
         <img src="../../images/brand/logo.jpg" alt="" class="brand-logo" width="46" height="46">
         <span class="brand-text">
           <span class="script">Alivia's</span>
@@ -282,8 +282,8 @@ ${jsonLdProduct(p, pageUrl)}
           ${descLink}
           ${listingsHtml(p)}
           ${actionsHtml(p)}
-          <p class="checkout-note" style="margin-top:1rem">
-            Most orders go through the request form — Alivia confirms details, timing, and payment by email.
+          <p class="checkout-note" style="margin-top:1rem" data-copy="productOrderNote">
+            Most orders go through the request form. I'll confirm details, timing, and payment by email.
           </p>
         </div>
       </div>
@@ -298,13 +298,13 @@ ${jsonLdProduct(p, pageUrl)}
             <span class="script">Alivia's</span>
             <span class="serif">Treasured Threads</span>
           </span>
-          <p>Handmade with love, one stitch at a time.</p>
+          <p data-copy="footerTagline">Handmade with love, one stitch at a time.</p>
         </div>
         <div class="footer-col"><h4>Explore</h4><ul>
           <li><a href="../../shop/">Shop</a></li>
           <li><a href="../../custom/">Custom orders</a></li>
           <li><a href="../../about/">About</a></li>
-          <li><a href="../../about/#faq">FAQ &amp; policies</a></li>
+          <li><a href="../../about/#faq">FAQ</a></li>
         </ul></div>
         <div class="footer-col"><h4>Connect</h4><ul>
           <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>

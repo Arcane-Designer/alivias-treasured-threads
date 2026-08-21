@@ -102,7 +102,7 @@ for (const p of data.products || []) {
 /* generated product pages */
 const productRoot = join(ROOT, 'product');
 if (!existsSync(productRoot)) {
-  fail('product/ directory missing — run: node scripts/generate-pages.mjs');
+  fail('product/ directory missing. Run: node scripts/generate-pages.mjs');
 } else {
   for (const id of ids) {
     const page = join(productRoot, id, 'index.html');
@@ -141,7 +141,7 @@ for (const rel of ['index.html', 'shop/index.html', 'custom/index.html', 'about/
 }
 
 /* sitemap / robots */
-if (!existsSync(join(ROOT, 'sitemap.xml'))) fail('sitemap.xml missing — run generate-pages');
+if (!existsSync(join(ROOT, 'sitemap.xml'))) fail('sitemap.xml missing. Run generate-pages');
 else {
   const sm = readFileSync(join(ROOT, 'sitemap.xml'), 'utf8');
   if (!sm.includes('<urlset')) fail('sitemap.xml invalid');
@@ -180,7 +180,7 @@ for (const file of walkHtml(ROOT)) {
   }
 }
 
-console.log('— Validation report —');
+console.log('Validation report');
 if (warnings.length) {
   console.log(`Warnings (${warnings.length}):`);
   warnings.forEach((w) => console.log('  ⚠ ' + w));
@@ -190,5 +190,5 @@ if (failures.length) {
   failures.forEach((f) => console.log('  ✖ ' + f));
   process.exit(1);
 }
-console.log(`OK — ${ids.size} products, ${imageRefs.size} image refs checked.`);
+console.log(`OK: ${ids.size} products, ${imageRefs.size} image refs checked.`);
 process.exit(0);

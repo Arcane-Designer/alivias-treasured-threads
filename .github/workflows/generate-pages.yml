@@ -1,4 +1,4 @@
-# STAGING-ONLY artifact workflow — NOT activated for live deploy.
+# STAGING-ONLY artifact workflow. NOT activated for live deploy.
 #
 # Purpose: when Studio pushes data/site.json (or product images), regenerate
 # crawlable product/<id>/index.html pages, sitemap.xml, and robots.txt as a
@@ -18,7 +18,7 @@
 #      lag behind site.json, crawlers see 404s for new IDs until regeneration.
 #   3. Base URL: set GENERATE_BASE to the public origin (project Pages path or
 #      custom domain) so canonicals/sitemap stay correct.
-#   4. Keep admin/ writing only data/site.json + images — never hand-edit
+#   4. Keep admin/ writing only data/site.json + images; never hand-edit
 #      product HTML; always regenerate from data.
 #
 # To use as an artifact job only (current intent): leave as workflow_dispatch

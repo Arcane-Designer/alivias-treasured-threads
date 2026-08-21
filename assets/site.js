@@ -1,5 +1,5 @@
 /* ============================================================
-   Alivia's Treasured Threads — Storefront 2.0 client
+   Alivia's Treasured Threads - Storefront 2.0 client
    Shared across home, shop, product, custom, about, faq.
    Basket in localStorage; data from data/site.json.
    No frameworks. Safe DOM. Preserves review Worker + Web3Forms.
@@ -73,7 +73,7 @@
     if (document.querySelector('.preview-ribbon')) return;
     const ribbon = document.createElement('div');
     ribbon.className = 'preview-ribbon';
-    ribbon.textContent = '🧵 PREVIEW — this is how your shop will look once you publish!';
+    ribbon.textContent = '🧵 PREVIEW: this is how your shop will look once you publish!';
     document.body.prepend(ribbon);
     document.body.classList.add('has-preview');
   }
@@ -126,6 +126,13 @@
     };
     Object.keys(map).forEach((id) => {
       if (map[id] != null && $(id)) text($(id), map[id]);
+    });
+    document.querySelectorAll('[data-copy]').forEach((el) => {
+      const value = s[el.dataset.copy];
+      if (value == null) return;
+      const attr = el.dataset.copyAttr;
+      if (attr) el.setAttribute(attr, value);
+      else text(el, value);
     });
     const ig = $('aboutIg') || document.querySelector('[data-ig]');
     if (ig && s.instagramUrl) {
@@ -702,7 +709,7 @@
       if (instagram) lines.push('Instagram: ' + instagram);
       lines.push('');
       lines.push('Basket:');
-      if (!basket.length) lines.push('  (empty — custom notes only)');
+      if (!basket.length) lines.push('  (empty; custom notes only)');
       basket.forEach((item) => {
         const p = productById(item.productId);
         if (!p) return;
@@ -751,10 +758,10 @@
             saveBasket();
             showOrderSuccess();
           } else {
-            if (hint) text(hint, 'Something hiccuped — try again or DM on Instagram.');
+            if (hint) text(hint, 'Something hiccuped. Try again or DM on Instagram.');
           }
         } catch (err) {
-          if (hint) text(hint, 'Network issue — try again or DM on Instagram.');
+          if (hint) text(hint, 'Network issue. Try again or DM on Instagram.');
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -769,9 +776,9 @@
           '&body=' +
           encodeURIComponent(message);
         location.href = mailto;
-        if (hint) text(hint, 'Your email app should open with the order — just hit send.');
+        if (hint) text(hint, 'Your email app should open with the order. Just hit send.');
       } else {
-        if (hint) text(hint, 'The order form is still being set up — please DM on Instagram!');
+        if (hint) text(hint, 'The order form is still being set up. Please DM on Instagram!');
       }
     });
   }
@@ -860,7 +867,7 @@
             body: JSON.stringify({ name, text: textVal, stars: pickedStars, website: '' }),
           });
           workerOk = inboxRes.ok;
-        } catch (err) { /* network failure — fall through to email / mailto */ }
+        } catch (err) { /* network failure; fall through to email / mailto */ }
       }
 
       let emailed = false;
@@ -896,7 +903,7 @@
           encodeURIComponent('Review from ' + name) +
           '&body=' +
           encodeURIComponent(message);
-        if (hintEl) text(hintEl, 'Your email app should open with your review — just hit send.');
+        if (hintEl) text(hintEl, 'Your email app should open with your review. Just hit send.');
       } else {
         if (hintEl) text(hintEl, 'Please DM me on Instagram with your review!');
       }
@@ -1051,7 +1058,7 @@
     }
 
     /* Season/type chips are data-driven, so (re)build them once products have
-       loaded — building only at setup left permanently empty chip rows. The
+       loaded; building only at setup left permanently empty chip rows. The
        delegated click handlers below are bound once and survive rebuilds. */
     const seasonWrap = $('seasonChips');
     function buildSeasonChips() {
@@ -1183,7 +1190,7 @@
                 '<p class="review-text">' +
                 esc(r.text) +
                 '</p>' +
-                '<div class="review-name">— ' +
+                '<div class="review-name">~ ' +
                 esc(r.name || 'a happy customer') +
                 '</div></article>'
             )
@@ -1305,7 +1312,7 @@
             '<p class="review-text">' +
             esc(r.text) +
             '</p>' +
-            '<div class="review-name">— ' +
+            '<div class="review-name">~ ' +
             esc(r.name || 'a happy customer') +
             '</div></article>'
         )
@@ -1343,7 +1350,7 @@
      The browser jumps to the hash before the product grid replaces its
      skeletons (and before web fonts settle), which strands the viewport
      in the wrong place. Re-scroll to the target once content has
-     rendered — this listener is registered after the page setups above,
+     rendered. This listener is registered after the page setups above,
      so it runs after their att:ready renders. Skipped as soon as the
      visitor scrolls on their own. */
   let userInterrupted = false;
@@ -1357,7 +1364,7 @@
       el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
     } catch (e) { /* malformed hash */ }
     if (!el) return;
-    /* scrollIntoView flushes layout synchronously, so no rAF needed —
+    /* scrollIntoView flushes layout synchronously, so no rAF needed.
        rAF callbacks can starve in backgrounded tabs. The html
        scroll-behavior is bypassed so the correction is an instant jump,
        and scroll-margin-top in the CSS keeps the target clear of the

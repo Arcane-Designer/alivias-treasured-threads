@@ -1514,6 +1514,27 @@
     });
   });
 
+  function showSettingsPage(name) {
+    document.querySelectorAll('[data-settings-page]').forEach((page) => {
+      page.hidden = page.dataset.settingsPage !== name;
+    });
+    document.querySelectorAll('[data-settings-step]').forEach((step) => {
+      const active = step.dataset.settingsStep === name;
+      step.classList.toggle('active', active);
+      if (active) step.setAttribute('aria-current', 'step');
+      else step.removeAttribute('aria-current');
+    });
+    const panel = document.querySelector('[data-settings-page="' + name + '"]');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.querySelectorAll('[data-settings-step]').forEach((step) => {
+    step.addEventListener('click', () => showSettingsPage(step.dataset.settingsStep));
+  });
+  document.querySelectorAll('[data-settings-next]').forEach((button) => {
+    button.addEventListener('click', () => showSettingsPage(button.dataset.settingsNext));
+  });
+
   /* tabs */
   document.querySelectorAll('.tab').forEach((tab) => {
     tab.addEventListener('click', () => {
