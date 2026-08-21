@@ -6,7 +6,7 @@ Do not deploy, push, or point live GitHub Pages at this tree until you explicitl
 - **Canonical content:** `data/site.json` (unchanged contract for Alivia's Studio)
 - **Admin:** `admin/` preserved; same GitHub magic-key publish flow
 - **Reviews:** form → Cloudflare Worker inbox + Web3Forms email (unchanged)
-- **Ready inventory:** basket → `/checkout/` placeholder; no payment collection yet
+- **Ready inventory:** basket → server-validated Stripe-hosted Checkout in test mode
 - **Custom requests:** multi-design form → existing Web3Forms / mailto fallback
 
 Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads/
@@ -20,7 +20,9 @@ Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads
 | `/` | Brand / story home, selected products, compact about + reviews, paths into shop & custom |
 | `/shop/` | Finished inventory available now, with optional type and season chips |
 | `/shop/<id>/` | Crawlable ready-inventory detail page per canonical `site.json` design id (generated) |
-| `/checkout/` | Persisted ready-inventory summary and honest payment-coming-soon boundary |
+| `/checkout/` | Persisted ready-inventory summary and secure hosted-checkout handoff |
+| `/checkout/success/` | Server-verified payment confirmation; clears the basket only after verification |
+| `/checkout/cancel/` | Honest cancel state; preserves the basket |
 | `/custom/` | Multi-design, per-quantity custom request flow; no payment collection |
 | `/product/<id>/` | Noindex compatibility redirects to Shop or the matching Custom selection |
 | `/about/` | Real about copy with FAQ/policies at `#faq` |
@@ -99,26 +101,11 @@ It does **not** deploy Pages or push to `main`. Read the comments in that file b
 
 ---
 
-## Checkout field setup (later, with no keys tonight)
+## Stripe Checkout staging boundary
 
-Reserved per-product fields in `site.json` can support a hosted provider later:
+`worker/worker.js` creates Checkout Sessions from canonical `site.json` inventory and prices. The browser sends IDs only. Stripe hosts every payment field; this site never handles card data. D1 reservations block duplicate sale attempts and paid records stay blocked until Alivia marks the corresponding listing sold in Studio.
 
-```json
-"checkoutUrl": "https://buy.stripe.com/..."
-```
-
-or `"paymentLink": "https://..."`.
-
-Current staging rules:
-
-- URL must be `https://`
-- `/checkout/` never collects card data or claims payment succeeded
-- connecting or exposing a live hosted-payment URL requires a separately authorized integration
-- Otherwise the existing request / order path is used with honest copy
-- Made-to-order stays request/quote
-- No Stripe keys, accounts, or live links ship in this staging tree
-
-JSON-LD `Offer` is emitted only when those same conditions hold (no false merchant eligibility).
+No credentials are committed. See `worker/.dev.vars.example`, `worker/schema.sql`, and `STRIPE-OPERATIONS.md`. This branch is hard-gated to `PAYMENTS_MODE=test`; live activation requires a separate reviewed change.
 
 ---
 
@@ -126,7 +113,7 @@ JSON-LD `Offer` is emitted only when those same conditions hold (no false mercha
 
 | Area | Notes |
 |------|--------|
-| `settings.*` | Brand strings, Instagram, contact email, Web3Forms key, review inbox URL |
+| `settings.*` | Brand strings, Instagram, contact email, Web3Forms key, review inbox URL, checkout API URL/flag |
 | `products[]` | `id`, `name`, `price` / `priceLabel`, `description`, `images`, `listings`, `badges`, `archived`, `oneOfAKind`, `salePrice`, `priceTiers`, optional `descriptionLink` |
 | Optional future | `checkoutUrl` / `paymentLink`, `season`, `itemType`, `tags`; filters already read them when present |
 | `reviews[]` | Curated; `show: true` to display |
@@ -141,9 +128,9 @@ Admin continues to own writes to this file. Do not put secrets in browser-readab
 |-----------|------------------|
 | Local static preview | Deploy / `git push` to live Pages |
 | Generate + validate scripts | Activating the workflow for production |
-| Checkout **field** support | Real Stripe links or keys |
+| Test-mode hosted Checkout code and fixtures | Stripe account changes, credentials, webhook registration, or live mode |
 | Draft policy labels | Invented shipping/returns/legal claims |
-| Admin + Worker untouched | Admin rewrite |
+| Studio content contract unchanged | Automatic paid-order edits to `site.json` |
 
 Promote only from an isolated worktree after visual QA and `node scripts/validate.mjs`.
 

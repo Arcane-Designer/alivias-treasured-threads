@@ -1,0 +1,9 @@
+# Copy to .dev.vars for local Stripe test mode. Never commit the real file.
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Nathan must choose the production flat shipping amount. Fixtures use 500 cents only in tests.
+SHIPPING_RATE_CENTS=
+SHIPPING_MIN_DAYS=
+SHIPPING_MAX_DAYS=
+PAYMENTS_MODE=

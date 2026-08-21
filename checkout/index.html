@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout | Alivia's Treasured Threads</title>
-  <meta name="description" content="Review ready-to-buy handmade pieces in your basket. Online payment is coming soon.">
+  <meta name="description" content="Review finished handmade pieces before continuing to secure Stripe-hosted checkout.">
   <link rel="canonical" href="https://arcane-designer.github.io/alivias-treasured-threads/checkout/">
   <meta name="robots" content="noindex,follow">
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
@@ -23,7 +23,7 @@
   <main id="main" class="section checkout-page"><div class="wrap narrow">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../">Home</a><span aria-hidden="true">/</span><span>Checkout</span></nav>
     <div class="section-title"><span class="script">almost yours</span><h1 class="serif">Checkout</h1></div>
-    <p class="section-subtitle">Review the finished pieces in your basket. Online payment is not open yet, so this page will never ask for card details or claim an order was placed.</p>
+    <p class="section-subtitle">Review your finished pieces, then continue to Stripe's secure checkout for payment and a US shipping address.</p>
     <div id="checkoutUnavailable" class="availability-notice" hidden role="status">One or more pieces became unavailable and were removed from your basket.</div>
     <section class="panel checkout-panel" aria-labelledby="checkoutSummaryTitle">
       <h2 class="panel-title" id="checkoutSummaryTitle"><span class="script-accent">your</span> Basket</h2>
@@ -32,11 +32,12 @@
       <div class="basket-estimate" id="basketEstimate" hidden></div>
     </section>
     <section class="panel payment-placeholder" id="paymentPlaceholder">
-      <span class="status-pill">Coming soon</span>
-      <h2>Secure online payment is being set up</h2>
-      <p>When checkout opens, payment will happen through a trusted hosted provider. For now, your basket is saved on this device while you keep browsing.</p>
-      <div class="placeholder-actions"><a class="btn btn-primary" href="../shop/">Keep shopping</a><a class="btn btn-outline" href="../custom/">Request something custom</a></div>
-      <p class="form-hint">No payment information is collected on this page.</p>
+      <span class="status-pill">Stripe test mode</span>
+      <h2>Ready for secure checkout?</h2>
+      <p>Stripe will collect your name, email, payment, and US shipping address on its hosted checkout page. Standard shipping is added there.</p>
+      <button type="button" class="btn btn-gradient btn-lg" id="secureCheckoutBtn">Secure checkout →</button>
+      <p class="form-hint" id="checkoutHint" aria-live="polite">Test mode only. No live payment is enabled.</p>
+      <div class="placeholder-actions"><a class="btn btn-outline" href="../shop/">Keep shopping</a></div>
     </section>
   </div></main>
   <footer class="site-footer"><div class="wrap"><div class="footer-bottom"><span>© <span data-brand>Alivia's Treasured Threads</span></span><a class="studio-link" href="../admin/" title="Alivia's Studio">🧵</a></div></div></footer>

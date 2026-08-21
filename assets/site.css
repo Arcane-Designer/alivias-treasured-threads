@@ -786,6 +786,12 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .custom-qty-input { width: 64px; margin-left: 0.35rem; padding: 0.3rem 0.45rem; border: 2px solid var(--neutral-dark); border-radius: 8px; font: inherit; }
 .checkout-page .narrow { max-width: 820px; }
 .checkout-panel, .payment-placeholder { margin-top: 1.5rem; }
+.payment-placeholder #secureCheckoutBtn { width: 100%; margin-top: 1rem; }
+.checkout-result { margin-top: 1.5rem; text-align: center; padding: clamp(1.5rem, 5vw, 3rem); }
+.checkout-result .result-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.checkout-result h1 { margin-bottom: 0.75rem; }
+.order-reference { padding: 0.8rem 1rem; background: var(--pink-pale); border-radius: var(--radius-sm); }
+.order-confirmed-items { text-align: left; max-width: 32rem; margin: 1rem auto; padding-left: 1.4rem; }
 .payment-placeholder { text-align: center; }
 .payment-placeholder h2 { font-family: var(--font-serif); font-size: 1.7rem; margin: 0.8rem 0; }
 .status-pill { display: inline-flex; padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--pink-pale); color: var(--pink-text); font-weight: 800; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }

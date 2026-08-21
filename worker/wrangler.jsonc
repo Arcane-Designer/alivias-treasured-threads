@@ -1,7 +1,8 @@
 {
   "name": "att-review-inbox",
   "main": "worker.js",
-  "compatibility_date": "2026-08-01",
+  "compatibility_date": "2026-08-21",
+  "compatibility_flags": ["nodejs_compat"],
   "kv_namespaces": [
     {
       "binding": "REVIEWS",
@@ -10,5 +11,10 @@
   ],
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "PAYMENTS_MODE": "test",
+    "SITE_URL": "https://arcane-designer.github.io/alivias-treasured-threads",
+    "CATALOG_URL": "https://arcane-designer.github.io/alivias-treasured-threads/data/site.json"
   }
 }

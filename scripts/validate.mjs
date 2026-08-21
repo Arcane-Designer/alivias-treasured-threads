@@ -139,7 +139,7 @@ if (!existsSync(productRoot)) {
 }
 
 /* top-level pages */
-for (const rel of ['index.html', 'shop/index.html', 'custom/index.html', 'checkout/index.html', 'reviews/index.html', 'about/index.html', 'faq/index.html']) {
+for (const rel of ['index.html', 'shop/index.html', 'custom/index.html', 'checkout/index.html', 'checkout/success/index.html', 'checkout/cancel/index.html', 'reviews/index.html', 'about/index.html', 'faq/index.html']) {
   if (!existsSync(join(ROOT, rel))) fail(`Missing page: ${rel}`);
 }
 

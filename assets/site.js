@@ -14,6 +14,7 @@
   function rootPrefix() {
     const path = location.pathname.replace(/\/+$/, '') || '/';
     // shop/slug and legacy product/slug → two levels up; section pages → one.
+    if (/\/checkout\/(success|cancel)(\/index\.html)?$/i.test(path)) return '../../';
     if (/\/(shop|product)\/[^/]+$/i.test(path) || /\/(shop|product)\/[^/]+\/index\.html$/i.test(path)) {
       return '../../';
     }
@@ -301,8 +302,98 @@
   function saveBasket() {
     try {
       localStorage.setItem(BASKET_KEY, JSON.stringify(basket));
+      sessionStorage.removeItem('att-checkout-attempt');
     } catch (e) { /* quota */ }
     renderBasketUI();
+  }
+
+  function checkoutApiUrl() {
+    return String(DATA.settings?.checkoutApiUrl || DATA.settings?.reviewInboxUrl || '').trim().replace(/\/+$/, '');
+  }
+
+  function checkoutAttempt() {
+    const fingerprint = JSON.stringify(basket);
+    try {
+      const stored = JSON.parse(sessionStorage.getItem('att-checkout-attempt') || 'null');
+      if (stored?.fingerprint === fingerprint && /^[a-f0-9-]{36}$/i.test(stored.id)) return stored.id;
+      const id = crypto.randomUUID();
+      sessionStorage.setItem('att-checkout-attempt', JSON.stringify({ id, fingerprint }));
+      return id;
+    } catch {
+      return crypto.randomUUID();
+    }
+  }
+
+  function setupSecureCheckout() {
+    const button = $('secureCheckoutBtn');
+    if (!button) return;
+    const hint = $('checkoutHint');
+    const sync = () => { button.disabled = basket.length === 0; };
+    document.addEventListener('att:ready', sync);
+    sync();
+    button.addEventListener('click', async () => {
+      if (!basket.length) return;
+      const api = checkoutApiUrl();
+      if (!api || DATA.settings?.checkoutEnabled !== true) {
+        if (hint) text(hint, 'Secure checkout is not configured yet. Your basket is still saved.');
+        return;
+      }
+      button.disabled = true;
+      button.textContent = 'Opening secure checkout…';
+      if (hint) text(hint, 'Validating current inventory and pricing.');
+      try {
+        const response = await fetch(api + '/checkout/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attemptId: checkoutAttempt(), items: basket.map((item) => ({ type: item.type, productId: item.productId, listingId: item.listingId || undefined })) }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Secure checkout could not start.');
+        const destination = new URL(result.url);
+        if (destination.protocol !== 'https:' || destination.hostname !== 'checkout.stripe.com') throw new Error('Checkout returned an unexpected destination.');
+        location.assign(destination.href);
+      } catch (error) {
+        if (hint) text(hint, error instanceof Error ? error.message : 'Secure checkout could not start.');
+        button.disabled = basket.length === 0;
+        button.textContent = 'Secure checkout →';
+      }
+    });
+  }
+
+  function setupCheckoutSuccess() {
+    const resultPanel = $('checkoutResult');
+    if (!resultPanel) return;
+    const details = $('successDetails');
+    const errorPanel = $('successError');
+    const message = $('successMessage');
+    const sessionId = new URLSearchParams(location.search).get('session_id') || '';
+    const fail = () => {
+      if (message) message.hidden = true;
+      if (details) details.hidden = true;
+      if (errorPanel) errorPanel.hidden = false;
+    };
+    if (!/^cs_test_[A-Za-z0-9_]+$/.test(sessionId)) { fail(); return; }
+    const verify = async () => {
+      try {
+        const response = await fetch(checkoutApiUrl() + '/checkout/status?session_id=' + encodeURIComponent(sessionId));
+        const status = await response.json();
+        if (!response.ok || status.verified !== true || !status.orderRef) { fail(); return; }
+        localStorage.removeItem(BASKET_KEY);
+        sessionStorage.removeItem('att-checkout-attempt');
+        basket = [];
+        renderBasketUI();
+        if (message) text(message, 'Payment confirmed. Thank you for supporting Alivia’s handmade shop!');
+        if ($('successTitle')) text($('successTitle'), 'Order confirmed');
+        if ($('resultIcon')) text($('resultIcon'), '✓');
+        document.title = "Order Confirmed | Alivia's Treasured Threads";
+        if ($('orderReference')) text($('orderReference'), status.orderRef);
+        if ($('confirmedItems')) $('confirmedItems').innerHTML = (status.items || []).map((item) => '<li>' + esc(item) + '</li>').join('');
+        if (details) details.hidden = false;
+        if (errorPanel) errorPanel.hidden = true;
+      } catch { fail(); }
+    };
+    document.addEventListener('att:ready', verify);
+    if (DATA.settings && Object.keys(DATA.settings).length) verify();
   }
   function basketCount() {
     return basket.length;
@@ -441,8 +532,10 @@
     const fab = $('basketFab');
     const countEl = $('basketCount');
     const n = basketCount();
+    const secureCheckout = $('secureCheckoutBtn');
+    if (secureCheckout) secureCheckout.disabled = n === 0;
     if (fab) {
-      fab.hidden = n === 0;
+      fab.hidden = n === 0 || !!$('orderBasketList');
       fab.setAttribute('aria-label', n ? 'Open my basket, ' + n + ' item' + (n === 1 ? '' : 's') : 'Open my empty basket');
       if (countEl) {
         text(countEl, String(n));
@@ -1276,6 +1369,8 @@
   setupProductPage();
   setupCustomPage();
   setupAboutPage();
+  setupSecureCheckout();
+  setupCheckoutSuccess();
 
   /* ---------- cross-page anchor targets (e.g. /shop/#order) ----------
      The browser jumps to the hash before the product grid replaces its
