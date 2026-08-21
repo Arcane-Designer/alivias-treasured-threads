@@ -41,13 +41,8 @@
   </header>
 
   <main id="main">
-    <section class="section">
+    <section class="section subpage-lead">
       <div class="wrap">
-        <nav class="breadcrumb" aria-label="Breadcrumb">
-          <a href="../">Home</a>
-          <span aria-hidden="true">/</span>
-          <span>Shop</span>
-        </nav>
         <div class="section-title">
           <span class="script" id="shopScript">take a look</span>
           <h1 class="serif" id="shopTitle">The Collection</h1>
@@ -61,31 +56,15 @@
         </div>
         <p class="section-subtitle" id="shopSubtitle">Each piece is handmade with love. Open any item for photos, ready-to-ship options, or a custom request.</p>
 
-        <div class="filter-bar" id="filterChips" role="group" aria-label="Availability">
-          <button type="button" class="chip active" data-filter="all" aria-pressed="true">Everything</button>
-          <button type="button" class="chip" data-filter="ready" aria-pressed="false">Ready to ship</button>
-          <button type="button" class="chip" data-filter="custom" aria-pressed="false">Made to order</button>
-        </div>
-
         <div class="filter-bar" id="typeChips" role="group" aria-label="Item type"></div>
         <div class="filter-bar" id="seasonChips" role="group" aria-label="Season"></div>
-
-        <div class="filter-tools">
-          <label class="sr-only" for="sortSelect">Sort</label>
-          <select class="sort-select" id="sortSelect">
-            <option value="featured">Featured order</option>
-            <option value="name">Name A–Z</option>
-            <option value="price-asc">Price · low to high</option>
-            <option value="price-desc">Price · high to low</option>
-          </select>
-        </div>
 
         <div class="product-grid" id="productsGrid" aria-live="polite">
           <div class="skeleton" aria-hidden="true"></div>
           <div class="skeleton" aria-hidden="true"></div>
           <div class="skeleton" aria-hidden="true"></div>
         </div>
-        <p class="grid-empty" id="gridEmpty" hidden>Nothing matches these filters right now. Try “Everything” or check back soon.</p>
+        <p class="grid-empty" id="gridEmpty" hidden>Nothing matches these filters right now. Try another type or season, or check back soon.</p>
       </div>
     </section>
 

@@ -67,6 +67,7 @@ for (const k of requiredSettings) {
 
 const ids = new Set();
 const imageRefs = new Set();
+if (data.settings?.seasonImage) imageRefs.add(data.settings.seasonImage);
 for (const p of data.products || []) {
   if (!p.id || typeof p.id !== 'string') {
     fail('Product missing string id');
@@ -161,6 +162,15 @@ else {
 /* admin preserved */
 if (!existsSync(join(ROOT, 'admin', 'index.html'))) fail('admin/ missing');
 if (!existsSync(join(ROOT, 'worker', 'worker.js'))) fail('worker/ missing');
+const adminHtml = readFileSync(join(ROOT, 'admin', 'index.html'), 'utf8');
+const editorSettingKeys = [...adminHtml.matchAll(/data-setting="([^"]+)"/g)].map((match) => match[1]);
+for (const key of new Set(editorSettingKeys)) {
+  if (data.settings?.[key] == null || data.settings[key] === '') {
+    fail(`Editor field data-setting=${key} has no current value in data/site.json`);
+  }
+}
+if (!data.settings?.seasonImage) fail('Seasonal editor image setting is missing');
+if (!data.settings?.seasonImageAlt) fail('Seasonal editor image description is missing');
 
 /* image path style: relative, no leading slash required but warn absolute */
 for (const img of imageRefs) {

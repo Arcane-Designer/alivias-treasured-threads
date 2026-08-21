@@ -17,7 +17,7 @@ Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads
 | Path | Role |
 |------|------|
 | `/` | Brand / story home, selected products, compact about + reviews, paths into shop & custom |
-| `/shop/` | All available products; Ready to Ship / Made to Order; type & season chips; shareable `?filter=&sort=&type=&season=` |
+| `/shop/` | All available products in Alivia's chosen order, with optional type and season chips |
 | `/product/<id>/` | Crawlable product page per `site.json` id (generated) |
 | `/custom/` | Silhouettes for makeable items, fabric-library status framework, request path |
 | `/about/` | Real about copy + curated reviews + leave-review (Worker + email), with FAQ/policies at `#faq` |

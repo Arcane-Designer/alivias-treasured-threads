@@ -34,6 +34,7 @@
   let stagedListingPhotos = [];     /* photos picked for a not-yet-added listing */
   let warnedQuota = false;
   let saveTimer = null;
+  let settingsDefaults = {};
 
   /* ================================================
      tiny helpers
@@ -151,6 +152,12 @@
   }
 
   async function fetchLiveData() {
+    try {
+      const local = await fetch('../' + DATA_PATH + '?v=' + Date.now()).then((response) => response.json());
+      settingsDefaults = { ...(local.settings || {}) };
+    } catch (e) {
+      settingsDefaults = {};
+    }
     const res = await gh(repoBase + '/contents/' + DATA_PATH + '?ref=' + GH_BRANCH, {
       headers: { 'Accept': 'application/vnd.github.raw+json' },
     });
@@ -160,6 +167,7 @@
 
   /* older data used a single `badge` string; the shop now supports up to two badges */
   function normalizeData(d) {
+    d.settings = { ...settingsDefaults, ...(d.settings || {}) };
     (d.products || []).forEach((p) => {
       if (!Array.isArray(p.badges)) p.badges = (p.badge && String(p.badge).trim()) ? [p.badge] : [];
       p.badges = p.badges.filter(Boolean).slice(0, 2);
@@ -323,6 +331,9 @@
           p.images = (p.images || []).filter((x) => !pend.has(x));
           (p.listings || []).forEach((l) => { l.images = (l.images || []).filter((x) => !pend.has(x)); });
         });
+        if (stripped.settings && pend.has(stripped.settings.seasonImage)) {
+          stripped.settings.seasonImage = settingsDefaults.seasonImage || 'images/brand/seasonal-halloween.jpg';
+        }
         localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft: stripped, pendingImages: {} }));
       } catch (e2) { /* ignore */ }
       if (!warnedQuota) {
@@ -1503,6 +1514,15 @@
     document.querySelectorAll('[data-setting]').forEach((input) => {
       input.value = (draft.settings || {})[input.dataset.setting] || '';
     });
+    renderSeasonPhoto();
+  }
+
+  function renderSeasonPhoto() {
+    const preview = $('seasonPhotoPreview');
+    if (!preview || !draft) return;
+    const path = (draft.settings || {}).seasonImage || settingsDefaults.seasonImage || 'images/brand/seasonal-halloween.jpg';
+    preview.src = imgSrc(path);
+    preview.alt = (draft.settings || {}).seasonImageAlt || 'Current seasonal feature photo';
   }
 
   document.querySelectorAll('[data-setting]').forEach((input) => {
@@ -1512,6 +1532,22 @@
       draft.settings[this.dataset.setting] = this.value.trim();
       markDirty();
     });
+  });
+
+  $('seasonPhotoInput').addEventListener('change', async function () {
+    if (!draft || !this.files.length) return;
+    toast('Adding the new seasonal photo… 📷', 'teal');
+    const shots = await ingestFiles([this.files[0]], 'seasonal-feature');
+    this.value = '';
+    if (!shots.length) return;
+    if (!draft.settings) draft.settings = {};
+    const previous = draft.settings.seasonImage;
+    const { path, dataUrl, base64 } = shots[0];
+    pendingImages[path] = { dataUrl, base64 };
+    draft.settings.seasonImage = path;
+    if (previous && pendingImages[previous] && !JSON.stringify(draft).includes(previous)) delete pendingImages[previous];
+    renderSeasonPhoto();
+    markDirty();
   });
 
   function showSettingsPage(name) {
@@ -1608,6 +1644,10 @@
       });
       if (hit) touched.push(p.name || 'a product');
     });
+    if (draft.settings && bad.has(draft.settings.seasonImage)) {
+      draft.settings.seasonImage = settingsDefaults.seasonImage || 'images/brand/seasonal-halloween.jpg';
+      touched.push('the seasonal feature');
+    }
     return touched;
   }
 
@@ -1621,6 +1661,7 @@
       if (missing.length) {
         const names = stripImageRefs(missing);
         renderProducts();
+        renderSeasonPhoto();
         toast(missing.length + ' photo' + (missing.length > 1 ? 's' : '') + " never finished uploading, so " + (missing.length > 1 ? 'they were' : 'it was') + ' removed from ' + names.join(', ') + ' ~ just re-add and publish again! 💜', 'pink');
       }
     } catch (e) { /* the publish itself still validates against the live repo */ }

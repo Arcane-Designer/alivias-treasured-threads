@@ -487,6 +487,25 @@ textarea.field-input { resize: vertical; }
   text-transform: uppercase;
   margin-bottom: 2px;
 }
+.season-photo-editor {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) 1fr;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--purple-pale);
+  border: 2px dashed var(--purple-light);
+}
+.season-photo-editor img {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  object-fit: cover;
+  border: 5px solid #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
 .answer-label { margin-top: 10px; }
 .settings-footer-nav {
   display: flex;
@@ -520,6 +539,8 @@ textarea.field-input { resize: vertical; }
   }
   .settings-step { min-width: 0; }
   .settings-footer-nav { flex-wrap: wrap; }
+  .season-photo-editor { grid-template-columns: 1fr; }
+  .season-photo-editor img { max-width: 280px; }
 }
 
 /* ============ PUBLISH BAR ============ */

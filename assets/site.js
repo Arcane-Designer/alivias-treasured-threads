@@ -131,7 +131,7 @@
       const value = s[el.dataset.copy];
       if (value == null) return;
       const attr = el.dataset.copyAttr;
-      if (attr) el.setAttribute(attr, value);
+      if (attr) el.setAttribute(attr, attr === 'src' ? resolveImg(value) : value);
       else text(el, value);
     });
     const ig = $('aboutIg') || document.querySelector('[data-ig]');
@@ -143,6 +143,8 @@
     document.querySelectorAll('[data-brand]').forEach((el) => {
       text(el, s.brandName || "Alivia's Treasured Threads");
     });
+    const seasonPhoto = document.querySelector('.season-photo');
+    if (seasonPhoto && s.seasonImageAlt) seasonPhoto.alt = s.seasonImageAlt;
   }
 
   /* ---------- product helpers ---------- */
@@ -918,8 +920,6 @@
   function setupShopPage() {
     const grid = $('productsGrid');
     if (!grid) return;
-    let currentFilter = 'all';
-    let currentSort = 'featured';
     let currentSeason = 'all';
     let currentType = 'all';
 
@@ -957,8 +957,6 @@
 
     function filtered() {
       let list = activeProducts.slice();
-      if (currentFilter === 'ready') list = list.filter(isReady);
-      if (currentFilter === 'custom') list = list.filter((p) => isCustomOnly(p) || (!isReady(p) && typeof p.price === 'number'));
       if (currentSeason !== 'all') {
         list = list.filter((p) => {
           const s = (p.season || '').toLowerCase();
@@ -988,13 +986,6 @@
           return re.test(n);
         });
       }
-      if (currentSort === 'price-asc') {
-        list.sort((a, b) => (shownPrice(a) ?? 9999) - (shownPrice(b) ?? 9999));
-      } else if (currentSort === 'price-desc') {
-        list.sort((a, b) => (shownPrice(b) ?? -1) - (shownPrice(a) ?? -1));
-      } else if (currentSort === 'name') {
-        list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-      }
       return list;
     }
 
@@ -1014,10 +1005,8 @@
 
     function syncUrl() {
       const u = new URL(location.href);
-      if (currentFilter === 'all') u.searchParams.delete('filter');
-      else u.searchParams.set('filter', currentFilter);
-      if (currentSort === 'featured') u.searchParams.delete('sort');
-      else u.searchParams.set('sort', currentSort);
+      u.searchParams.delete('filter');
+      u.searchParams.delete('sort');
       if (currentSeason === 'all') u.searchParams.delete('season');
       else u.searchParams.set('season', currentSeason);
       if (currentType === 'all') u.searchParams.delete('type');
@@ -1026,36 +1015,9 @@
     }
 
     /* init from URL */
-    currentFilter = params.get('filter') || 'all';
-    currentSort = params.get('sort') || 'featured';
     currentSeason = params.get('season') || 'all';
     currentType = params.get('type') || 'all';
-
-    $$('#filterChips .chip').forEach((chip) => {
-      const f = chip.getAttribute('data-filter');
-      chip.classList.toggle('active', f === currentFilter);
-      chip.setAttribute('aria-pressed', f === currentFilter ? 'true' : 'false');
-      chip.addEventListener('click', () => {
-        currentFilter = f;
-        $$('#filterChips .chip').forEach((c) => {
-          const on = c.getAttribute('data-filter') === currentFilter;
-          c.classList.toggle('active', on);
-          c.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        syncUrl();
-        render();
-      });
-    });
-
-    const sortEl = $('sortSelect');
-    if (sortEl) {
-      sortEl.value = currentSort;
-      sortEl.addEventListener('change', () => {
-        currentSort = sortEl.value;
-        syncUrl();
-        render();
-      });
-    }
+    syncUrl();
 
     /* Season/type chips are data-driven, so (re)build them once products have
        loaded; building only at setup left permanently empty chip rows. The

@@ -142,6 +142,15 @@
               <div class="field-group"><label class="field-label" for="setAvailableCta">Shop link</label><input type="text" id="setAvailableCta" class="field-input" data-setting="homeAvailableCta"></div>
 
               <h4 class="settings-heading">Seasonal feature</h4>
+              <div class="season-photo-editor">
+                <img id="seasonPhotoPreview" src="../images/brand/seasonal-halloween.jpg" alt="Current seasonal feature photo">
+                <div>
+                  <label class="add-photos-btn" for="seasonPhotoInput">📷 Choose a different photo</label>
+                  <input type="file" id="seasonPhotoInput" accept="image/jpeg,image/png,image/webp" hidden>
+                  <p class="field-hint">This is the large photo beside the seasonal message on the homepage.</p>
+                </div>
+              </div>
+              <div class="field-group"><label class="field-label" for="setSeasonImageAlt">Photo description <span class="tiny-note">for accessibility and search</span></label><textarea id="setSeasonImageAlt" class="field-input" rows="2" data-setting="seasonImageAlt"></textarea></div>
               <div class="field-row">
                 <div class="field-group"><label class="field-label" for="setSeasonScript">Small script words</label><input type="text" id="setSeasonScript" class="field-input" data-setting="seasonScript"></div>
                 <div class="field-group"><label class="field-label" for="setSeasonTitle">Section title</label><input type="text" id="setSeasonTitle" class="field-input" data-setting="seasonTitle"></div>

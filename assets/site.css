@@ -259,6 +259,7 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 
 /* ---------- section rhythm & titles (original centered style) ---------- */
 .section { position: relative; padding-block: clamp(2.8rem, 6vw, 4.4rem); }
+.subpage-lead { padding-top: clamp(1.35rem, 3vw, 2.1rem); }
 .section-band { background: var(--white); border-top: 2px dashed var(--neutral-dark); }
 
 .section-title { text-align: center; margin-bottom: 6px; }
@@ -723,25 +724,6 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
   color: #fff;
   box-shadow: 0 4px 14px var(--purple-glow);
 }
-.filter-tools {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin: 0.8rem 0 2rem;
-}
-.sort-select, .form-select {
-  padding: 9px 14px;
-  border: 2px solid var(--neutral-dark);
-  border-radius: 40px;
-  background: var(--white);
-  color: var(--ink);
-  font-size: 0.88rem;
-  font-weight: 700;
-  font-family: inherit;
-}
-.sort-select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-glow); }
-
 /* ---------- forms & panels ---------- */
 .panel {
   background: var(--white);
@@ -753,10 +735,12 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
   padding: 1.6rem;
 }
 .order-basket-panel {
-  background: var(--body-bg);
-  border: 2px dashed var(--purple-light);
-  outline: none;
-  box-shadow: none;
+  background: linear-gradient(145deg, #fff 45%, var(--purple-pale));
+  border: 5px solid #fff;
+  outline: var(--stitch);
+  outline-offset: -9px;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
   padding: 1.4rem;
 }
 .panel-title {
