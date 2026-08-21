@@ -17,7 +17,7 @@
     if (/\/(shop|product)\/[^/]+$/i.test(path) || /\/(shop|product)\/[^/]+\/index\.html$/i.test(path)) {
       return '../../';
     }
-    if (/\/(shop|custom|about|faq|checkout)(\/index\.html)?$/i.test(path)) {
+    if (/\/(shop|custom|about|faq|checkout|reviews)(\/index\.html)?$/i.test(path)) {
       return '../';
     }
     return '';
@@ -232,9 +232,7 @@
         ? '<div class="product-card-meta">' +
           (p.oneOfAKind ? 'One of a kind' : stock + ' ready to ship') +
           '</div>'
-        : isCustomOnly(p)
-          ? '<div class="product-card-meta custom">Made to order</div>'
-          : '';
+        : '<div class="product-card-meta custom">Made to order</div>';
     return (
       '<a class="product-card" href="' +
       esc(productHref(p)) +
@@ -842,7 +840,7 @@
       }
       if (btn) {
         btn.disabled = false;
-        btn.textContent = 'Send My Review 💌';
+        btn.textContent = 'Send My Note 💌';
       }
     });
   }
@@ -867,7 +865,7 @@
 
     function seasonsInData() {
       const set = new Set();
-      activeProducts.filter(isReady).forEach((p) => {
+      activeProducts.forEach((p) => {
         if (p.season) set.add(String(p.season).toLowerCase());
         (p.tags || []).forEach((t) => {
           if (/^(fall|winter|spring|summer|halloween|holiday|seasonal)/i.test(t)) {
@@ -879,12 +877,12 @@
     }
     function typesInData() {
       const set = new Set();
-      activeProducts.filter(isReady).forEach((p) => set.add(groupedType(p)));
+      activeProducts.forEach((p) => set.add(groupedType(p)));
       return [...typeOrder.filter((type) => set.has(type)), ...Array.from(set).filter((type) => !typeOrder.includes(type)).sort()];
     }
 
     function filtered() {
-      let list = activeProducts.filter(isReady);
+      let list = activeProducts.slice();
       if (currentSeason !== 'all') {
         list = list.filter((p) => {
           const s = (p.season || '').toLowerCase();
@@ -1049,7 +1047,7 @@
 
     const rev = $('homeReviews');
     if (rev) {
-      document.addEventListener('att:ready', () => {
+      const renderReviews = () => {
         const shown = (DATA.reviews || []).filter((r) => r.show && (r.text || '').trim());
         if (!shown.length) {
           rev.hidden = true;
@@ -1076,7 +1074,9 @@
             )
             .join('');
         }
-      });
+      };
+      document.addEventListener('att:ready', renderReviews);
+      if ((DATA.reviews || []).length) renderReviews();
     }
   }
 

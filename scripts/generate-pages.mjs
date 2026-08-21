@@ -134,7 +134,10 @@ function jsonLdProduct(p, pageUrl) {
 
 function listingsHtml(p) {
   const listings = p.listings || [];
-  if (p.oneOfAKind || !listings.length) return '';
+  if (p.oneOfAKind) return '';
+  if (!listings.length || !listings.some((listing) => !listing.sold)) {
+    return '<div class="availability-empty"><h3>No finished pieces available right now</h3><p>Request a custom one and choose the details with Alivia.</p></div>';
+  }
   const sorted = [...listings].sort((a, b) => (a.sold === b.sold ? 0 : a.sold ? 1 : -1));
   const rows = sorted
     .map((l) => {
@@ -162,7 +165,7 @@ function actionsHtml(p) {
   if (p.oneOfAKind) {
     parts.push(`<button type="button" class="btn btn-primary" id="addOneOffBtn">Add to basket</button>`);
   }
-  if (!p.oneOfAKind) parts.push(`<a class="btn btn-secondary" href="../../custom/?design=${encodeURIComponent(p.id)}#customRequest">Request a custom version</a>`);
+  if (!p.oneOfAKind) parts.push(`<a class="btn btn-secondary" href="../../custom/?design=${encodeURIComponent(p.id)}#customRequest">${hasReady ? 'Request a custom version' : 'Request a Custom One'}</a>`);
   return `<div class="product-actions">${parts.join('\n')}</div>`;
 }
 
@@ -289,7 +292,7 @@ ${jsonLdProduct(p, pageUrl)}
         <div class="footer-col"><h4>Connect</h4><ul>
           <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>
           <li><a href="../../checkout/">Checkout</a></li>
-          <li><a href="../../about/#leave-review">Leave a review</a></li>
+          <li><a href="../../reviews/">Leave a note</a></li>
         </ul></div>
       </div>
       <div class="footer-bottom">
@@ -337,6 +340,7 @@ function writeSitemap(products) {
     { loc: `${BASE}/`, priority: '1.0' },
     { loc: `${BASE}/shop/`, priority: '0.9' },
     { loc: `${BASE}/custom/`, priority: '0.8' },
+    { loc: `${BASE}/reviews/`, priority: '0.7' },
     { loc: `${BASE}/about/`, priority: '0.7' },
     /* /faq/ is intentionally absent: it is a noindex compatibility
        bridge that redirects to /about/#faq */
@@ -392,9 +396,9 @@ function cleanShopProductDirs() {
 }
 
 function legacyRedirect(p) {
-  const target = isReady(p)
-    ? `${BASE}/shop/${encodeURIComponent(p.id)}/`
-    : `${BASE}/custom/?design=${encodeURIComponent(p.id)}#customRequest`;
+  const target = p.archived
+    ? `${BASE}/custom/?design=${encodeURIComponent(p.id)}#customRequest`
+    : `${BASE}/shop/${encodeURIComponent(p.id)}/`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="${escAttr(target)}"><meta http-equiv="refresh" content="0;url=${escAttr(target)}"><title>Moved</title></head><body><p>This page moved to <a href="${escAttr(target)}">the Shop listing</a>.</p></body></html>`;
 }
 
@@ -416,7 +420,7 @@ function main() {
     const legacyDir = join(PRODUCT_DIR, p.id);
     mkdirSync(legacyDir, { recursive: true });
     writeFileSync(join(legacyDir, 'index.html'), legacyRedirect(p), 'utf8');
-    if (isReady(p)) {
+    if (!p.archived) {
       const dir = join(SHOP_DIR, p.id);
       mkdirSync(dir, { recursive: true });
       const html = productPage(p, settings).replace(/[ \t]+$/gm, '');
@@ -426,7 +430,7 @@ function main() {
   }
   writeSitemap(products);
   writeRobots();
-  console.log(`Generated ${n} ready-to-buy Shop page(s), legacy redirects, sitemap.xml, robots.txt`);
+  console.log(`Generated ${n} active Shop catalog page(s), legacy redirects, sitemap.xml, robots.txt`);
   console.log(`Base URL: ${BASE}`);
 }
 

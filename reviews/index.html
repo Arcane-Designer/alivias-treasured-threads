@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave a Note | Alivia's Treasured Threads</title>
+  <meta name="description" content="Share a note about your handmade treasure from Alivia's Treasured Threads.">
+  <link rel="canonical" href="https://arcane-designer.github.io/alivias-treasured-threads/reviews/">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <meta property="og:title" content="Leave a Note | Alivia's Treasured Threads">
+  <meta property="og:description" content="Share a note about your handmade treasure.">
+  <meta property="og:url" content="https://arcane-designer.github.io/alivias-treasured-threads/reviews/">
+  <meta property="og:image" content="../images/brand/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header class="site-header"><div class="header-inner">
+    <a href="../" class="brand-link" aria-label="Alivia's Treasured Threads home"><img src="../images/brand/logo.jpg" alt="" class="brand-logo" width="46" height="46"><span class="brand-text"><span class="script">Alivia's</span><span class="serif">Treasured Threads</span></span></a>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMain" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <nav class="nav-main" id="navMain" aria-label="Main"><a href="../shop/">Shop</a><a href="../custom/">Custom</a><a href="../about/">About</a><a class="nav-cta" href="./" aria-current="page">Leave a Note</a></nav>
+  </div></header>
+  <main id="main" class="section"><div class="wrap form-narrow">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../">Home</a><span aria-hidden="true">/</span><span>Leave a Note</span></nav>
+    <div class="section-title"><span class="script" id="leaveScript">your turn</span><h1 class="serif" id="leaveTitle">Leave a Note</h1></div>
+    <p class="section-subtitle" id="leaveReviewIntro">Took home a treasure? Alivia would love to hear how you like it. Your note may appear on the Home page after she reviews it.</p>
+    <form class="panel" id="reviewForm" novalidate>
+      <input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="form-group"><span class="form-label">Stars</span><div class="star-row" role="group" aria-label="Star rating"><button type="button" class="star-pick" data-stars="1" aria-pressed="true">★</button><button type="button" class="star-pick" data-stars="2" aria-pressed="true">★</button><button type="button" class="star-pick" data-stars="3" aria-pressed="true">★</button><button type="button" class="star-pick" data-stars="4" aria-pressed="true">★</button><button type="button" class="star-pick" data-stars="5" aria-pressed="true">★</button></div></div>
+      <div class="form-group"><label class="form-label" for="reviewName">Your Name <span class="required">*</span></label><input type="text" id="reviewName" name="reviewName" class="form-input" required maxlength="80" autocomplete="name"><span class="field-error">Please add your name.</span></div>
+      <div class="form-group"><label class="form-label" for="reviewText">Your Note <span class="required">*</span></label><textarea id="reviewText" name="reviewText" class="form-textarea" required maxlength="1200" placeholder="What did you take home? How do you like it?"></textarea><span class="field-error">Please add a short note.</span></div>
+      <button type="submit" class="btn btn-gradient" id="reviewSubmitBtn" style="width:100%">Send My Note 💌</button><p class="form-hint" id="reviewHint" aria-live="polite"></p>
+    </form>
+    <div class="panel form-success" id="reviewThanks" hidden><div class="checkmark heart" aria-hidden="true">💜</div><h2>Thank you!</h2><p>Your note is on its way. Alivia reads every note before it appears on the site.</p><button type="button" class="btn btn-outline btn-sm" id="reviewAgainBtn" hidden>Write another</button></div>
+  </div></main>
+  <footer class="site-footer"><div class="wrap"><div class="footer-grid"><div class="footer-brand"><span class="footer-brand-stack"><span class="script">Alivia's</span><span class="serif">Treasured Threads</span></span><p data-copy="footerTagline">Handmade with love, one stitch at a time.</p></div><div class="footer-col"><h4>Explore</h4><ul><li><a href="../shop/">Shop</a></li><li><a href="../custom/">Custom orders</a></li><li><a href="../about/">About</a></li><li><a href="../about/#faq">FAQ</a></li></ul></div><div class="footer-col"><h4>Connect</h4><ul><li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li><li><a href="./">Leave a note</a></li></ul></div></div><div class="footer-bottom"><span>© <span data-brand>Alivia's Treasured Threads</span></span><a class="studio-link" href="../admin/" title="Alivia's Studio">🧵</a></div></div></footer>
+  <button class="basket-fab" id="basketFab" aria-label="Open my basket" hidden><span class="basket-count" id="basketCount">0</span></button><div class="drawer-overlay" id="drawerOverlay" hidden></div><aside class="basket-drawer" id="basketDrawer" role="dialog" aria-modal="true" aria-label="My basket" hidden><div class="drawer-head"><h3>Basket</h3><button type="button" class="drawer-close" id="drawerClose" aria-label="Close">×</button></div><div class="drawer-items" id="drawerItems"></div><p class="drawer-empty" id="drawerEmpty">Nothing in here yet.</p><div class="drawer-foot"><div class="drawer-estimate" id="drawerEstimate"></div><a href="../checkout/" class="btn btn-gradient" id="drawerCheckout">Review &amp; Checkout →</a></div></aside><div class="toast-zone" id="toastZone" aria-live="polite"></div>
+  <script src="../assets/site.js"></script>
+</body>
+</html>

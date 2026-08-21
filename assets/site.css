@@ -1012,6 +1012,9 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .listing-meta { flex: 1; min-width: 0; }
 .listing-name { font-weight: 700; font-size: 0.93rem; line-height: 1.35; }
 .listing-status { font-size: 0.78rem; font-weight: 700; color: var(--teal-deep); }
+.availability-empty { margin-top: 1.2rem; padding: 1rem 1.1rem; border: 2px dashed var(--neutral-dark); border-radius: var(--radius-sm); background: var(--white); }
+.availability-empty h3 { font-family: var(--font-serif); font-size: 1.25rem; margin: 0 0 0.25rem; }
+.availability-empty p { color: var(--ink-soft); margin: 0; }
 .listing-row.is-sold .listing-status { color: var(--ink-soft); }
 .product-actions {
   display: flex;

@@ -8,7 +8,7 @@
     "aboutText2": "Whether you're looking for a one-of-a-kind cape, a cute bookmark for your favorite novel, or a custom tote bag, I'd love to make something special for you!",
     "shopScript": "take a look",
     "shopTitle": "The Collection",
-    "shopSubtitle": "Finished pieces that are sewn and ready for a new home. Open any item to choose the exact available version.",
+    "shopSubtitle": "Explore every design. Choose an available finished piece, or request a custom one made just for you.",
     "orderScript": "let's make it happen",
     "orderTitle": "Custom Request",
     "orderIntro": "Choose one or more designs, tell me how many you need, and share the fabric, size, or other details you have in mind. No payment is collected with this request.",
@@ -536,14 +536,7 @@
         "images/products/pencil-brush-roll-3.jpg",
         "images/products/pencil-brush-roll-4.jpg"
       ],
-      "listings": [
-        {
-          "id": "craft-roll-ready",
-          "name": "Craft Roll",
-          "images": [],
-          "sold": false
-        }
-      ],
+      "listings": [],
       "badges": []
     },
     {

@@ -23,7 +23,8 @@ Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads
 | `/checkout/` | Persisted ready-inventory summary and honest payment-coming-soon boundary |
 | `/custom/` | Multi-design, per-quantity custom request flow; no payment collection |
 | `/product/<id>/` | Noindex compatibility redirects to Shop or the matching Custom selection |
-| `/about/` | Real about copy + curated reviews + leave-review (Worker + email), with FAQ/policies at `#faq` |
+| `/about/` | Real about copy with FAQ/policies at `#faq` |
+| `/reviews/` | Dedicated leave-a-note form using the preserved Worker + email flow |
 | `/faq/` | Noindex compatibility bridge to `/about/#faq` for old links only |
 
 ---
@@ -74,9 +75,9 @@ node scripts/generate-pages.mjs --base https://arcane-designer.github.io/alivias
 
 Outputs:
 
-- `shop/<id>/index.html` for every currently ready-to-buy product
+- `shop/<id>/index.html` for every active product, including honest made-to-order pages when finished inventory is unavailable
 - `product/<id>/index.html` noindex compatibility redirects
-- `sitemap.xml` (ready-to-buy Shop products only)
+- `sitemap.xml` (all active Shop products plus the dedicated review route)
 - `robots.txt`
 
 Zero npm dependencies. Nested product pages use `../../assets` and `../../images` so relative paths stay valid.

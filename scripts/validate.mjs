@@ -100,15 +100,14 @@ for (const p of data.products || []) {
   }
 }
 
-/* generated ready-to-buy Shop pages */
+/* generated active Shop catalog pages */
 const productRoot = join(ROOT, 'shop');
 if (!existsSync(productRoot)) {
   fail('shop/ directory missing. Run: node scripts/generate-pages.mjs');
 } else {
   for (const id of ids) {
     const product = (data.products || []).find((x) => x.id === id);
-    const ready = product && !product.archived && (product.oneOfAKind || (product.listings || []).some((l) => !l.sold));
-    if (!ready) continue;
+    if (!product || product.archived) continue;
     const page = join(productRoot, id, 'index.html');
     if (!existsSync(page)) {
       fail(`Missing generated page: shop/${id}/index.html`);
@@ -140,7 +139,7 @@ if (!existsSync(productRoot)) {
 }
 
 /* top-level pages */
-for (const rel of ['index.html', 'shop/index.html', 'custom/index.html', 'checkout/index.html', 'about/index.html', 'faq/index.html']) {
+for (const rel of ['index.html', 'shop/index.html', 'custom/index.html', 'checkout/index.html', 'reviews/index.html', 'about/index.html', 'faq/index.html']) {
   if (!existsSync(join(ROOT, rel))) fail(`Missing page: ${rel}`);
 }
 
@@ -151,9 +150,8 @@ else {
   if (!sm.includes('<urlset')) fail('sitemap.xml invalid');
   for (const id of ids) {
     const p = (data.products || []).find((x) => x.id === id);
-    const ready = p && !p.archived && (p.oneOfAKind || (p.listings || []).some((l) => !l.sold));
-    if (ready && !sm.includes(`/shop/${id}/`)) {
-      fail(`sitemap missing ready Shop product ${id}`);
+    if (p && !p.archived && !sm.includes(`/shop/${id}/`)) {
+      fail(`sitemap missing active Shop product ${id}`);
     }
   }
 }

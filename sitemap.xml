@@ -16,6 +16,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://arcane-designer.github.io/alivias-treasured-threads/reviews/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://arcane-designer.github.io/alivias-treasured-threads/about/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
