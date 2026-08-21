@@ -3,396 +3,257 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alivia's Treasured Threads ~ Handmade with Love</title>
-  <meta name="description" content="Handmade sewn goods by Alivia: capes, bookmarks, tote bags, pouches, and more. Each piece is crafted with love, one stitch at a time.">
+  <title>Alivia's Treasured Threads — Handmade with love, one stitch at a time</title>
+  <meta name="description" content="Handmade sewn goods by Alivia: capes, bookmarks, tote bags, pouches, and more. Each piece is crafted with care, one stitch at a time.">
+  <link rel="canonical" href="https://arcane-designer.github.io/alivias-treasured-threads/">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta property="og:type" content="website">
   <meta property="og:title" content="Alivia's Treasured Threads">
   <meta property="og:description" content="Handmade with love, one stitch at a time.">
   <meta property="og:image" content="images/brand/og-image.jpg">
-
-  <!-- Google Fonts (same brand fonts) -->
+  <meta property="og:url" content="https://arcane-designer.github.io/alivias-treasured-threads/">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Dancing+Script:wght@400;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/site.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Alivia's Treasured Threads",
+    "url": "https://arcane-designer.github.io/alivias-treasured-threads/",
+    "description": "Handmade sewn goods crafted with care, one stitch at a time.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Alivia's Treasured Threads",
+      "url": "https://arcane-designer.github.io/alivias-treasured-threads/",
+      "sameAs": ["https://www.instagram.com/alivias_treasured_threads"]
+    }
+  }
+  </script>
 </head>
 <body>
+  <a class="sr-only" href="#main">Skip to content</a>
 
-  <!-- Floating decorative stars -->
-  <div class="stars-container" id="starsContainer" aria-hidden="true"></div>
-
-  <!-- ============ HEADER ============ -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="#home" class="header-home" aria-label="Back to top">
-        <img src="images/brand/logo.jpg" alt="" class="header-logo">
-        <span class="header-brand">
+      <a href="./" class="brand-link" aria-current="page" aria-label="Alivia's Treasured Threads — home">
+        <img src="images/brand/logo.jpg" alt="" class="brand-logo" width="46" height="46">
+        <span class="brand-text">
           <span class="script">Alivia's</span>
           <span class="serif">Treasured Threads</span>
         </span>
       </a>
-      <nav class="header-nav" aria-label="Main navigation">
-        <a href="#products">Shop</a>
-        <a href="#about">About</a>
-        <a href="#order">Order</a>
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMain" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <nav class="nav-main" id="navMain" aria-label="Main">
+        <a href="shop/">Shop</a>
+        <a href="custom/">Custom</a>
+        <a href="about/">About</a>
+        <a class="nav-cta" href="shop/#order">Place an order</a>
       </nav>
     </div>
   </header>
 
-  <!-- ============ HERO ============ -->
-  <section class="hero" id="home">
-    <div class="hero-gingham" aria-hidden="true"></div>
-
-    <div class="hero-content">
-      <div class="hero-patch" aria-hidden="true">
-        <svg class="hero-pin-button" viewBox="0 0 48 48" width="44" height="44" aria-hidden="true">
-          <circle cx="24" cy="24" r="21" fill="#FF74D4"/>
-          <circle cx="24" cy="24" r="21" fill="none" stroke="#E05AB8" stroke-width="2"/>
-          <circle cx="24" cy="24" r="14" fill="none" stroke="#E05AB8" stroke-width="1.5" stroke-dasharray="3 3"/>
-          <circle cx="18" cy="18" r="2.6" fill="#fff"/>
-          <circle cx="30" cy="18" r="2.6" fill="#fff"/>
-          <circle cx="18" cy="30" r="2.6" fill="#fff"/>
-          <circle cx="30" cy="30" r="2.6" fill="#fff"/>
-          <path d="M20.5 20.5 L27.5 27.5 M27.5 20.5 L20.5 27.5" stroke="#B84A96" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <span class="hero-banner-frame">
-          <img src="images/brand/badge.jpg" alt="Alivia's Treasured Threads banner" class="hero-banner" fetchpriority="high">
-        </span>
-      </div>
-
-      <h1 class="hero-tagline" id="heroTagline">Handmade with love, one stitch at a time</h1>
-      <p class="hero-sub" id="heroSub">Unique hand-sewn goods crafted with care ~ from cozy capes to adorable bookmarks, each piece has a little magic stitched in.</p>
-
-      <div class="hero-ctas">
-        <a href="#products" class="btn btn-pink btn-big hero-cta">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-          Shop the Collection
-        </a>
-        <a href="#order" class="hero-cta-secondary">or request something custom →</a>
-      </div>
-    </div>
-
-    <img src="images/brand/alivia-transparent-with-cape.png" alt="" class="hero-alivia" aria-hidden="true">
-
-    <!-- sewing doodles -->
-    <svg class="doodle doodle-btn-1" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#4FE4BC" opacity=".9"/><circle cx="24" cy="24" r="13" fill="none" stroke="#2BB894" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="19" cy="19" r="2.4" fill="#fff"/><circle cx="29" cy="19" r="2.4" fill="#fff"/><circle cx="19" cy="29" r="2.4" fill="#fff"/><circle cx="29" cy="29" r="2.4" fill="#fff"/></svg>
-    <svg class="doodle doodle-btn-2" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#B8A9F0"/><circle cx="24" cy="24" r="13" fill="none" stroke="#8E79DD" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="19" cy="24" r="2.4" fill="#fff"/><circle cx="29" cy="24" r="2.4" fill="#fff"/></svg>
-    <svg class="doodle doodle-spool" viewBox="0 0 64 64" aria-hidden="true">
-      <rect x="18" y="10" width="28" height="6" rx="3" fill="#E05AB8"/>
-      <rect x="18" y="48" width="28" height="6" rx="3" fill="#E05AB8"/>
-      <rect x="22" y="16" width="20" height="32" fill="#FF9BDF"/>
-      <path d="M22 20h20M22 25h20M22 30h20M22 35h20M22 40h20M22 45h20" stroke="#E05AB8" stroke-width="1.6"/>
-      <path d="M42 44 C56 40 58 30 52 24" stroke="#E05AB8" stroke-width="1.6" fill="none" stroke-dasharray="4 3"/>
-    </svg>
-  </section>
-
-  <!-- scalloped edge into about -->
-  <div class="scallop scallop-white" aria-hidden="true"></div>
-
-  <!-- ============ ABOUT ============ -->
-  <section class="section about-section" id="about">
-    <div class="section-inner">
-      <div class="about-grid">
-        <div class="about-photo-wrap">
-          <img src="images/brand/alivia-transparent-with-cape.png" alt="Alivia wearing a handmade moon-phase hooded cape" class="about-photo">
-          <span class="about-tape" aria-hidden="true"></span>
+  <main id="main">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <h1 id="heroTagline">Handmade with love, one stitch at a time</h1>
+          <p class="hero-sub" id="heroSub">Unique homemade goods crafted with care. From cozy capes to adorable bookmarks, each piece is made with love stitched in.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-gradient btn-lg" href="shop/">Shop available pieces</a>
+            <a class="hero-cta-secondary" href="custom/">Request something custom →</a>
+          </div>
+          <p class="hero-facts">Every piece sewn by Alivia &nbsp;·&nbsp; Ready to ship or made to order</p>
         </div>
-        <div class="about-text">
-          <h2 class="about-hi" id="aboutHeading">Hi, I'm Alivia!</h2>
-          <p id="aboutText1">I'm a young maker who loves sewing, crafting, and creating things that are as unique as the people who wear and use them. Every item in my shop is hand-sewn by me with fabrics I pick out because they make me smile ~ from whimsical celestial prints to cozy fall patterns.</p>
-          <p id="aboutText2" style="margin-top:12px">Whether you're looking for a one-of-a-kind cape, a cute bookmark for your favorite novel, or a custom tote bag, I'd love to make something special for you!</p>
-          <a class="about-ig" id="aboutIg" href="#" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-            Follow along on Instagram
+        <figure class="hero-photo-frame">
+          <span class="hero-patch-frame">
+            <img class="hero-photo" src="images/uploads/apple-cider-bundle-msur3jkm4l7.jpg" alt="The Apple Cider Bundle arranged on a wooden table: a patchwork tote, zipper pouch, pot holders, and bookmarks in fall fabrics" width="1050" height="1400" fetchpriority="high">
+          </span>
+          <figcaption class="hero-caption">This season's Apple Cider Bundle — mini tote, zipper pouch, pot holders &amp; bookmarks.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-title">
+          <span class="script" id="shopScript">take a look</span>
+          <h2 class="serif">Available now</h2>
+        </div>
+        <div class="thread-divider" aria-hidden="true">
+          <svg viewBox="0 0 220 26" width="220" height="26">
+            <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#FFB0E8" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+            <path d="M206 13 L216 10.5" stroke="#FF74D4" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="207" cy="13" r="2.2" fill="#FF74D4"/>
+          </svg>
+        </div>
+        <p class="section-subtitle">Ready-to-ship treasures and this season's small-batch bundles.</p>
+        <div class="product-grid" id="featuredGrid" aria-live="polite">
+          <div class="skeleton" aria-hidden="true"></div>
+          <div class="skeleton" aria-hidden="true"></div>
+          <div class="skeleton" aria-hidden="true"></div>
+        </div>
+        <p class="section-center">
+          <a class="btn btn-outline" href="shop/">View the whole shop →</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="season-band">
+      <div class="wrap season-grid">
+        <figure class="season-photo-frame">
+          <img class="season-photo" src="images/brand/seasonal-halloween.jpg" alt="Halloween tote bags and quilted pot holders in pumpkin, ghost, and candy corn fabrics laid out on a pine table" width="800" height="779" loading="lazy">
+        </figure>
+        <div class="season-copy">
+          <span class="script-accent" aria-hidden="true">just in ~</span>
+          <h2>Fall &amp; Halloween pieces are here</h2>
+          <p>Pumpkin totes, spooky pot holders, and autumn bookmarks are in the shop now — sewn in small batches, so they go quickly.</p>
+          <a class="btn btn-purple" href="shop/">Browse the shop</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-title">
+          <h2 class="serif">Browse by type</h2>
+        </div>
+        <div class="thread-divider" aria-hidden="true">
+          <svg viewBox="0 0 220 26" width="220" height="26">
+            <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#8FF0D6" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+            <path d="M206 13 L216 10.5" stroke="#23A583" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="207" cy="13" r="2.2" fill="#23A583"/>
+          </svg>
+        </div>
+        <p class="section-subtitle">Tap a favorite to see everything in that corner of the shop.</p>
+        <div class="tile-grid">
+          <a class="tile" href="shop/?type=Bags">
+            <div class="tile-photo"><img src="images/products/products-1.jpg" alt="Patchwork tote bags in pink and sage floral fabrics" width="786" height="800" loading="lazy"></div>
+            <div class="tile-name">Bags &amp; totes</div>
+            <div class="tile-sub">Everyday, overnight &amp; mini sizes</div>
+          </a>
+          <a class="tile" href="shop/?type=Bookmarks">
+            <div class="tile-photo"><img src="images/uploads/bookmarks-mrmec355ly1.jpg" alt="A fan of handmade fabric bookmarks in many patterns" width="1400" height="1258" loading="lazy"></div>
+            <div class="tile-name">Bookmarks</div>
+            <div class="tile-sub">Flat &amp; corner styles</div>
+          </a>
+          <a class="tile" href="shop/?type=Coasters">
+            <div class="tile-photo"><img src="images/products/cute-quilted-coaster-1.jpg" alt="Quilted patchwork coasters in pink floral fabric" width="800" height="705" loading="lazy"></div>
+            <div class="tile-name">Coasters</div>
+            <div class="tile-sub">Quilted sets of four</div>
+          </a>
+          <a class="tile tile-cape" href="custom/">
+            <div class="tile-photo"><img src="images/products/cape-1.jpg" alt="A handmade hooded cape in moon-phase fabric" width="601" height="800" loading="lazy"></div>
+            <div class="tile-name">Custom capes</div>
+            <div class="tile-sub">By custom order only</div>
           </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SHOP ============ -->
-  <section class="section products-section" id="products">
-    <div class="section-inner">
-      <div class="section-title">
-        <span class="script" id="shopScript">take a look</span>
-        <span class="serif" id="shopTitle">The Collection</span>
-      </div>
-      <div class="thread-divider" aria-hidden="true">
-        <svg viewBox="0 0 220 26" width="220" height="26">
-          <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#B8A9F0" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
-          <path d="M206 13 L216 10.5" stroke="#8E79DD" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="207" cy="13" r="2.2" fill="#8E79DD"/>
-        </svg>
-      </div>
-      <p class="section-subtitle" id="shopSubtitle">Each piece is handmade with love. Tap any item to see more photos and order options!</p>
-
-      <div class="filter-chips" id="filterChips" role="group" aria-label="Filter products">
-        <button class="chip active" data-filter="all">Everything</button>
-        <button class="chip" data-filter="ready">✨ Ready to Ship</button>
-        <button class="chip" data-filter="custom">🧵 Made to Order</button>
-      </div>
-
-      <div class="products-grid" id="productsGrid" aria-live="polite">
-        <!-- skeletons while loading -->
-        <div class="product-skel" aria-hidden="true"></div>
-        <div class="product-skel" aria-hidden="true"></div>
-        <div class="product-skel" aria-hidden="true"></div>
-      </div>
-      <p class="grid-empty" id="gridEmpty" hidden>Nothing here right now ~ check back soon! 💜</p>
-    </div>
-  </section>
-
-  <!-- ============ REVIEWS ============ -->
-  <section class="section reviews-section" id="reviews" hidden>
-    <div class="section-inner">
-      <div class="section-title">
-        <span class="script" id="reviewsScript">kind words</span>
-        <span class="serif" id="reviewsTitle">What People Are Saying</span>
-      </div>
-      <div class="thread-divider" aria-hidden="true">
-        <svg viewBox="0 0 220 26" width="220" height="26">
-          <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#8FF0D6" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
-          <path d="M206 13 L216 10.5" stroke="#23A583" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="207" cy="13" r="2.2" fill="#23A583"/>
-        </svg>
-      </div>
-
-      <div class="review-carousel" id="reviewCarousel" aria-roledescription="carousel" aria-label="Customer reviews">
-        <button type="button" class="review-nav prev" id="reviewPrev" aria-label="Previous review">‹</button>
-        <div class="review-viewport" id="reviewViewport">
-          <div class="review-track" id="reviewTrack"></div>
-        </div>
-        <button type="button" class="review-nav next" id="reviewNext" aria-label="Next review">›</button>
-      </div>
-      <div class="review-dots" id="reviewDots"></div>
-    </div>
-  </section>
-
-  <!-- ============ ORDER ============ -->
-  <div class="scallop scallop-order" aria-hidden="true"></div>
-  <section class="section form-section" id="order">
-    <div class="section-inner">
-      <div class="section-title">
-        <span class="script" id="orderScript">let's make it happen</span>
-        <span class="serif" id="orderTitle">Place an Order</span>
-      </div>
-      <div class="thread-divider" aria-hidden="true">
-        <svg viewBox="0 0 220 26" width="220" height="26">
-          <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#FFB0E8" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
-          <path d="M206 13 L216 10.5" stroke="#FF74D4" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="207" cy="13" r="2.2" fill="#FF74D4"/>
-        </svg>
-      </div>
-
-      <p class="form-intro" id="orderIntro">
-        Interested in something? Let me know! Pick what caught your eye, share your info, and I'll get back to you as soon as I can to work out the details.
-      </p>
-
-      <div class="order-layout">
-        <!-- Basket summary -->
-        <div class="order-basket-panel">
-          <h3 class="panel-title"><span class="script-accent">your</span> Basket</h3>
-          <div id="orderBasketList" class="order-basket-list">
-            <!-- items injected -->
-          </div>
-          <p class="basket-empty-msg" id="basketEmptyMsg">
-            Your basket is empty so far ~ <a href="#products">browse the collection</a> and tap the items you love, or add a custom request below!
-          </p>
-          <button type="button" class="btn btn-outline btn-small" id="addCustomBtn">+ Add a custom request</button>
-          <div class="basket-estimate" id="basketEstimate" hidden></div>
-        </div>
-
-        <!-- Contact form -->
-        <form class="order-form" id="orderForm" novalidate>
-          <input type="checkbox" name="botcheck" class="sr-only" style="display:none" tabindex="-1" autocomplete="off">
-
-          <div class="form-group">
-            <label class="form-label" for="name">Your Name <span class="required">*</span></label>
-            <input type="text" id="name" name="name" class="form-input" required autocomplete="name" placeholder="Who should I make magic for?">
-            <span class="field-error" data-for="name">Please tell me your name!</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="email">Email Address <span class="required">*</span></label>
-            <input type="email" id="email" name="email" class="form-input" required autocomplete="email" placeholder="your@email.com">
-            <span class="field-error" data-for="email">That email doesn't look quite right.</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="instagram">Instagram Handle</label>
-            <input type="text" id="instagram" name="instagram" class="form-input" autocomplete="off" spellcheck="false" placeholder="@yourhandle ~ so I can DM you!">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="notes">Notes</label>
-            <textarea id="notes" name="notes" class="form-textarea" placeholder="Have a custom idea? Questions about sizing or fabric? Anything else? Let me know here!"></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-gradient btn-big submit-btn" id="submitBtn">
-            Send My Order ✨
-          </button>
-          <p class="form-hint" id="formHint"></p>
-        </form>
-      </div>
-
-      <div class="form-success" id="formSuccess" tabindex="-1">
-        <div class="confetti" id="confetti" aria-hidden="true"></div>
-        <div class="checkmark">✓</div>
-        <h3 id="successTitle">Thanks so much!</h3>
-        <p id="successBody">I got your message and will be in touch soon. Can't wait to work with you!</p>
-        <a href="#" id="successIg" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-small" style="margin-top:18px">Follow along on Instagram</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ LEAVE A REVIEW ============ -->
-  <section class="section leave-review-section" id="review">
-    <div class="section-inner">
-      <div class="section-title">
-        <span class="script" id="leaveScript">your turn</span>
-        <span class="serif" id="leaveTitle">Leave a Review</span>
-      </div>
-      <p class="form-intro" id="leaveReviewIntro" style="margin-bottom:26px">
-        Took home a treasure? I'd love to hear how you like it! Your note might even end up on the site 💜
-      </p>
-
-      <form class="review-form" id="reviewForm" novalidate>
-        <input type="checkbox" name="botcheck" class="sr-only" style="display:none" tabindex="-1" autocomplete="off">
-        <div class="form-group">
-          <label class="form-label" for="revName">Your Name <span class="required">*</span></label>
-          <input type="text" id="revName" class="form-input" required autocomplete="name" placeholder="Who's this kind note from?">
-          <span class="field-error" data-for="revName">Please tell me your name!</span>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Stars</label>
-          <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Star rating">
-            <button type="button" class="star-btn on" data-stars="1" aria-label="1 star">★</button>
-            <button type="button" class="star-btn on" data-stars="2" aria-label="2 stars">★</button>
-            <button type="button" class="star-btn on" data-stars="3" aria-label="3 stars">★</button>
-            <button type="button" class="star-btn on" data-stars="4" aria-label="4 stars">★</button>
-            <button type="button" class="star-btn on" data-stars="5" aria-label="5 stars">★</button>
+    <section class="section">
+      <div class="wrap about-grid">
+        <figure class="about-photo-frame">
+          <span class="about-tape" aria-hidden="true"></span>
+          <img class="about-photo" src="images/products/products-2.jpg" alt="Handmade tote bags and a pouch laid out on the kitchen table" width="781" height="800" loading="lazy">
+        </figure>
+        <div class="about-copy">
+          <h2 id="aboutHeading">Hi, I'm Alivia!</h2>
+          <p id="aboutText1">I'm a young maker who loves sewing, crafting, and creating things that are as unique as the people who wear and use them. Every item in my shop is homemade by me with fabrics I pick out because they make me smile. Anything from whimsical celestial prints to cozy fall patterns.</p>
+          <p id="aboutText2">Whether you're looking for a one-of-a-kind cape, a cute bookmark for your favorite novel, or a custom tote bag, I'd love to make something special for you!</p>
+          <div class="about-links">
+            <a class="ig-link" id="aboutIg" href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+              Follow along on Instagram
+            </a>
+            <a class="text-link" href="about/">More about the shop →</a>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="revText">Your Review <span class="required">*</span></label>
-          <textarea id="revText" class="form-textarea" required placeholder="What did you take home? How do you like it?"></textarea>
-          <span class="field-error" data-for="revText">Tell me a little something first!</span>
-        </div>
-        <button type="submit" class="btn btn-teal btn-big review-submit" id="reviewSubmitBtn">Send My Review 💌</button>
-        <p class="form-hint" id="reviewHint"></p>
-      </form>
-
-      <div class="review-thanks" id="reviewThanks" hidden>
-        <div class="checkmark">💜</div>
-        <h3>Thank you!!</h3>
-        <p>Alivia will read your kind words soon. Reviews she features may appear right here on the site!</p>
-        <button type="button" class="btn btn-outline btn-small" id="reviewAgainBtn" style="margin-top:16px" hidden>Write another review</button>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ FOOTER ============ -->
+    <section class="section reviews-section" id="homeReviews" hidden>
+      <div class="wrap">
+        <div class="section-title">
+          <span class="script" id="reviewsScript">kind words</span>
+          <h2 class="serif" id="reviewsTitle">What People Are Saying</h2>
+        </div>
+        <div class="thread-divider" aria-hidden="true">
+          <svg viewBox="0 0 220 26" width="220" height="26">
+            <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#8FF0D6" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+            <path d="M206 13 L216 10.5" stroke="#23A583" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="207" cy="13" r="2.2" fill="#23A583"/>
+          </svg>
+        </div>
+        <div class="review-list" id="homeReviewList" style="margin-top:1.6rem"></div>
+        <p class="reviews-more">
+          <a class="btn btn-outline btn-sm" href="about/#reviews">Read more &amp; leave a note</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
   <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <span class="script">Alivia's</span>
-        <span class="serif">Treasured Threads</span>
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <span class="footer-brand-stack">
+            <span class="script">Alivia's</span>
+            <span class="serif">Treasured Threads</span>
+          </span>
+          <p>Handmade with love, one stitch at a time.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <ul>
+            <li><a href="shop/">Shop</a></li>
+            <li><a href="custom/">Custom orders</a></li>
+            <li><a href="about/">About</a></li>
+            <li><a href="about/#faq">FAQ &amp; policies</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+            <li><a href="shop/#order">Place an order</a></li>
+            <li><a href="about/#leave-review">Leave a review</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="footer-right">
-        <a href="#" class="footer-ig" id="footerIg" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-          <span>Follow me</span>
-        </a>
+      <div class="footer-bottom">
+        <span>© <span data-brand>Alivia's Treasured Threads</span></span>
+        <a class="studio-link" href="admin/" title="Alivia's Studio">🧵</a>
       </div>
-    </div>
-    <div class="footer-copy">
-      © <span id="footerYear">2026</span> Alivia's Treasured Threads. All rights reserved.
-      <a class="footer-admin" href="admin/" title="Alivia's studio">🧵</a>
     </div>
   </footer>
 
-  <!-- ============ PRODUCT MODAL ============ -->
-  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalName" hidden>
-    <div class="modal" id="modal">
-      <button class="modal-close" id="modalClose" aria-label="Close product details">×</button>
-      <div class="modal-gallery" id="modalGallery">
-        <img class="gallery-backdrop" id="galleryBackdrop" src="" alt="" aria-hidden="true">
-        <div class="modal-gallery-track" id="galleryTrack"></div>
-        <button class="gallery-nav prev" id="galleryPrev" aria-label="Previous photo">‹</button>
-        <button class="gallery-nav next" id="galleryNext" aria-label="Next photo">›</button>
-        <div class="gallery-dots" id="galleryDots"></div>
-        <span class="gallery-zoom-hint" aria-hidden="true">🔍 tap photo to zoom</span>
-      </div>
-      <div class="modal-body">
-        <div class="modal-title-row">
-          <h2 class="modal-name" id="modalName"></h2>
-          <div class="modal-price" id="modalPrice"></div>
-        </div>
-        <p class="modal-desc" id="modalDesc"></p>
-        <p class="modal-desc-link" id="modalDescLink" hidden><a href="#" target="_blank" rel="noopener noreferrer"></a></p>
-
-        <div class="modal-available" id="modalAvailable" hidden>
-          <h4>Ready to Ship <span class="badge-sticker">available now</span></h4>
-          <p class="modal-available-hint">Each one is one-of-a-kind ~ tap the heart to pop it in your basket!</p>
-          <div class="available-grid" id="modalAvailableGrid"></div>
-        </div>
-
-        <div class="modal-custom-cta" id="modalCustomCta">
-          <span class="icon" aria-hidden="true">✄</span>
-          <p id="modalCustomText">Want this in a different fabric or style? Custom orders take a bit longer but I'll make it just for you!</p>
-          <button type="button" class="btn btn-purple" id="modalCustomAdd">🧵 Add a custom one to my basket</button>
-        </div>
-
-        <div class="modal-custom-cta" id="modalOneOff" hidden>
-          <span class="icon" aria-hidden="true">🌟</span>
-          <p id="modalOneOffText">This treasure is one of a kind ~ once it finds a home, it's gone!</p>
-          <button type="button" class="btn btn-pink" id="modalOneOffAdd">♡ Add to my basket</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ LIGHTBOX ============ -->
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
-    <button class="lightbox-close" id="lightboxClose" aria-label="Close photo viewer">×</button>
-    <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Previous photo">‹</button>
-    <img src="" alt="" id="lightboxImg">
-    <button class="lightbox-nav next" id="lightboxNext" aria-label="Next photo">›</button>
-    <div class="lightbox-count" id="lightboxCount"></div>
-  </div>
-
-  <!-- ============ BASKET FAB + DRAWER ============ -->
   <button class="basket-fab" id="basketFab" aria-label="Open my basket" hidden>
-    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
-    </svg>
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     <span class="basket-count" id="basketCount">0</span>
   </button>
-
   <div class="drawer-overlay" id="drawerOverlay" hidden></div>
   <aside class="basket-drawer" id="basketDrawer" role="dialog" aria-modal="true" aria-label="My basket" hidden>
     <div class="drawer-head">
       <h3><span class="script-accent">my</span> Basket</h3>
-      <button class="drawer-close" id="drawerClose" aria-label="Close basket">×</button>
+      <button type="button" class="drawer-close" id="drawerClose" aria-label="Close">×</button>
     </div>
     <div class="drawer-items" id="drawerItems"></div>
-    <p class="drawer-empty" id="drawerEmpty">Nothing in here yet! Tap the ♡ on anything you love.</p>
+    <p class="drawer-empty" id="drawerEmpty">Nothing in here yet! Add anything you love from the shop.</p>
     <div class="drawer-foot">
       <div class="drawer-estimate" id="drawerEstimate"></div>
-      <a href="#order" class="btn btn-gradient btn-big" id="drawerCheckout">Ready to Order →</a>
+      <a href="shop/#order" class="btn btn-gradient" id="drawerCheckout">Ready to Order →</a>
     </div>
   </aside>
-
-  <!-- Toasts -->
   <div class="toast-zone" id="toastZone" aria-live="polite"></div>
+  <button type="button" class="scroll-top" id="scrollTop" aria-label="Scroll to top">↑</button>
 
-  <!-- Scroll to top -->
-  <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">↑</button>
-
-  <noscript><p style="text-align:center;padding:30px">This shop needs JavaScript to sparkle ~ please enable it! 💜</p></noscript>
-
+  <noscript><p style="text-align:center;padding:2rem">This shop needs JavaScript to sparkle ~ please enable it! 💜</p></noscript>
   <script src="assets/site.js"></script>
 </body>
 </html>

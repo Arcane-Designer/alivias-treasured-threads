@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop — Alivia's Treasured Threads</title>
+  <meta name="description" content="Browse handmade tote bags, bookmarks, pouches, coasters, capes, and limited bundles. Ready to ship and made to order.">
+  <link rel="canonical" href="https://arcane-designer.github.io/alivias-treasured-threads/shop/">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Shop — Alivia's Treasured Threads">
+  <meta property="og:description" content="Handmade collection: ready to ship and made to order.">
+  <meta property="og:image" content="../images/brand/og-image.jpg">
+  <meta property="og:url" content="https://arcane-designer.github.io/alivias-treasured-threads/shop/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../" class="brand-link" aria-label="Alivia's Treasured Threads — home">
+        <img src="../images/brand/logo.jpg" alt="" class="brand-logo" width="46" height="46">
+        <span class="brand-text">
+          <span class="script">Alivia's</span>
+          <span class="serif">Treasured Threads</span>
+        </span>
+      </a>
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMain" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <nav class="nav-main" id="navMain" aria-label="Main">
+        <a href="./" aria-current="page">Shop</a>
+        <a href="../custom/">Custom</a>
+        <a href="../about/">About</a>
+        <a class="nav-cta" href="#order">Place an order</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section">
+      <div class="wrap">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="../">Home</a>
+          <span aria-hidden="true">/</span>
+          <span>Shop</span>
+        </nav>
+        <div class="section-title">
+          <span class="script" id="shopScript">take a look</span>
+          <h1 class="serif" id="shopTitle">The Collection</h1>
+        </div>
+        <div class="thread-divider" aria-hidden="true">
+          <svg viewBox="0 0 220 26" width="220" height="26">
+            <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#FFB0E8" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+            <path d="M206 13 L216 10.5" stroke="#FF74D4" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="207" cy="13" r="2.2" fill="#FF74D4"/>
+          </svg>
+        </div>
+        <p class="section-subtitle" id="shopSubtitle">Each piece is handmade with love. Open any item for photos, ready-to-ship options, or a custom request.</p>
+
+        <div class="filter-bar" id="filterChips" role="group" aria-label="Availability">
+          <button type="button" class="chip active" data-filter="all" aria-pressed="true">Everything</button>
+          <button type="button" class="chip" data-filter="ready" aria-pressed="false">Ready to ship</button>
+          <button type="button" class="chip" data-filter="custom" aria-pressed="false">Made to order</button>
+        </div>
+
+        <div class="filter-bar" id="typeChips" role="group" aria-label="Item type"></div>
+        <div class="filter-bar" id="seasonChips" role="group" aria-label="Season"></div>
+
+        <div class="filter-tools">
+          <label class="sr-only" for="sortSelect">Sort</label>
+          <select class="sort-select" id="sortSelect">
+            <option value="featured">Featured order</option>
+            <option value="name">Name A–Z</option>
+            <option value="price-asc">Price · low to high</option>
+            <option value="price-desc">Price · high to low</option>
+          </select>
+        </div>
+
+        <div class="product-grid" id="productsGrid" aria-live="polite">
+          <div class="skeleton" aria-hidden="true"></div>
+          <div class="skeleton" aria-hidden="true"></div>
+          <div class="skeleton" aria-hidden="true"></div>
+        </div>
+        <p class="grid-empty" id="gridEmpty" hidden>Nothing matches these filters right now — try “Everything” or check back soon.</p>
+      </div>
+    </section>
+
+    <section class="section section-band form-section" id="order">
+      <div class="wrap">
+        <div class="section-title">
+          <span class="script" id="orderScript">let's make it happen</span>
+          <h2 class="serif" id="orderTitle">Place an Order</h2>
+        </div>
+        <div class="thread-divider" aria-hidden="true">
+          <svg viewBox="0 0 220 26" width="220" height="26">
+            <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#8FF0D6" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+            <path d="M206 13 L216 10.5" stroke="#23A583" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="207" cy="13" r="2.2" fill="#23A583"/>
+          </svg>
+        </div>
+        <p class="section-subtitle" id="orderIntro">Interested in something? Let me know! Pick what caught your eye, share your info, and I'll get back to you as soon as I can to work out the details.</p>
+
+        <div class="order-layout">
+          <div class="order-basket-panel">
+            <h3 class="panel-title"><span class="script-accent">your</span> Basket</h3>
+            <div id="orderBasketList" class="order-basket-list"></div>
+            <p class="basket-empty-msg muted" id="basketEmptyMsg">Your basket is empty so far — <a href="#main">browse above</a> or add a custom request on a product page.</p>
+            <div class="basket-estimate" id="basketEstimate" hidden></div>
+          </div>
+
+          <form class="panel order-form" id="orderForm" novalidate>
+            <input type="checkbox" name="botcheck" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <div class="form-group">
+              <label class="form-label" for="name">Your Name <span class="required">*</span></label>
+              <input type="text" id="name" name="name" class="form-input" required autocomplete="name" placeholder="Who should I make magic for?">
+              <span class="field-error" data-for="name">Please tell me your name!</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address <span class="required">*</span></label>
+              <input type="email" id="email" name="email" class="form-input" required autocomplete="email" placeholder="your@email.com">
+              <span class="field-error" data-for="email">That email doesn’t look quite right.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="instagram">Instagram Handle</label>
+              <input type="text" id="instagram" name="instagram" class="form-input" autocomplete="off" spellcheck="false" placeholder="@yourhandle ~ so I can DM you!">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="notes">Notes</label>
+              <textarea id="notes" name="notes" class="form-textarea" placeholder="Have a custom idea? Questions about sizing or fabric? Let me know here!"></textarea>
+            </div>
+            <button type="submit" class="btn btn-gradient btn-lg" id="submitBtn" style="width:100%">Send My Order ✨</button>
+            <p class="form-hint" id="formHint"></p>
+          </form>
+        </div>
+
+        <div class="form-success panel" id="formSuccess" hidden>
+          <div class="checkmark" aria-hidden="true">✓</div>
+          <h2 id="successTitle">Thanks so much!</h2>
+          <p id="successBody">I got your message and will be in touch soon. Can't wait to work with you!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <span class="footer-brand-stack">
+            <span class="script">Alivia's</span>
+            <span class="serif">Treasured Threads</span>
+          </span>
+          <p>Handmade with love, one stitch at a time.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <ul>
+            <li><a href="./">Shop</a></li>
+            <li><a href="../custom/">Custom orders</a></li>
+            <li><a href="../about/">About</a></li>
+            <li><a href="../about/#faq">FAQ &amp; policies</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+            <li><a href="#order">Place an order</a></li>
+            <li><a href="../about/#leave-review">Leave a review</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-brand>Alivia's Treasured Threads</span></span>
+        <a class="studio-link" href="../admin/" title="Alivia's Studio">🧵</a>
+      </div>
+    </div>
+  </footer>
+
+  <button class="basket-fab" id="basketFab" aria-label="Open my basket" hidden>
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="basket-count" id="basketCount">0</span>
+  </button>
+  <div class="drawer-overlay" id="drawerOverlay" hidden></div>
+  <aside class="basket-drawer" id="basketDrawer" role="dialog" aria-modal="true" aria-label="My basket" hidden>
+    <div class="drawer-head">
+      <h3><span class="script-accent">my</span> Basket</h3>
+      <button type="button" class="drawer-close" id="drawerClose" aria-label="Close">×</button>
+    </div>
+    <div class="drawer-items" id="drawerItems"></div>
+    <p class="drawer-empty" id="drawerEmpty">Nothing in here yet! Add anything you love from the shop.</p>
+    <div class="drawer-foot">
+      <div class="drawer-estimate" id="drawerEstimate"></div>
+      <a href="#order" class="btn btn-gradient" id="drawerCheckout">Ready to Order →</a>
+    </div>
+  </aside>
+  <div class="toast-zone" id="toastZone" aria-live="polite"></div>
+  <button type="button" class="scroll-top" id="scrollTop" aria-label="Scroll to top">↑</button>
+  <noscript><p style="text-align:center;padding:2rem">This shop needs JavaScript to sparkle ~ please enable it! 💜</p></noscript>
+  <script src="../assets/site.js"></script>
+</body>
+</html>

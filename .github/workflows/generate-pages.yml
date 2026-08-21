@@ -1,0 +1,71 @@
+# STAGING-ONLY artifact workflow — NOT activated for live deploy.
+#
+# Purpose: when Studio pushes data/site.json (or product images), regenerate
+# crawlable product/<id>/index.html pages, sitemap.xml, and robots.txt as a
+# downloadable artifact. Review the artifact in an isolated worktree before
+# any live promotion.
+#
+# This workflow does NOT:
+#   - push commits to main
+#   - deploy to GitHub Pages
+#   - touch the live shop
+#
+# Migration implications (read before enabling push-to-main automation later):
+#   1. Prefer generating pages in CI and committing them on a staging branch,
+#      or ship the generator so Studio publish also runs `node scripts/generate-pages.mjs`
+#      and includes the product/ tree in the same commit.
+#   2. GitHub Pages serves whatever is on the Pages branch; if product pages
+#      lag behind site.json, crawlers see 404s for new IDs until regeneration.
+#   3. Base URL: set GENERATE_BASE to the public origin (project Pages path or
+#      custom domain) so canonicals/sitemap stay correct.
+#   4. Keep admin/ writing only data/site.json + images — never hand-edit
+#      product HTML; always regenerate from data.
+#
+# To use as an artifact job only (current intent): leave as workflow_dispatch
+# or push to a non-Pages branch. Do not enable pages-deploy steps without an
+# explicit staging → live checklist.
+
+name: Generate product pages (staging artifact)
+
+on:
+  workflow_dispatch:
+  # Optional: uncomment to run on content pushes to a staging branch only.
+  # push:
+  #   branches: [storefront-2-staging]
+  #   paths:
+  #     - 'data/site.json'
+  #     - 'scripts/generate-pages.mjs'
+  #     - 'images/**'
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate pages
+        env:
+          GENERATE_BASE: ${{ vars.GENERATE_BASE || 'https://arcane-designer.github.io/alivias-treasured-threads' }}
+        run: node scripts/generate-pages.mjs --base "$GENERATE_BASE"
+
+      - name: Validate
+        run: node scripts/validate.mjs
+
+      - name: Upload staging artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: storefront-generated-pages
+          path: |
+            product/
+            sitemap.xml
+            robots.txt
+          retention-days: 14

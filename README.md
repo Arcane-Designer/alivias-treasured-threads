@@ -1,100 +1,172 @@
-# Alivia's Treasured Threads 🧵
+# Alivia's Treasured Threads — Storefront 2.0 (staging)
 
-Handmade-with-love shop site + **Alivia's Studio**, a built-in admin where Alivia manages
-products, photos, listings, and prices herself ~ no code, no Nathan required (after setup).
+Polished multi-page storefront rebuild for **staging / isolated worktree use only**.
+Do not deploy, push, or point live GitHub Pages at this tree until you explicitly promote it.
 
-- **Live shop:** https://arcane-designer.github.io/alivias-treasured-threads/
-- **Alivia's Studio (admin):** https://arcane-designer.github.io/alivias-treasured-threads/admin/
-  (also reachable from the tiny 🧵 in the site footer)
+- **Canonical content:** `data/site.json` (unchanged contract for Alivia's Studio)
+- **Admin:** `admin/` preserved — same GitHub magic-key publish flow
+- **Reviews:** form → Cloudflare Worker inbox + Web3Forms email (unchanged)
+- **Orders:** basket → Web3Forms / mailto fallback (unchanged)
 
-## How it works
+Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads/
 
-The whole site is static and free, hosted on GitHub Pages:
+---
 
-- `data/site.json` ~ the single source of truth: shop settings + every product, photo path,
-  listing, and price. **The public site reads it, the Studio writes it.**
-- `admin/` ~ Alivia's Studio. It talks directly to the GitHub API with a repo-scoped token
-  ("magic key"). Publishing = one commit to `main` (new photos + updated `site.json`), and
-  GitHub Pages redeploys automatically in ~1 minute.
-- Every publish is a git commit, so **every change Alivia ever makes can be undone** with a
-  revert. Photos are compressed in the browser (max 1400px JPEG) before upload.
+## Customer-facing architecture
 
-```
-website/
-├── index.html            ← the shop
-├── assets/site.css/.js   ← shop styles + behavior (basket, modal, lightbox…)
-├── admin/                ← Alivia's Studio (login, editor, publish)
-├── data/site.json        ← ALL shop content lives here
-└── images/
-    ├── products/  available/  brand/   ← original photos
-    └── uploads/   ← photos Alivia adds from the Studio land here
-```
+| Path | Role |
+|------|------|
+| `/` | Brand / story home, selected products, compact about + reviews, paths into shop & custom |
+| `/shop/` | All available products; Ready to Ship / Made to Order; type & season chips; shareable `?filter=&sort=&type=&season=` |
+| `/product/<id>/` | Crawlable product page per `site.json` id (generated) |
+| `/custom/` | Silhouettes for makeable items, fabric-library status framework, request path |
+| `/about/` | Real about copy + curated reviews + leave-review (Worker + email), with FAQ/policies at `#faq` |
+| `/faq/` | Noindex compatibility bridge to `/about/#faq` for old links only |
 
-## One-time setup for Alivia (Nathan does this)
+---
 
-### 1. Make her "magic key" (a fine-grained GitHub token)
+## Design
 
-1. Go to **github.com → Settings → Developer settings →
-   [Fine-grained tokens](https://github.com/settings/personal-access-tokens/new)**
-   (do this signed in to the **Arcane-Designer** account, since it owns the repo).
-2. Fill in:
-   - **Name:** `Alivia's Studio`
-   - **Expiration:** custom → pick the longest allowed (set a reminder to renew).
-   - **Repository access:** *Only select repositories* → `alivias-treasured-threads`
-   - **Permissions → Repository permissions → Contents: Read and write** (leave the rest alone)
-3. Generate and copy the `github_pat_…` string.
-4. On **Alivia's device**, open the Studio, paste it in, tap *Unlock my studio*. Done ~
-   it stays signed in on that device. Repeat the paste on each device she uses.
+v4 (2026-08-21, after Alivia's review): the original live-site brand walked back in
+at ~80% on top of the v3 architecture. Restored from the live site: the purple/pink/
+teal palette (`#8E79DD` / `#FF74D4` / `#4FE4BC`), Dancing Script + Cormorant Garamond
+for scripts/headings, the stacked script-over-serif wordmark (the home link — no Home
+nav item), stitched dashed borders and "sewn patch" cards with tiny tilts, thread-and-
+needle dividers, polka-dot paper, the gingham band, pill buttons with inner stitching,
+the purple circle basket FAB with pink count, the stitched basket drawer, lively review
+patches (quote mark, pink stars, script names), and the scalloped dark footer.
+Kept from v3 (the mature 20%): system-sans body at 16px/1.65, section rhythm and
+spacing, photo-led layouts, and slightly deepened text colors for readability.
 
-If the key ever leaks or expires, just delete it on GitHub and make a new one ~ the shop
-itself is never at risk (the key can only edit this one repo's files).
+Structure notes: FAQ content lives on `/about/#faq`; `/faq/` remains only as a
+noindex compatibility bridge that redirects there (excluded from the sitemap).
+Cross-page anchors like `/shop/#order` are re-scrolled by `site.js` after data
+renders, with `scroll-margin-top` clearing the sticky header.
 
-### 2. Make the order form deliver (pick one, both live in Studio → Shop Settings)
+---
 
-- **Best: Web3Forms (free).** Sign up at [web3forms.com](https://web3forms.com) with the email
-  that should receive orders → copy the **access key** → paste it into *Shop Settings →
-  Web3Forms key* → Publish. Orders now email automatically with a summary of the
-  shopper's basket.
-- **Fallback: plain email.** Set *Shop Settings → contact email* to a real address. Without a
-  Web3Forms key, the form opens the shopper's own email app pre-filled instead.
-- With neither set, the form politely tells shoppers to DM on Instagram.
+## Local preview
 
-## What Alivia can do in the Studio
-
-- **Add a product** (name, price or "custom order," description, photos, sticker badges)
-- **Mark a product one-of-a-kind** (bundles, single finished pieces) ~ it becomes its own
-  listing: shoppers add it straight to their basket and it skips the custom-order menu
-- **Add ready-to-ship listings** to any product, each with its own name + photos
-- **Mark listings sold** (shows a cute SOLD sticker on the shop) or delete them
-- **Hide/unhide whole products** (archive keeps them saved, just off the shop)
-- **Edit anything** ~ prices, wording, photo order (first photo = cover), product order
-- **Preview before publishing** (👀 Preview shows the draft shop in a new tab)
-- **Publish** ~ changes go live in about a minute 🎉
-
-Unfinished edits auto-save on her device and are offered back next time she opens the Studio.
-
-## Restoring the old site (v1)
-
-Three independent safety nets:
-
-1. **Git tag/branch** ~ the pre-refresh site is `v1` (tag) and `v1-original` (branch):
-   ```bash
-   git checkout main && git revert --no-edit v1..main && git push
-   # or, nuclear option (rewrites history):
-   git push origin v1-original:main --force
-   ```
-2. **Folder backup** ~ a plain copy of the old site sits next to this folder:
-   `ATT Brand/website-v1-backup/`
-3. **Every Studio publish is its own commit** ~ `git revert <sha>` undoes any single update.
-
-## Local development
-
-Any static server works ~ data loads via `fetch`, so `file://` won't:
+Any static server works (`fetch` needs http):
 
 ```bash
-cd website && python3 -m http.server 4173   # → http://localhost:4173
+cd alivia-storefront-2.0
+python3 -m http.server 4173
+# → http://localhost:4173
 ```
 
-To point the Studio at a scratch branch while testing (instead of live `main`):
-`localStorage.setItem('att-studio-branch', 'my-test-branch')` on the admin page
-(and create that branch on GitHub first). Remove the key to go back to `main`.
+Studio preview still works: admin writes `att-preview-data` and opens the shop with `?preview=1`.
+
+---
+
+## Page generation
+
+Product HTML is **data-driven**. After editing `data/site.json` (or after Studio publish in a future integrated flow):
+
+```bash
+node scripts/generate-pages.mjs
+# optional public origin for canonicals + sitemap:
+node scripts/generate-pages.mjs --base https://arcane-designer.github.io/alivias-treasured-threads
+```
+
+Outputs:
+
+- `product/<id>/index.html` for every product (including archived — stable URLs)
+- `sitemap.xml` (active products only)
+- `robots.txt`
+
+Zero npm dependencies. Nested product pages use `../../assets` and `../../images` so relative paths stay valid.
+
+### Validation
+
+```bash
+node scripts/validate.mjs
+```
+
+Checks: JSON schema basics, duplicate ids, generated pages present, relative path depth, accidental checkout placeholders, secret-looking strings, sitemap coverage.
+
+### Staging-only workflow
+
+`.github/workflows/generate-pages.yml` builds an **artifact** on `workflow_dispatch`.
+It does **not** deploy Pages or push to `main`. Read the comments in that file before enabling any push automation.
+
+**Migration implications:** either (a) commit generated `product/` pages in the same Studio publish commit, or (b) generate in CI on a staging branch and promote deliberately. If `site.json` gains a product id before generation runs, crawlers get 404 until pages exist.
+
+---
+
+## Checkout field setup (later — no keys tonight)
+
+Optional per-product fields in `site.json` (Studio can grow UI later):
+
+```json
+"checkoutUrl": "https://buy.stripe.com/..."
+```
+
+or `"paymentLink": "https://..."`.
+
+Rules enforced in the storefront:
+
+- URL must be `https://`
+- **Buy Now** shows only when the URL is valid **and** the item is ready-to-ship / one-of-a-kind with a numeric price
+- Otherwise the existing request / order path is used with honest copy
+- Made-to-order stays request/quote
+- No Stripe keys, accounts, or live links ship in this staging tree
+
+JSON-LD `Offer` is emitted only when those same conditions hold (no false merchant eligibility).
+
+---
+
+## Content fields (`data/site.json`)
+
+| Area | Notes |
+|------|--------|
+| `settings.*` | Brand strings, Instagram, contact email, Web3Forms key, review inbox URL |
+| `products[]` | `id`, `name`, `price` / `priceLabel`, `description`, `images`, `listings`, `badges`, `archived`, `oneOfAKind`, `salePrice`, `priceTiers`, optional `descriptionLink` |
+| Optional future | `checkoutUrl` / `paymentLink`, `season`, `itemType`, `tags` — filters already read them when present |
+| `reviews[]` | Curated; `show: true` to display |
+
+Admin continues to own writes to this file. Do not put secrets in browser-readable JSON beyond the existing public Web3Forms access key pattern.
+
+---
+
+## Staging / live boundary
+
+| Safe here | Not in this pass |
+|-----------|------------------|
+| Local static preview | Deploy / `git push` to live Pages |
+| Generate + validate scripts | Activating the workflow for production |
+| Checkout **field** support | Real Stripe links or keys |
+| Draft policy labels | Invented shipping/returns/legal claims |
+| Admin + Worker untouched | Admin rewrite |
+
+Promote only from an isolated worktree after visual QA and `node scripts/validate.mjs`.
+
+---
+
+## Admin compatibility
+
+- Studio still reads/writes `data/site.json` and `images/uploads/`
+- Preview: `../` + `?preview=1` + `localStorage att-preview-data`
+- Footer 🧵 still links to `admin/`
+- Review inbox Worker auth and rate limits unchanged
+- No admin code changes required for Storefront 2.0
+
+If product pages must appear the moment Studio publishes, extend the publish commit to run `node scripts/generate-pages.mjs` and include `product/`, `sitemap.xml`, and `robots.txt` (or use the staging artifact workflow and merge deliberately).
+
+---
+
+## Security / quality notes
+
+- DOM updates use escaped text / attribute encoding in generators and client JS
+- Review honeypot (`website`) + Worker IP rate limit preserved
+- Order form honeypot (`botcheck`) preserved
+- External links use `rel="noopener noreferrer"`
+- Reduced-motion respected in CSS
+- Keyboard-friendly filters, drawer, lightbox
+- Images: lazy loading on grids; product main image eager
+
+---
+
+## Restoring / comparing
+
+Keep the previous single-page site on a git tag or branch. This tree is additive architecture (multi-page + generator) with the same data contract.
