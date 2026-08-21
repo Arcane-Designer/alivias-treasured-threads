@@ -181,7 +181,7 @@
           "images": [
             "images/available/fall-pattern-zipper-pouch.jpg"
           ],
-          "sold": false
+          "sold": true
         },
         {
           "id": "zp-mushroom",
