@@ -17,7 +17,7 @@ Automatic `site.json` mutation is intentionally not implemented. The static Stud
 
 - Cards and other enabled methods stay entirely on Stripe-hosted Checkout.
 - Currency is USD. Shipping country is restricted to US.
-- `SHIPPING_RATE_CENTS` is required server configuration. The fixture suite uses 500 cents for validation only; it is not a production decision.
+- `SHIPPING_RATE_CENTS` is fixed at `600`, the approved $6.00 flat standard-shipping charge per US order. The same value is mirrored in `data/site.json` solely for the customer-facing order review; the Worker remains authoritative when creating the Stripe Session and D1 order.
 - `SHIPPING_MIN_DAYS` and `SHIPPING_MAX_DAYS` optionally describe an approved standard-shipping estimate in business days. If either is unset, Checkout makes no delivery estimate.
 - Stripe Tax is not enabled. The Session deliberately omits `automatic_tax`.
 - Stripe holds payment/refund records. D1 stores the Alivia order reference, exact inventory IDs, customer contact/shipping details needed for fulfillment, payment state, and processed webhook IDs.
@@ -46,7 +46,7 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 
 ### Nathan/account decisions and actions
 
-- [ ] Nathan chooses the production flat standard-shipping amount
+- [x] Nathan chose one $6.00 flat standard-shipping charge per US order
 - [ ] Choose an honest business-day shipping estimate or leave it unset
 - [ ] Confirm whether/when to enable Stripe Tax; it is off now
 - [ ] Complete Stripe business identity, legal terms, payout bank, statement descriptor, support, and receipt settings
@@ -58,7 +58,7 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 - [ ] Point staging `CATALOG_URL` and `SITE_URL` to the exact staging site; production uses the canonical live URLs
 - [ ] Add the `ORDERS` D1 binding IDs to the appropriate Wrangler environments
 - [ ] Store `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` as environment secrets, never vars/source
-- [ ] Store the approved `SHIPPING_RATE_CENTS` as a non-secret environment variable
+- [x] Store the approved `SHIPPING_RATE_CENTS=600` as a non-secret environment variable
 - [ ] Register `/stripe/webhook` for Checkout Session completed/async-success events in Stripe test mode
 - [ ] Pin the test webhook endpoint to Stripe API version `2026-02-25.clover`, matching the Worker
 - [ ] Keep `PAYMENTS_MODE=test` until a separately reviewed live-mode change

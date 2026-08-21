@@ -23,6 +23,7 @@
     "reviewInboxUrl": "https://att-review-inbox.nathanagellatly.workers.dev",
     "checkoutApiUrl": "https://att-review-inbox.nathanagellatly.workers.dev",
     "checkoutEnabled": true,
+    "standardShippingCents": 600,
     "instagramUrl": "https://www.instagram.com/alivias_treasured_threads?igsh=ajdiMWM4ajBtaHBn",
     "contactEmail": "aliviagellatly@gmail.com",
     "web3formsKey": "83bacc95-b2fb-42fc-861e-3c16f4104ac2",

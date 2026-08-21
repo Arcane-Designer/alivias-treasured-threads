@@ -583,6 +583,7 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .tile-cape img { object-position: 50% 22%; }
 
 /* ---------- about ---------- */
+.about-lead { padding-top: clamp(2rem, 4vw, 3rem); }
 .about-grid {
   display: grid;
   grid-template-columns: 0.85fr 1.15fr;
@@ -774,6 +775,9 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
   background: var(--pink-pale);
 }
 .basket-estimate .est-note { margin-top: 0.15rem; }
+.checkout-cost-row { display: flex; justify-content: space-between; gap: 1rem; font-weight: 600; }
+.checkout-cost-row + .checkout-cost-row { margin-top: 0.35rem; }
+.checkout-cost-total { padding-top: 0.55rem; border-top: 1px solid var(--pink-light); font-weight: 800; }
 .form-group { margin-bottom: 1.2rem; }
 .custom-request-section { margin-top: 4rem; scroll-margin-top: 90px; }
 .custom-design-card .body { display: flex; flex-direction: column; align-items: flex-start; gap: 0.55rem; }

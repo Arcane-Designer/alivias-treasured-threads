@@ -19,17 +19,17 @@ assert.throws(() => validateCart(catalog, [{ ...available[0], quantity: 2 }]), /
 assert.throws(() => validateCart(catalog, [{ type: 'oneoff', productId: 'craft-roll' }]), /not available as a finished piece/);
 
 const params = buildStripeSessionParams(cart, {
-  SITE_URL: 'https://example.test', SHIPPING_RATE_CENTS: '500', SHIPPING_MIN_DAYS: '3', SHIPPING_MAX_DAYS: '7',
+  SITE_URL: 'https://example.test', SHIPPING_RATE_CENTS: '600', SHIPPING_MIN_DAYS: '3', SHIPPING_MAX_DAYS: '7',
 }, 'ATT-TESTORDER', 2000000000);
 assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
-assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '500');
+assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '600');
 assert.equal(params.get('automatic_tax[enabled]'), null, 'Stripe Tax must stay disabled');
 assert.match(params.get('success_url'), /\{CHECKOUT_SESSION_ID\}/);
 assert.equal(params.get('line_items[0][price_data][unit_amount]'), '600');
 
 const webhookSecret = 'whsec_fixture_only';
 const timestamp = 1900000000;
-const payload = JSON.stringify({ id: 'evt_fixture', type: 'checkout.session.completed', data: { object: { id: 'cs_test_fixture', livemode: false, payment_status: 'paid', client_reference_id: 'ATT-TESTORDER', amount_total: 1100, customer_details: { email: 'safe@example.invalid', name: 'Fixture' }, shipping_details: { address: { country: 'US' } } } } });
+const payload = JSON.stringify({ id: 'evt_fixture', type: 'checkout.session.completed', data: { object: { id: 'cs_test_fixture', livemode: false, payment_status: 'paid', client_reference_id: 'ATT-TESTORDER', amount_total: 1200, customer_details: { email: 'safe@example.invalid', name: 'Fixture' }, shipping_details: { address: { country: 'US' } } } } });
 const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(webhookSecret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
 const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${timestamp}.${payload}`));
 const signature = [...new Uint8Array(signed)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
@@ -58,7 +58,7 @@ function mockOrders() {
   };
 }
 const orders = mockOrders();
-const webhookEnv = { PAYMENTS_MODE: 'test', STRIPE_SECRET_KEY: 'sk_test_fixture_only', STRIPE_WEBHOOK_SECRET: webhookSecret, SHIPPING_RATE_CENTS: '500', ORDERS: orders };
+const webhookEnv = { PAYMENTS_MODE: 'test', STRIPE_SECRET_KEY: 'sk_test_fixture_only', STRIPE_WEBHOOK_SECRET: webhookSecret, SHIPPING_RATE_CENTS: '600', ORDERS: orders };
 const signedRequest = () => new Request('https://worker.test/stripe/webhook', { method: 'POST', body: payload, headers: { 'Stripe-Signature': `t=${timestamp},v1=${signature}` } });
 const realNow = Date.now;
 Date.now = () => timestamp * 1000;
@@ -74,7 +74,7 @@ assert.equal(badSignature.status, 400);
 
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async (url) => {
-  if (String(url).includes('/v1/checkout/sessions/cs_test_verified')) return new Response(JSON.stringify({ id: 'cs_test_verified', livemode: false, status: 'complete', payment_status: 'paid', client_reference_id: 'ATT-TESTORDER', amount_total: 1100, customer_details: { email: 'safe@example.invalid', name: 'Fixture' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  if (String(url).includes('/v1/checkout/sessions/cs_test_verified')) return new Response(JSON.stringify({ id: 'cs_test_verified', livemode: false, status: 'complete', payment_status: 'paid', client_reference_id: 'ATT-TESTORDER', amount_total: 1200, customer_details: { email: 'safe@example.invalid', name: 'Fixture' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   if (String(url).includes('/v1/checkout/sessions/cs_test_open')) return new Response(JSON.stringify({ id: 'cs_test_open', livemode: false, status: 'open', payment_status: 'unpaid' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   throw new Error('unexpected fixture fetch');
 };
