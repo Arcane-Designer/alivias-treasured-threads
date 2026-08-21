@@ -218,6 +218,7 @@ export function buildStripeSessionParams(cart, env, orderRef, expiresAt) {
   const site = String(env.SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
   const params = new URLSearchParams();
   params.set('mode', 'payment');
+  params.set('payment_method_types[0]', 'card');
   params.set('success_url', `${site}/checkout/success/?session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${site}/checkout/cancel/`);
   params.set('client_reference_id', orderRef);
