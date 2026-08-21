@@ -6,7 +6,8 @@ Do not deploy, push, or point live GitHub Pages at this tree until you explicitl
 - **Canonical content:** `data/site.json` (unchanged contract for Alivia's Studio)
 - **Admin:** `admin/` preserved; same GitHub magic-key publish flow
 - **Reviews:** form → Cloudflare Worker inbox + Web3Forms email (unchanged)
-- **Orders:** basket → Web3Forms / mailto fallback (unchanged)
+- **Ready inventory:** basket → `/checkout/` placeholder; no payment collection yet
+- **Custom requests:** multi-design form → existing Web3Forms / mailto fallback
 
 Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads/
 
@@ -17,9 +18,11 @@ Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads
 | Path | Role |
 |------|------|
 | `/` | Brand / story home, selected products, compact about + reviews, paths into shop & custom |
-| `/shop/` | All available products in Alivia's chosen order, with optional type and season chips |
-| `/product/<id>/` | Crawlable product page per `site.json` id (generated) |
-| `/custom/` | Silhouettes for makeable items, fabric-library status framework, request path |
+| `/shop/` | Finished inventory available now, with optional type and season chips |
+| `/shop/<id>/` | Crawlable ready-inventory detail page per canonical `site.json` design id (generated) |
+| `/checkout/` | Persisted ready-inventory summary and honest payment-coming-soon boundary |
+| `/custom/` | Multi-design, per-quantity custom request flow; no payment collection |
+| `/product/<id>/` | Noindex compatibility redirects to Shop or the matching Custom selection |
 | `/about/` | Real about copy + curated reviews + leave-review (Worker + email), with FAQ/policies at `#faq` |
 | `/faq/` | Noindex compatibility bridge to `/about/#faq` for old links only |
 
@@ -40,8 +43,8 @@ spacing, photo-led layouts, and slightly deepened text colors for readability.
 
 Structure notes: FAQ content lives on `/about/#faq`; `/faq/` remains only as a
 noindex compatibility bridge that redirects there (excluded from the sitemap).
-Cross-page anchors like `/shop/#order` are re-scrolled by `site.js` after data
-renders, with `scroll-margin-top` clearing the sticky header.
+Cross-page anchors like `/custom/?design=<id>#customRequest` are re-scrolled by
+`site.js` after data renders, with `scroll-margin-top` clearing the sticky header.
 
 ---
 
@@ -71,8 +74,9 @@ node scripts/generate-pages.mjs --base https://arcane-designer.github.io/alivias
 
 Outputs:
 
-- `product/<id>/index.html` for every product (including archived, for stable URLs)
-- `sitemap.xml` (active products only)
+- `shop/<id>/index.html` for every currently ready-to-buy product
+- `product/<id>/index.html` noindex compatibility redirects
+- `sitemap.xml` (ready-to-buy Shop products only)
 - `robots.txt`
 
 Zero npm dependencies. Nested product pages use `../../assets` and `../../images` so relative paths stay valid.
@@ -96,7 +100,7 @@ It does **not** deploy Pages or push to `main`. Read the comments in that file b
 
 ## Checkout field setup (later, with no keys tonight)
 
-Optional per-product fields in `site.json` (Studio can grow UI later):
+Reserved per-product fields in `site.json` can support a hosted provider later:
 
 ```json
 "checkoutUrl": "https://buy.stripe.com/..."
@@ -104,10 +108,11 @@ Optional per-product fields in `site.json` (Studio can grow UI later):
 
 or `"paymentLink": "https://..."`.
 
-Rules enforced in the storefront:
+Current staging rules:
 
 - URL must be `https://`
-- **Buy Now** shows only when the URL is valid **and** the item is ready-to-ship / one-of-a-kind with a numeric price
+- `/checkout/` never collects card data or claims payment succeeded
+- connecting or exposing a live hosted-payment URL requires a separately authorized integration
 - Otherwise the existing request / order path is used with honest copy
 - Made-to-order stays request/quote
 - No Stripe keys, accounts, or live links ship in this staging tree

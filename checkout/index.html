@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Alivia's Treasured Threads</title>
+  <meta name="description" content="Review ready-to-buy handmade pieces in your basket. Online payment is coming soon.">
+  <link rel="canonical" href="https://arcane-designer.github.io/alivias-treasured-threads/checkout/">
+  <meta name="robots" content="noindex,follow">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header class="site-header"><div class="header-inner">
+    <a href="../" class="brand-link" aria-label="Alivia's Treasured Threads home"><img src="../images/brand/logo.jpg" alt="" class="brand-logo" width="46" height="46"><span class="brand-text"><span class="script">Alivia's</span><span class="serif">Treasured Threads</span></span></a>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMain" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <nav class="nav-main" id="navMain" aria-label="Main"><a href="../shop/">Shop</a><a href="../custom/">Custom</a><a href="../about/">About</a><a class="nav-cta" href="./" aria-current="page">Checkout</a></nav>
+  </div></header>
+  <main id="main" class="section checkout-page"><div class="wrap narrow">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../">Home</a><span aria-hidden="true">/</span><span>Checkout</span></nav>
+    <div class="section-title"><span class="script">almost yours</span><h1 class="serif">Checkout</h1></div>
+    <p class="section-subtitle">Review the finished pieces in your basket. Online payment is not open yet, so this page will never ask for card details or claim an order was placed.</p>
+    <div id="checkoutUnavailable" class="availability-notice" hidden role="status">One or more pieces became unavailable and were removed from your basket.</div>
+    <section class="panel checkout-panel" aria-labelledby="checkoutSummaryTitle">
+      <h2 class="panel-title" id="checkoutSummaryTitle"><span class="script-accent">your</span> Basket</h2>
+      <div id="orderBasketList" class="order-basket-list"></div>
+      <p class="basket-empty-msg muted" id="basketEmptyMsg">Your basket is empty. <a href="../shop/">Browse finished pieces</a>.</p>
+      <div class="basket-estimate" id="basketEstimate" hidden></div>
+    </section>
+    <section class="panel payment-placeholder" id="paymentPlaceholder">
+      <span class="status-pill">Coming soon</span>
+      <h2>Secure online payment is being set up</h2>
+      <p>When checkout opens, payment will happen through a trusted hosted provider. For now, your basket is saved on this device while you keep browsing.</p>
+      <div class="placeholder-actions"><a class="btn btn-primary" href="../shop/">Keep shopping</a><a class="btn btn-outline" href="../custom/">Request something custom</a></div>
+      <p class="form-hint">No payment information is collected on this page.</p>
+    </section>
+  </div></main>
+  <footer class="site-footer"><div class="wrap"><div class="footer-bottom"><span>© <span data-brand>Alivia's Treasured Threads</span></span><a class="studio-link" href="../admin/" title="Alivia's Studio">🧵</a></div></div></footer>
+  <button class="basket-fab" id="basketFab" aria-label="Open my basket" hidden><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span class="basket-count" id="basketCount">0</span></button>
+  <div class="drawer-overlay" id="drawerOverlay" hidden></div><aside class="basket-drawer" id="basketDrawer" role="dialog" aria-modal="true" aria-label="My basket" hidden><div class="drawer-head"><h3><span class="script-accent">my</span> Basket</h3><button type="button" class="drawer-close" id="drawerClose" aria-label="Close">×</button></div><div class="drawer-items" id="drawerItems"></div><p class="drawer-empty" id="drawerEmpty">Nothing in here yet.</p><div class="drawer-foot"><div class="drawer-estimate" id="drawerEstimate"></div></div></aside>
+  <div class="toast-zone" id="toastZone" aria-live="polite"></div><script src="../assets/site.js"></script>
+</body>
+</html>

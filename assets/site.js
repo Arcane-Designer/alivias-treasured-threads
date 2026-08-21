@@ -13,11 +13,11 @@
   /** Resolve asset / data paths relative to current page depth. */
   function rootPrefix() {
     const path = location.pathname.replace(/\/+$/, '') || '/';
-    // product/slug → two levels up; shop|custom|about|faq → one; root → empty
-    if (/\/product\/[^/]+$/i.test(path) || /\/product\/[^/]+\/index\.html$/i.test(path)) {
+    // shop/slug and legacy product/slug → two levels up; section pages → one.
+    if (/\/(shop|product)\/[^/]+$/i.test(path) || /\/(shop|product)\/[^/]+\/index\.html$/i.test(path)) {
       return '../../';
     }
-    if (/\/(shop|custom|about|faq)(\/index\.html)?$/i.test(path)) {
+    if (/\/(shop|custom|about|faq|checkout)(\/index\.html)?$/i.test(path)) {
       return '../';
     }
     return '';
@@ -51,6 +51,8 @@
   let DATA = { settings: {}, products: [], reviews: [] };
   let activeProducts = [];
   let basket = [];
+  let removedBasketCount = 0;
+  let customSelections = [];
   let previewData = null;
 
   const params = new URLSearchParams(location.search);
@@ -84,6 +86,8 @@
     applySettings(DATA.settings || {});
     loadBasket();
     renderBasketUI();
+    const unavailable = $('checkoutUnavailable');
+    if (unavailable && removedBasketCount > 0) unavailable.hidden = false;
     document.dispatchEvent(new CustomEvent('att:ready', { detail: { data: DATA, activeProducts } }));
   }
 
@@ -204,7 +208,7 @@
     return out;
   }
   function productHref(p) {
-    return ROOT + 'product/' + encodeURIComponent(p.id) + '/';
+    return ROOT + 'shop/' + encodeURIComponent(p.id) + '/';
   }
   function checkoutUrl(p) {
     const u = (p.checkoutUrl || p.paymentLink || '').trim();
@@ -284,8 +288,13 @@
           dropped++;
           return false;
         }
+        if (item.type !== 'listing' && item.type !== 'oneoff') {
+          dropped++;
+          return false;
+        }
         return true;
       });
+      removedBasketCount = dropped;
       if (dropped) saveBasket();
     } catch (e) {
       basket = [];
@@ -298,7 +307,7 @@
     renderBasketUI();
   }
   function basketCount() {
-    return basket.reduce((n, item) => n + (item.type === 'custom' ? item.qty || 1 : 1), 0);
+    return basket.length;
   }
   function addListing(productId, listingId) {
     const exists = basket.find(
@@ -316,17 +325,6 @@
     basket.push({ type: 'oneoff', productId });
     saveBasket();
     toast('Added to basket');
-    return true;
-  }
-  function addCustom(productId) {
-    const existing = basket.find((b) => b.type === 'custom' && b.productId === productId);
-    if (existing) {
-      existing.qty = (existing.qty || 1) + 1;
-    } else {
-      basket.push({ type: 'custom', productId, qty: 1 });
-    }
-    saveBasket();
-    toast('Custom request added');
     return true;
   }
   function removeItem(idx) {
@@ -417,20 +415,7 @@
           ? ' · $' + shownPrice(p) + ' each'
           : ' · priced when we chat');
     }
-    const qtyControls =
-      item.type === 'custom'
-        ? '<div class="bi-qty">' +
-          '<button type="button" data-qty-minus="' +
-          idx +
-          '" aria-label="Decrease">−</button>' +
-          '<span>' +
-          (item.qty || 1) +
-          '</span>' +
-          '<button type="button" data-qty-plus="' +
-          idx +
-          '" aria-label="Increase">+</button>' +
-          '</div>'
-        : '';
+    const qtyControls = '';
     return (
       '<div class="bi' +
       (extraClass || '') +
@@ -459,9 +444,7 @@
     const countEl = $('basketCount');
     const n = basketCount();
     if (fab) {
-      /* Keep the basket visible even when it is empty so visitors can
-         understand that products can be collected before ordering. */
-      fab.hidden = false;
+      fab.hidden = n === 0;
       fab.setAttribute('aria-label', n ? 'Open my basket, ' + n + ' item' + (n === 1 ? '' : 's') : 'Open my empty basket');
       if (countEl) {
         text(countEl, String(n));
@@ -481,19 +464,8 @@
       }
     }
     if (drawerEst) {
-      const { total, priced, unpriced } = estimate();
-      let html = '';
-      if (priced > 0) html += 'Estimate: $' + total;
-      if (unpriced > 0) {
-        html +=
-          '<span class="est-note">' +
-          (priced > 0 ? '+ ' : '') +
-          unpriced +
-          ' custom item' +
-          (unpriced > 1 ? 's' : '') +
-          ' priced when we chat</span>';
-      }
-      drawerEst.innerHTML = html;
+      const { total, priced } = estimate();
+      drawerEst.innerHTML = priced > 0 ? 'Estimated total: $' + total : '';
     }
     /* order page basket panel */
     const orderList = $('orderBasketList');
@@ -530,20 +502,6 @@
     const rem = e.target.closest('[data-remove]');
     if (rem) {
       removeItem(parseInt(rem.getAttribute('data-remove'), 10));
-      return;
-    }
-    const minus = e.target.closest('[data-qty-minus]');
-    if (minus) {
-      const idx = parseInt(minus.getAttribute('data-qty-minus'), 10);
-      const item = basket[idx];
-      if (item) setCustomQty(idx, (item.qty || 1) - 1);
-      return;
-    }
-    const plus = e.target.closest('[data-qty-plus]');
-    if (plus) {
-      const idx = parseInt(plus.getAttribute('data-qty-plus'), 10);
-      const item = basket[idx];
-      if (item) setCustomQty(idx, (item.qty || 1) + 1);
       return;
     }
   });
@@ -670,6 +628,11 @@
 
       $$('.form-group', form).forEach((g) => g.classList.remove('is-invalid'));
       let valid = true;
+      if (!customSelections.length) {
+        const hint = $('formHint');
+        if (hint) text(hint, 'Choose at least one design above so Alivia knows what you have in mind.');
+        valid = false;
+      }
       if (!name) {
         form.name.closest('.form-group').classList.add('is-invalid');
         valid = false;
@@ -686,27 +649,16 @@
       }
 
       const lines = [];
-      lines.push('New order request from ' + name);
+      lines.push('New custom request from ' + name);
       lines.push('Email: ' + email);
       if (instagram) lines.push('Instagram: ' + instagram);
       lines.push('');
-      lines.push('Basket:');
-      if (!basket.length) lines.push('  (empty; custom notes only)');
-      basket.forEach((item) => {
+      lines.push('Requested designs:');
+      customSelections.forEach((item) => {
         const p = productById(item.productId);
         if (!p) return;
-        if (item.type === 'listing') {
-          const l = (p.listings || []).find((x) => x.id === item.listingId);
-          lines.push('  • ' + (l ? l.name : p.name) + ' [' + p.name + '] ready-to-ship');
-        } else if (item.type === 'oneoff') {
-          lines.push('  • ' + p.name + ' (one of a kind)');
-        } else {
-          lines.push('  • ' + p.name + ' ×' + (item.qty || 1) + ' (custom)');
-        }
+        lines.push('  • ' + p.name + ' ×' + (item.qty || 1));
       });
-      const { total, priced, unpriced } = estimate();
-      if (priced > 0) lines.push('  Estimated total (ready-to-ship & priced items): $' + total);
-      if (unpriced > 0) lines.push('  (+ ' + unpriced + ' custom item(s) to price together)');
       if (notes) {
         lines.push('');
         lines.push('Notes:');
@@ -728,7 +680,7 @@
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({
               access_key: key,
-              subject: 'Order request from ' + name,
+              subject: 'Custom request from ' + name,
               from_name: name,
               email: email,
               message: message,
@@ -736,8 +688,7 @@
           });
           const json = await res.json().catch(() => ({}));
           if (res.ok && json.success) {
-            basket = [];
-            saveBasket();
+            customSelections = [];
             showOrderSuccess();
           } else {
             if (hint) text(hint, 'Something hiccuped. Try again or DM on Instagram.');
@@ -747,14 +698,14 @@
         }
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Send My Order ✨';
+          submitBtn.textContent = 'Send Custom Request ✨';
         }
       } else if ((s.contactEmail || '').trim()) {
         const mailto =
           'mailto:' +
           encodeURIComponent(s.contactEmail.trim()) +
           '?subject=' +
-          encodeURIComponent('Order request from ' + name) +
+          encodeURIComponent('Custom request from ' + name) +
           '&body=' +
           encodeURIComponent(message);
         location.href = mailto;
@@ -916,7 +867,7 @@
 
     function seasonsInData() {
       const set = new Set();
-      activeProducts.forEach((p) => {
+      activeProducts.filter(isReady).forEach((p) => {
         if (p.season) set.add(String(p.season).toLowerCase());
         (p.tags || []).forEach((t) => {
           if (/^(fall|winter|spring|summer|halloween|holiday|seasonal)/i.test(t)) {
@@ -928,12 +879,12 @@
     }
     function typesInData() {
       const set = new Set();
-      activeProducts.forEach((p) => set.add(groupedType(p)));
+      activeProducts.filter(isReady).forEach((p) => set.add(groupedType(p)));
       return [...typeOrder.filter((type) => set.has(type)), ...Array.from(set).filter((type) => !typeOrder.includes(type)).sort()];
     }
 
     function filtered() {
-      let list = activeProducts.slice();
+      let list = activeProducts.filter(isReady);
       if (currentSeason !== 'all') {
         list = list.filter((p) => {
           const s = (p.season || '').toLowerCase();
@@ -1148,10 +1099,6 @@
       if (addOne) {
         addOne.addEventListener('click', () => addOneOff(p.id));
       }
-      const addCustomBtn = $('addCustomBtn');
-      if (addCustomBtn) {
-        addCustomBtn.addEventListener('click', () => addCustom(p.id));
-      }
       $$('[data-add-listing]').forEach((btn) => {
         btn.addEventListener('click', () => {
           addListing(p.id, btn.getAttribute('data-add-listing'));
@@ -1191,14 +1138,43 @@
   function setupCustomPage() {
     const grid = $('customGrid');
     if (!grid) return;
+    const selectedList = $('customSelectedList');
+    const selectedEmpty = $('customSelectedEmpty');
+
+    function selectedIndex(id) {
+      return customSelections.findIndex((item) => item.productId === id);
+    }
+    function renderSelected() {
+      if (!selectedList) return;
+      if (!customSelections.length) {
+        selectedList.innerHTML = '';
+        if (selectedEmpty) selectedEmpty.hidden = false;
+      } else {
+        if (selectedEmpty) selectedEmpty.hidden = true;
+        selectedList.innerHTML = customSelections.map((item, idx) => {
+          const p = productById(item.productId);
+          if (!p) return '';
+          return '<div class="custom-selected-item">' +
+            '<img src="' + esc(coverImg(p)) + '" alt="">' +
+            '<div class="custom-selected-body"><strong>' + esc(p.name) + '</strong>' +
+            '<label>Quantity <input class="custom-qty-input" type="number" min="1" max="20" value="' + item.qty + '" data-custom-qty="' + idx + '" aria-label="Quantity for ' + esc(p.name) + '"></label></div>' +
+            '<button type="button" class="bi-remove" data-custom-remove="' + idx + '" aria-label="Remove ' + esc(p.name) + '">✕</button></div>';
+        }).join('');
+      }
+      $$('[data-custom-select]', grid).forEach((button) => {
+        const selected = selectedIndex(button.dataset.customSelect) >= 0;
+        button.classList.toggle('btn-primary', selected);
+        button.classList.toggle('btn-outline', !selected);
+        button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        button.textContent = selected ? 'Selected ✓' : 'Select design';
+      });
+    }
     function render() {
       const list = activeProducts.filter((p) => !p.oneOfAKind);
       grid.innerHTML = list
         .map((p) => {
           return (
-            '<a class="silhouette-card" href="' +
-            esc(productHref(p)) +
-            '">' +
+            '<article class="silhouette-card custom-design-card">' +
             '<img src="' +
             esc(coverImg(p)) +
             '" alt="' +
@@ -1210,11 +1186,38 @@
             (p.price === null
               ? 'Custom order'
               : 'From ' + (p.priceLabel || '$' + p.price) + ' · made to order available') +
-            '</p></div></a>'
+            '</p><button type="button" class="btn btn-outline btn-sm" data-custom-select="' + esc(p.id) + '" aria-pressed="false">Select design</button></div></article>'
           );
         })
         .join('');
+      const requested = params.get('design');
+      if (requested && productById(requested) && selectedIndex(requested) < 0) {
+        customSelections.push({ productId: requested, qty: 1 });
+      }
+      renderSelected();
     }
+    grid.addEventListener('click', (e) => {
+      const button = e.target.closest('[data-custom-select]');
+      if (!button) return;
+      const id = button.dataset.customSelect;
+      const idx = selectedIndex(id);
+      if (idx >= 0) customSelections.splice(idx, 1);
+      else customSelections.push({ productId: id, qty: 1 });
+      renderSelected();
+      if (customSelections.length) $('customRequest')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    selectedList?.addEventListener('input', (e) => {
+      const input = e.target.closest('[data-custom-qty]');
+      if (!input) return;
+      const idx = parseInt(input.dataset.customQty, 10);
+      if (customSelections[idx]) customSelections[idx].qty = Math.max(1, Math.min(20, parseInt(input.value, 10) || 1));
+    });
+    selectedList?.addEventListener('click', (e) => {
+      const button = e.target.closest('[data-custom-remove]');
+      if (!button) return;
+      customSelections.splice(parseInt(button.dataset.customRemove, 10), 1);
+      renderSelected();
+    });
     document.addEventListener('att:ready', render);
     if (activeProducts.length) render();
   }
@@ -1255,7 +1258,6 @@
     productById,
     addListing,
     addOneOff,
-    addCustom,
     openLightbox,
     coverImg,
     resolveImg,

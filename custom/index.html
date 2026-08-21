@@ -34,7 +34,7 @@
         <a href="../shop/">Shop</a>
         <a href="./" aria-current="page">Custom</a>
         <a href="../about/">About</a>
-        <a class="nav-cta" href="../shop/#order">Place an order</a>
+        <a class="nav-cta" href="#customRequest">Start a request</a>
       </nav>
     </div>
   </header>
@@ -65,6 +65,28 @@
           <div class="skeleton" aria-hidden="true"></div>
         </div>
 
+        <section class="custom-request-section" id="customRequest" aria-labelledby="customRequestTitle">
+          <div class="section-title"><span class="script" data-copy="orderScript">your idea</span><h2 class="serif" id="customRequestTitle" data-copy="orderTitle">Custom Request</h2></div>
+          <p class="section-subtitle" data-copy="orderIntro">Choose one or more designs, set the quantity for each, then tell Alivia about fabrics, sizing, or other details. No payment is collected here.</p>
+          <div class="order-layout custom-request-layout">
+            <div class="order-basket-panel">
+              <h3 class="panel-title"><span class="script-accent">selected</span> Designs</h3>
+              <div id="customSelectedList" class="custom-selected-list"></div>
+              <p id="customSelectedEmpty" class="muted">Choose at least one design above to begin.</p>
+            </div>
+            <form class="panel order-form" id="orderForm" novalidate>
+              <input type="checkbox" name="botcheck" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <div class="form-group"><label class="form-label" for="name">Your Name <span class="required">*</span></label><input type="text" id="name" name="name" class="form-input" required autocomplete="name"><span class="field-error">Please tell me your name.</span></div>
+              <div class="form-group"><label class="form-label" for="email">Email Address <span class="required">*</span></label><input type="email" id="email" name="email" class="form-input" required autocomplete="email"><span class="field-error">Please enter a valid email.</span></div>
+              <div class="form-group"><label class="form-label" for="instagram">Instagram Handle</label><input type="text" id="instagram" name="instagram" class="form-input" autocomplete="off"></div>
+              <div class="form-group"><label class="form-label" for="notes">Customization notes</label><textarea id="notes" name="notes" class="form-textarea" placeholder="Fabric, color, size, timing, and anything else Alivia should know"></textarea></div>
+              <div class="request-review-note"><strong>Before you send</strong><p>Check the selected designs and quantities. Alivia will reply to confirm details, timing, and price.</p></div>
+              <button type="submit" class="btn btn-gradient btn-lg" id="submitBtn" style="width:100%">Send Custom Request ✨</button><p class="form-hint" id="formHint" aria-live="polite"></p>
+            </form>
+          </div>
+          <div class="form-success panel" id="formSuccess" hidden><div class="checkmark" aria-hidden="true">✓</div><h2>Custom request sent</h2><p>Alivia received your design choices and details and will be in touch. No payment was collected.</p></div>
+        </section>
+
         <div class="fabric-framework">
           <h3><span class="script-accent" data-copy="fabricsScript">all the</span> <span data-copy="fabricsTitle">Fabrics</span></h3>
           <p class="fabric-note" data-copy="fabricsBody">
@@ -74,8 +96,8 @@
         </div>
 
         <div class="page-ctas">
-          <a class="btn btn-gradient" href="../shop/#order">Start a custom request</a>
-          <a class="btn btn-outline" href="../shop/">See made-to-order pieces in the shop</a>
+          <a class="btn btn-gradient" href="#customRequest">Review my request</a>
+          <a class="btn btn-outline" href="../shop/">Shop finished pieces</a>
         </div>
       </div>
     </section>
@@ -104,7 +126,7 @@
           <h4>Connect</h4>
           <ul>
             <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-            <li><a href="../shop/#order">Place an order</a></li>
+            <li><a href="#customRequest">Custom request</a></li>
             <li><a href="../about/#leave-review">Leave a review</a></li>
           </ul>
         </div>
@@ -130,7 +152,7 @@
     <p class="drawer-empty" id="drawerEmpty">Nothing in here yet! Add anything you love from the shop.</p>
     <div class="drawer-foot">
       <div class="drawer-estimate" id="drawerEstimate"></div>
-      <a href="../shop/#order" class="btn btn-gradient" id="drawerCheckout">Ready to Order →</a>
+      <a href="../checkout/" class="btn btn-gradient" id="drawerCheckout">Review &amp; Checkout →</a>
     </div>
   </aside>
   <div class="toast-zone" id="toastZone" aria-live="polite"></div>

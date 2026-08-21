@@ -35,7 +35,7 @@
         <a href="./" aria-current="page">Shop</a>
         <a href="../custom/">Custom</a>
         <a href="../about/">About</a>
-        <a class="nav-cta" href="#order">Place an order</a>
+        <a class="nav-cta" href="../checkout/">Checkout</a>
       </nav>
     </div>
   </header>
@@ -54,7 +54,7 @@
             <circle cx="207" cy="13" r="2.2" fill="#FF74D4"/>
           </svg>
         </div>
-        <p class="section-subtitle" id="shopSubtitle">Each piece is handmade with love. Open any item for photos, ready-to-ship options, or a custom request.</p>
+        <p class="section-subtitle" id="shopSubtitle">Finished pieces that are sewn and ready for a new home. Open any item to choose the exact available version.</p>
 
         <div class="filter-bar" id="typeChips" role="group" aria-label="Item type"></div>
         <div class="filter-bar" id="seasonChips" role="group" aria-label="Season"></div>
@@ -68,62 +68,6 @@
       </div>
     </section>
 
-    <section class="section section-band form-section" id="order">
-      <div class="wrap">
-        <div class="section-title">
-          <span class="script" id="orderScript">let's make it happen</span>
-          <h2 class="serif" id="orderTitle">Place an Order</h2>
-        </div>
-        <div class="thread-divider" aria-hidden="true">
-          <svg viewBox="0 0 220 26" width="220" height="26">
-            <path d="M2 14 C 30 4, 55 24, 82 14 S 135 4, 162 14 S 196 20, 206 13" fill="none" stroke="#8FF0D6" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
-            <path d="M206 13 L216 10.5" stroke="#23A583" stroke-width="2.5" stroke-linecap="round"/>
-            <circle cx="207" cy="13" r="2.2" fill="#23A583"/>
-          </svg>
-        </div>
-        <p class="section-subtitle" id="orderIntro">Interested in something? Let me know! Pick what caught your eye, share your info, and I'll get back to you as soon as I can to work out the details.</p>
-
-        <div class="order-layout">
-          <div class="order-basket-panel">
-            <h3 class="panel-title"><span class="script-accent">your</span> Basket</h3>
-            <div id="orderBasketList" class="order-basket-list"></div>
-            <p class="basket-empty-msg muted" id="basketEmptyMsg">Your basket is empty so far. <a href="#main">Browse above</a> or add a custom request on a product page.</p>
-            <div class="basket-estimate" id="basketEstimate" hidden></div>
-          </div>
-
-          <form class="panel order-form" id="orderForm" novalidate>
-            <input type="checkbox" name="botcheck" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
-
-            <div class="form-group">
-              <label class="form-label" for="name">Your Name <span class="required">*</span></label>
-              <input type="text" id="name" name="name" class="form-input" required autocomplete="name" placeholder="Who should I make magic for?">
-              <span class="field-error" data-for="name">Please tell me your name!</span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="email">Email Address <span class="required">*</span></label>
-              <input type="email" id="email" name="email" class="form-input" required autocomplete="email" placeholder="your@email.com">
-              <span class="field-error" data-for="email">That email doesn’t look quite right.</span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="instagram">Instagram Handle</label>
-              <input type="text" id="instagram" name="instagram" class="form-input" autocomplete="off" spellcheck="false" placeholder="@yourhandle ~ so I can DM you!">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="notes">Notes</label>
-              <textarea id="notes" name="notes" class="form-textarea" placeholder="Have a custom idea? Questions about sizing or fabric? Let me know here!"></textarea>
-            </div>
-            <button type="submit" class="btn btn-gradient btn-lg" id="submitBtn" style="width:100%">Send My Order ✨</button>
-            <p class="form-hint" id="formHint"></p>
-          </form>
-        </div>
-
-        <div class="form-success panel" id="formSuccess" hidden>
-          <div class="checkmark" aria-hidden="true">✓</div>
-          <h2 id="successTitle">Thanks so much!</h2>
-          <p id="successBody">I got your message and will be in touch soon. Can't wait to work with you!</p>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
@@ -149,7 +93,7 @@
           <h4>Connect</h4>
           <ul>
             <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-            <li><a href="#order">Place an order</a></li>
+            <li><a href="../checkout/">Checkout</a></li>
             <li><a href="../about/#leave-review">Leave a review</a></li>
           </ul>
         </div>
@@ -175,7 +119,7 @@
     <p class="drawer-empty" id="drawerEmpty">Nothing in here yet! Add anything you love from the shop.</p>
     <div class="drawer-foot">
       <div class="drawer-estimate" id="drawerEstimate"></div>
-      <a href="#order" class="btn btn-gradient" id="drawerCheckout">Ready to Order →</a>
+      <a href="../checkout/" class="btn btn-gradient" id="drawerCheckout">Review &amp; Checkout →</a>
     </div>
   </aside>
   <div class="toast-zone" id="toastZone" aria-live="polite"></div>

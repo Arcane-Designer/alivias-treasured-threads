@@ -3,7 +3,8 @@
  * Alivia's Treasured Threads - static page generator (zero deps)
  *
  * Reads data/site.json and writes:
- *   product/<id>/index.html   for every product (archived included for stable URLs)
+ *   shop/<id>/index.html      for every currently purchasable design
+ *   product/<id>/index.html   as noindex compatibility redirects
  *   sitemap.xml
  *   robots.txt
  *
@@ -24,6 +25,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DATA_PATH = join(ROOT, 'data', 'site.json');
 const PRODUCT_DIR = join(ROOT, 'product');
+const SHOP_DIR = join(ROOT, 'shop');
 
 const args = process.argv.slice(2);
 function argVal(flag, fallback) {
@@ -72,6 +74,10 @@ function isOnSale(p) {
   return typeof p.salePrice === 'number' && typeof p.price === 'number' && p.salePrice < p.price;
 }
 
+function isReady(p) {
+  return !!(!p.archived && (p.oneOfAKind || (p.listings || []).some((l) => !l.sold)));
+}
+
 function priceBlock(p) {
   if (p.price === null || typeof p.price !== 'number') {
     return `<div class="price-block custom">${esc(p.priceLabel || 'Custom Order')}</div>`;
@@ -113,11 +119,7 @@ function jsonLdProduct(p, pageUrl) {
       name: "Alivia's Treasured Threads",
     },
   };
-  const pay = checkoutUrl(p);
-  const offerable =
-    pay &&
-    typeof p.price === 'number' &&
-    (p.oneOfAKind || (p.listings || []).some((l) => !l.sold));
+  const offerable = typeof p.price === 'number' && isReady(p);
   if (offerable) {
     obj.offers = {
       '@type': 'Offer',
@@ -160,26 +162,8 @@ function actionsHtml(p) {
   if (p.oneOfAKind) {
     parts.push(`<button type="button" class="btn btn-primary" id="addOneOffBtn">Add to basket</button>`);
   }
-  if (!p.oneOfAKind) {
-    parts.push(`<button type="button" class="btn ${hasReady ? 'btn-secondary' : 'btn-primary'}" id="addCustomBtn">Request custom</button>`);
-  }
-  const pay = checkoutUrl(p);
-  const showBuy =
-    pay &&
-    typeof p.price === 'number' &&
-    (p.oneOfAKind || (p.listings || []).some((l) => !l.sold));
-  if (showBuy) {
-    parts.push(`<div class="buy-now-wrap" id="buyNowWrap">
-      <a class="btn btn-primary" id="buyNowLink" href="${escAttr(pay)}" target="_blank" rel="noopener noreferrer">Buy now</a>
-      <p class="checkout-note">Hosted checkout opens in a new tab.</p>
-    </div>`);
-  } else {
-    parts.push(`<div class="buy-now-wrap" id="buyNowWrap" hidden>
-      <a class="btn btn-primary" id="buyNowLink" href="#" target="_blank" rel="noopener noreferrer">Buy now</a>
-      <p class="checkout-note">Hosted checkout opens in a new tab.</p>
-    </div>`);
-  }
-  parts.push(`<a class="btn btn-secondary" href="../../shop/#order">Go to order form</a>`);
+  if (!p.oneOfAKind) parts.push(`<a class="btn btn-secondary" href="../../custom/?design=${encodeURIComponent(p.id)}#customRequest">Request a custom version</a>`);
+  parts.push(`<a class="btn btn-outline" href="../../checkout/">View checkout</a>`);
   return `<div class="product-actions">${parts.join('\n')}</div>`;
 }
 
@@ -203,7 +187,7 @@ function galleryHtml(p) {
 }
 
 function productPage(p, settings) {
-  const pageUrl = `${BASE}/product/${encodeURIComponent(p.id)}/`;
+  const pageUrl = `${BASE}/shop/${encodeURIComponent(p.id)}/`;
   const title = `${p.name} | ${settings.brandName || "Alivia's Treasured Threads"}`;
   const desc = (p.description || `${p.name}, handmade with care.`).replace(/\s+/g, ' ').trim().slice(0, 160);
   const ogImg = `${BASE}/${coverPath(p).replace(/^\//, '')}`;
@@ -259,7 +243,7 @@ ${jsonLdProduct(p, pageUrl)}
         <a href="../../shop/">Shop</a>
         <a href="../../custom/">Custom</a>
         <a href="../../about/">About</a>
-        <a class="nav-cta" href="../../shop/#order">Place an order</a>
+        <a class="nav-cta" href="../../checkout/">Checkout</a>
       </nav>
     </div>
   </header>
@@ -282,9 +266,7 @@ ${jsonLdProduct(p, pageUrl)}
           ${descLink}
           ${listingsHtml(p)}
           ${actionsHtml(p)}
-          <p class="checkout-note" style="margin-top:1rem" data-copy="productOrderNote">
-            Most orders go through the request form. I'll confirm details, timing, and payment by email.
-          </p>
+          <p class="checkout-note" style="margin-top:1rem">Basket items are finished pieces. Custom requests use a separate form and do not collect payment.</p>
         </div>
       </div>
     </div>
@@ -308,7 +290,7 @@ ${jsonLdProduct(p, pageUrl)}
         </ul></div>
         <div class="footer-col"><h4>Connect</h4><ul>
           <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-          <li><a href="../../shop/#order">Place an order</a></li>
+          <li><a href="../../checkout/">Checkout</a></li>
           <li><a href="../../about/#leave-review">Leave a review</a></li>
         </ul></div>
       </div>
@@ -341,7 +323,7 @@ ${jsonLdProduct(p, pageUrl)}
     <p class="drawer-empty" id="drawerEmpty">Nothing in here yet! Add anything you love from the shop.</p>
     <div class="drawer-foot">
       <div class="drawer-estimate" id="drawerEstimate"></div>
-      <a href="../../shop/#order" class="btn btn-gradient" id="drawerCheckout">Ready to Order →</a>
+      <a href="../../checkout/" class="btn btn-gradient" id="drawerCheckout">Review &amp; Checkout →</a>
     </div>
   </aside>
   <div class="toast-zone" id="toastZone" aria-live="polite"></div>
@@ -364,7 +346,7 @@ function writeSitemap(products) {
   products.forEach((p) => {
     if (p.archived) return;
     urls.push({
-      loc: `${BASE}/product/${encodeURIComponent(p.id)}/`,
+      loc: `${BASE}/shop/${encodeURIComponent(p.id)}/`,
       priority: '0.8',
     });
   });
@@ -404,6 +386,20 @@ function cleanProductDir() {
   }
 }
 
+function cleanShopProductDirs() {
+  for (const name of readdirSync(SHOP_DIR)) {
+    const path = join(SHOP_DIR, name);
+    if (existsSync(join(path, 'index.html'))) rmSync(path, { recursive: true, force: true });
+  }
+}
+
+function legacyRedirect(p) {
+  const target = isReady(p)
+    ? `${BASE}/shop/${encodeURIComponent(p.id)}/`
+    : `${BASE}/custom/?design=${encodeURIComponent(p.id)}#customRequest`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="${escAttr(target)}"><meta http-equiv="refresh" content="0;url=${escAttr(target)}"><title>Moved</title></head><body><p>This page moved to <a href="${escAttr(target)}">the Shop listing</a>.</p></body></html>`;
+}
+
 function main() {
   const data = loadData();
   const settings = data.settings || {};
@@ -416,17 +412,23 @@ function main() {
   }
 
   cleanProductDir();
+  cleanShopProductDirs();
   let n = 0;
   for (const p of products) {
-    const dir = join(PRODUCT_DIR, p.id);
-    mkdirSync(dir, { recursive: true });
-    const html = productPage(p, settings).replace(/[ \t]+$/gm, '');
-    writeFileSync(join(dir, 'index.html'), html, 'utf8');
-    n++;
+    const legacyDir = join(PRODUCT_DIR, p.id);
+    mkdirSync(legacyDir, { recursive: true });
+    writeFileSync(join(legacyDir, 'index.html'), legacyRedirect(p), 'utf8');
+    if (isReady(p)) {
+      const dir = join(SHOP_DIR, p.id);
+      mkdirSync(dir, { recursive: true });
+      const html = productPage(p, settings).replace(/[ \t]+$/gm, '');
+      writeFileSync(join(dir, 'index.html'), html, 'utf8');
+      n++;
+    }
   }
   writeSitemap(products);
   writeRobots();
-  console.log(`Generated ${n} product page(s), sitemap.xml, robots.txt`);
+  console.log(`Generated ${n} ready-to-buy Shop page(s), legacy redirects, sitemap.xml, robots.txt`);
   console.log(`Base URL: ${BASE}`);
 }
 

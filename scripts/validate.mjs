@@ -100,44 +100,47 @@ for (const p of data.products || []) {
   }
 }
 
-/* generated product pages */
-const productRoot = join(ROOT, 'product');
+/* generated ready-to-buy Shop pages */
+const productRoot = join(ROOT, 'shop');
 if (!existsSync(productRoot)) {
-  fail('product/ directory missing. Run: node scripts/generate-pages.mjs');
+  fail('shop/ directory missing. Run: node scripts/generate-pages.mjs');
 } else {
   for (const id of ids) {
+    const product = (data.products || []).find((x) => x.id === id);
+    const ready = product && !product.archived && (product.oneOfAKind || (product.listings || []).some((l) => !l.sold));
+    if (!ready) continue;
     const page = join(productRoot, id, 'index.html');
     if (!existsSync(page)) {
-      fail(`Missing generated page: product/${id}/index.html`);
+      fail(`Missing generated page: shop/${id}/index.html`);
       continue;
     }
     const html = readFileSync(page, 'utf8');
     if (!html.includes(`data-product-id="${id}"`)) {
-      fail(`product/${id}/index.html missing data-product-id`);
+      fail(`shop/${id}/index.html missing data-product-id`);
     }
     /* nested depth: assets must be ../../assets */
     if (!html.includes('href="../../assets/site.css"')) {
-      fail(`product/${id}/index.html broken CSS relative path`);
+      fail(`shop/${id}/index.html broken CSS relative path`);
     }
     if (!html.includes('src="../../assets/site.js"')) {
-      fail(`product/${id}/index.html broken JS relative path`);
+      fail(`shop/${id}/index.html broken JS relative path`);
     }
     if (!html.includes('href="../../shop/"')) {
-      fail(`product/${id}/index.html missing shop link at ../../shop/`);
+      fail(`shop/${id}/index.html missing shop link at ../../shop/`);
     }
     /* no secrets in browser */
     if (/github_pat_|sk_live|sk_test|whsec_/i.test(html)) {
-      fail(`product/${id}/index.html appears to contain a secret`);
+      fail(`shop/${id}/index.html appears to contain a secret`);
     }
   }
   /* orphan product dirs */
   for (const name of readdirSync(productRoot)) {
-    if (!ids.has(name)) warn(`Orphan product dir not in site.json: product/${name}`);
+    if (name !== 'index.html' && !ids.has(name)) warn(`Orphan Shop dir not in site.json: shop/${name}`);
   }
 }
 
 /* top-level pages */
-for (const rel of ['index.html', 'shop/index.html', 'custom/index.html', 'about/index.html', 'faq/index.html']) {
+for (const rel of ['index.html', 'shop/index.html', 'custom/index.html', 'checkout/index.html', 'about/index.html', 'faq/index.html']) {
   if (!existsSync(join(ROOT, rel))) fail(`Missing page: ${rel}`);
 }
 
@@ -148,8 +151,9 @@ else {
   if (!sm.includes('<urlset')) fail('sitemap.xml invalid');
   for (const id of ids) {
     const p = (data.products || []).find((x) => x.id === id);
-    if (p && !p.archived && !sm.includes(`/product/${id}/`)) {
-      fail(`sitemap missing active product ${id}`);
+    const ready = p && !p.archived && (p.oneOfAKind || (p.listings || []).some((l) => !l.sold));
+    if (ready && !sm.includes(`/shop/${id}/`)) {
+      fail(`sitemap missing ready Shop product ${id}`);
     }
   }
 }
