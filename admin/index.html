@@ -279,33 +279,28 @@
           <input type="text" id="epName" class="field-input" placeholder="What's it called?">
         </div>
 
-        <div class="taxonomy-panel">
+        <div class="taxonomy-panel" aria-label="Product organization">
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="epCategory">Category <span class="req">*</span></label>
-              <select id="epCategory" class="field-input"></select>
+              <div class="select-wrap"><select id="epCategory" class="field-input themed-select"></select></div>
               <div id="epCategoryCustomGroup" class="inline-custom" hidden>
                 <label class="field-label" for="epCategoryCustom">New category name</label>
-                <input type="text" id="epCategoryCustom" class="field-input" placeholder="For example, Baby Items">
+                <div class="inline-custom-row">
+                  <input type="text" id="epCategoryCustom" class="field-input" placeholder="For example, Baby Items">
+                  <button type="button" class="ghost-btn compact" id="epCategoryCustomCancel">Cancel</button>
+                </div>
               </div>
-              <p class="field-hint">This decides which Shop filter the product appears under.</p>
+              <button type="button" class="taxonomy-manage-btn" id="manageCategories">Manage categories</button>
             </div>
             <div class="field-group">
               <label class="field-label" for="epSeason">Season <span class="tiny-note">optional</span></label>
-              <select id="epSeason" class="field-input"></select>
+              <div class="select-wrap"><select id="epSeason" class="field-input themed-select"></select></div>
               <div id="epSeasonCustomGroup" class="inline-custom" hidden>
                 <label class="field-label" for="epSeasonCustom">Custom season</label>
                 <input type="text" id="epSeasonCustom" class="field-input" placeholder="For example, Back to School">
               </div>
             </div>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="epTagInput">Tags <span class="tiny-note">optional</span></label>
-            <div class="tag-entry-row">
-              <input type="text" id="epTagInput" class="field-input" placeholder="Type a tag, then press Enter">
-              <button type="button" class="add-photos-btn small" id="epTagAdd">+ Add tag</button>
-            </div>
-            <div class="taxonomy-tags" id="epTags" aria-live="polite"></div>
           </div>
         </div>
 
@@ -440,6 +435,19 @@
         <button class="ghost-btn danger" id="epDelete">🗑 Delete product</button>
         <button class="btn btn-gradient" id="epDone">Done ✓</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= CATEGORY MANAGER ================= -->
+  <div class="category-overlay" id="categoryOverlay" hidden>
+    <div class="category-card" role="dialog" aria-modal="true" aria-labelledby="categoryManagerTitle">
+      <div class="picker-head">
+        <h3 id="categoryManagerTitle">Manage categories</h3>
+        <button class="icon-btn" id="categoryClose" aria-label="Close category manager">×</button>
+      </div>
+      <p class="picker-hint">Rename a category everywhere, or remove it without deleting any products.</p>
+      <div class="category-list" id="categoryList"></div>
+      <div class="picker-foot"><button class="btn btn-gradient" id="categoryDone">Done ✓</button></div>
     </div>
   </div>
 

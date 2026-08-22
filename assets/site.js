@@ -164,16 +164,7 @@
     return !!(p.oneOfAKind || unsoldListings(p).length > 0);
   }
   function categoryForProduct(p) {
-    const explicit = String(p.category || '').trim().replace(/\s+/g, ' ');
-    if (explicit) return explicit;
-    /* Compatibility only for an older unpublished Studio draft. */
-    const value = ((p.itemType || '') + ' ' + (p.name || '')).toLowerCase();
-    if (/bundle/.test(value)) return 'Bundles';
-    if (/cape/.test(value)) return 'Capes';
-    if (/tote|bag|pouch/.test(value)) return 'Bags & Pouches';
-    if (/bookmark|craft roll|sewing roll|pencil roll|brush roll|organizer/.test(value)) return 'Books & Crafts';
-    if (/coaster|pot holder|potholder|kitchen/.test(value)) return 'Home & Kitchen';
-    return 'Other';
+    return String(p.category || '').trim().replace(/\s+/g, ' ') || 'Unspecified';
   }
   function isCustomOnly(p) {
     return p.price === null && !p.oneOfAKind;
@@ -674,31 +665,44 @@
   /* ---------- lightbox ---------- */
   let lbImages = [];
   let lbIndex = 0;
-  function openLightbox(images, start) {
+  let lbLabels = [];
+  let lbReturnFocus = null;
+  function openLightbox(images, start, labels, trigger) {
     lbImages = images.map((p) => resolveImg(p));
+    lbLabels = Array.isArray(labels) ? labels : [];
     lbIndex = start || 0;
     const lb = $('lightbox');
     if (!lb) return;
+    lbReturnFocus = trigger || document.activeElement;
     updateLightbox();
     lb.hidden = false;
     document.body.style.overflow = 'hidden';
+    $('lightboxClose')?.focus();
   }
   function closeLightbox() {
     const lb = $('lightbox');
-    if (lb) lb.hidden = true;
+    if (!lb || lb.hidden) return;
+    lb.hidden = true;
     document.body.style.overflow = '';
+    if (lbReturnFocus && typeof lbReturnFocus.focus === 'function') lbReturnFocus.focus();
+    lbReturnFocus = null;
   }
   function updateLightbox() {
     const img = $('lightboxImg');
     const count = $('lightboxCount');
     if (img) {
       img.src = lbImages[lbIndex] || '';
-      img.alt = 'Photo ' + (lbIndex + 1) + ' of ' + lbImages.length;
+      img.alt = lbLabels[lbIndex] || ('Photo ' + (lbIndex + 1) + ' of ' + lbImages.length);
     }
     if (count) text(count, lbIndex + 1 + ' / ' + lbImages.length);
+    const single = lbImages.length < 2;
+    if ($('lightboxPrev')) $('lightboxPrev').hidden = single;
+    if ($('lightboxNext')) $('lightboxNext').hidden = single;
+    if (count) count.hidden = single;
   }
   document.addEventListener('click', (e) => {
     if (e.target.closest('#lightboxClose')) closeLightbox();
+    if (e.target.id === 'lightbox') closeLightbox();
     if (e.target.closest('#lightboxPrev')) {
       lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length;
       updateLightbox();
@@ -707,6 +711,16 @@
       lbIndex = (lbIndex + 1) % lbImages.length;
       updateLightbox();
     }
+  });
+  document.addEventListener('keydown', (e) => {
+    const lb = $('lightbox');
+    if (!lb || lb.hidden || e.key !== 'Tab') return;
+    const focusable = $$('button:not([hidden])', lb);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   /* ---------- nav mobile ---------- */
@@ -1002,8 +1016,7 @@
       if (currentSeason !== 'all') {
         list = list.filter((p) => {
           const s = (p.season || '').toLowerCase();
-          const tags = (p.tags || []).map((t) => String(t).toLowerCase());
-          return s === currentSeason || tags.includes(currentSeason);
+          return s === currentSeason;
         });
       }
       if (currentType !== 'all') {
@@ -1170,7 +1183,7 @@
         groups.get(category).push(product);
       });
       const categories = [...CATEGORY_ORDER.filter((category) => groups.has(category)), ...Array.from(groups.keys()).filter((category) => !CATEGORY_ORDER.includes(category)).sort()];
-      tiles.innerHTML = categories.map((category) => {
+      const cards = categories.map((category) => {
         const products = groups.get(category);
         const ready = products.filter(isReady).length;
         const cover = products.find(isReady) || products[0];
@@ -1180,6 +1193,29 @@
           '<div class="tile-name">' + esc(category) + '</div>' +
           '<div class="tile-sub">' + esc(summary) + '</div></a>';
       }).join('');
+      tiles.innerHTML = '<button type="button" class="category-arrow prev" aria-label="Previous product types">←</button><div class="category-viewport" tabindex="0" aria-label="Browse product types"><div class="category-track">' + cards + '</div></div><button type="button" class="category-arrow next" aria-label="Next product types">→</button>';
+      const viewport = tiles.querySelector('.category-viewport');
+      const step = () => {
+        const card = tiles.querySelector('.tile');
+        return (card?.getBoundingClientRect().width || viewport.clientWidth) + (parseFloat(getComputedStyle(tiles.querySelector('.category-track')).gap) || 0);
+      };
+      const move = (direction) => {
+        const max = viewport.scrollWidth - viewport.clientWidth;
+        if (direction > 0 && viewport.scrollLeft >= max - 4) viewport.scrollTo({ left: 0, behavior: 'smooth' });
+        else if (direction < 0 && viewport.scrollLeft <= 4) viewport.scrollTo({ left: max, behavior: 'smooth' });
+        else viewport.scrollBy({ left: direction * step(), behavior: 'smooth' });
+      };
+      tiles.querySelector('.category-arrow.prev').addEventListener('click', () => move(-1));
+      tiles.querySelector('.category-arrow.next').addEventListener('click', () => move(1));
+      viewport.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); move(event.key === 'ArrowRight' ? 1 : -1); }
+      });
+      const syncCategoryControls = () => {
+        const capacity = innerWidth <= 560 ? 1 : innerWidth <= 900 ? 2 : 4;
+        tiles.querySelectorAll('.category-arrow').forEach((button) => { button.hidden = categories.length <= capacity; });
+      };
+      syncCategoryControls();
+      addEventListener('resize', syncCategoryControls, { passive: true });
     }
     document.addEventListener('att:ready', render);
     if (activeProducts.length) render();
@@ -1345,7 +1381,8 @@
       } else {
         listings = '<div class="listings-block"><h3>Available now</h3>' + rows.map((listing) => {
           const image = listing.images?.[0] ? resolveImg(listing.images[0]) : resolveImg(PLACEHOLDER);
-          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><div class="listing-meta"><div class="listing-name">' + esc(listing.name || p.name) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
+          const listingName = listing.name || p.name;
+          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
         }).join('') + '</div>';
       }
     }
@@ -1383,6 +1420,12 @@
       $$('[data-add-listing]').forEach((btn) => {
         btn.addEventListener('click', () => {
           addListing(p.id, btn.getAttribute('data-add-listing'));
+        });
+      });
+      $$('[data-listing-image]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const name = btn.closest('.listing-row')?.querySelector('.listing-name')?.textContent.trim() || p.name;
+          openLightbox([btn.getAttribute('data-listing-image')], 0, ['Large photo of ' + name], btn);
         });
       });
       const mainImg = $('galleryMainImg');

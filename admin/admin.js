@@ -34,6 +34,7 @@
   let editorWasNew = false;
   let expandedListingId = null;
   let stagedListingPhotos = [];     /* photos picked for a not-yet-added listing */
+  let categoryBeforeNew = '';
   let warnedQuota = false;
   let saveTimer = null;
   let settingsDefaults = {};
@@ -83,14 +84,17 @@
 
   function confirmCute(msg, yesLabel, noLabel) {
     return new Promise((resolve) => {
+      const returnFocus = document.activeElement;
       $('confirmMsg').textContent = msg;
       $('confirmYes').textContent = yesLabel || 'Yes, do it';
       $('confirmNo').textContent = noLabel || 'Never mind';
       $('confirmOverlay').hidden = false;
+      $('confirmNo').focus();
       const done = (answer) => {
         $('confirmOverlay').hidden = true;
         $('confirmYes').onclick = null;
         $('confirmNo').onclick = null;
+        if (returnFocus && typeof returnFocus.focus === 'function') returnFocus.focus();
         resolve(answer);
       };
       $('confirmYes').onclick = () => done(true);
@@ -178,26 +182,21 @@
   }
 
   /* older data used a single `badge` string; the shop now supports up to two badges */
-  function inferLegacyCategory(product) {
-    const value = ((product.itemType || '') + ' ' + (product.name || '')).toLocaleLowerCase();
-    if (/bundle/.test(value)) return 'Bundles';
-    if (/cape/.test(value)) return 'Capes';
-    if (/tote|bag|pouch/.test(value)) return 'Bags & Pouches';
-    if (/bookmark|craft roll|sewing roll|pencil roll|brush roll|organizer/.test(value)) return 'Books & Crafts';
-    if (/coaster|pot holder|potholder|kitchen/.test(value)) return 'Home & Kitchen';
-    return 'Other';
-  }
-
   function normalizeData(d) {
     d.settings = { ...settingsDefaults, ...(d.settings || {}) };
     (d.products || []).forEach((p) => {
       if (!Array.isArray(p.badges)) p.badges = (p.badge && String(p.badge).trim()) ? [p.badge] : [];
       p.badges = p.badges.filter(Boolean).slice(0, 2);
       delete p.badge;
-      p.category = cleanTaxonomyValue(p.category) || inferLegacyCategory(p);
+      p.category = cleanTaxonomyValue(p.category);
       p.season = cleanTaxonomyValue(p.season);
-      if (!Array.isArray(p.tags)) p.tags = [];
-      p.tags = p.tags.map(cleanTaxonomyValue).filter(Boolean).filter((tag, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === tag.toLocaleLowerCase()) === index);
+      delete p.tags;
+    });
+    const categorySource = Array.isArray(d.settings.categories) ? d.settings.categories : CATEGORY_PRESETS;
+    d.settings.categories = categorySource.map(cleanTaxonomyValue).filter(Boolean).filter((category, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase()) === index);
+    (d.products || []).forEach((product) => {
+      const category = cleanTaxonomyValue(product.category);
+      if (category && !d.settings.categories.some((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase())) d.settings.categories.push(category);
     });
     if (!Array.isArray(d.reviews)) d.reviews = [];
     return d;
@@ -502,9 +501,8 @@
       price: null,
       priceLabel: 'Custom Order',
       description: '',
-      category: 'Other',
+      category: '',
       season: '',
-      tags: [],
       badges: [],
       archived: false,
       oneOfAKind: false,
@@ -579,6 +577,10 @@
       toast('Give the new category a name first! 💜', 'pink');
       return;
     }
+    if (!force && currentProduct) {
+      const category = cleanTaxonomyValue(currentProduct.category);
+      if (category && !draft.settings.categories.some((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase())) draft.settings.categories.push(category);
+    }
 
     /* gentle note: sale switch on, but the numbers don't make a deal yet */
     if (!force && currentProduct && $('epSaleOn').checked && !isOnSaleP(currentProduct)) {
@@ -610,7 +612,7 @@
   }
 
   function knownCategories() {
-    const values = CATEGORY_PRESETS.slice();
+    const values = Array.isArray(draft.settings?.categories) ? draft.settings.categories.map(cleanTaxonomyValue).filter(Boolean) : CATEGORY_PRESETS.slice();
     (draft.products || []).forEach((product) => {
       const value = cleanTaxonomyValue(product.category);
       if (value && !values.some((item) => item.toLocaleLowerCase() === value.toLocaleLowerCase())) values.push(value);
@@ -641,7 +643,8 @@
   function setupTaxonomyEditor() {
     const categories = knownCategories();
     const seasons = knownSeasons();
-    fillTaxonomySelect($('epCategory'), categories, currentProduct.category || 'Other', '', 'Create a new category');
+    fillTaxonomySelect($('epCategory'), categories, currentProduct.category || '', 'Unspecified', 'Create a new category');
+    categoryBeforeNew = cleanTaxonomyValue(currentProduct.category);
     const customCategory = cleanTaxonomyValue(currentProduct.category) && !categories.some((value) => value.toLocaleLowerCase() === cleanTaxonomyValue(currentProduct.category).toLocaleLowerCase());
     $('epCategoryCustomGroup').hidden = $('epCategory').value !== '__new__';
     $('epCategoryCustom').value = customCategory ? cleanTaxonomyValue(currentProduct.category) : '';
@@ -651,42 +654,81 @@
     const customSeason = cleanTaxonomyValue(currentProduct.season) && !seasons.some((value) => value.toLocaleLowerCase() === cleanTaxonomyValue(currentProduct.season).toLocaleLowerCase());
     $('epSeasonCustomGroup').hidden = $('epSeason').value !== '__new__';
     $('epSeasonCustom').value = customSeason ? cleanTaxonomyValue(currentProduct.season) : '';
-    if (!Array.isArray(currentProduct.tags)) currentProduct.tags = [];
-    currentProduct.tags = currentProduct.tags.map(cleanTaxonomyValue).filter(Boolean).filter((tag, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === tag.toLocaleLowerCase()) === index);
-    $('epTagInput').value = '';
-    renderTaxonomyTags();
   }
 
-  function renderTaxonomyTags() {
-    const wrap = $('epTags');
-    wrap.innerHTML = '';
-    (currentProduct?.tags || []).forEach((tag) => {
-      const chip = document.createElement('span');
-      chip.className = 'taxonomy-tag';
-      chip.append(document.createTextNode(tag));
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.setAttribute('aria-label', 'Remove ' + tag + ' tag');
-      remove.textContent = '×';
-      remove.addEventListener('click', () => {
-        currentProduct.tags = currentProduct.tags.filter((item) => item !== tag);
-        markDirty();
-        renderTaxonomyTags();
-      });
-      chip.appendChild(remove);
-      wrap.appendChild(chip);
+  let categoryReturnFocus = null;
+  function categoryUseCount(category) {
+    return (draft.products || []).filter((product) => cleanTaxonomyValue(product.category).toLocaleLowerCase() === category.toLocaleLowerCase()).length;
+  }
+  function renderCategoryManager() {
+    const list = $('categoryList');
+    const categories = knownCategories();
+    list.innerHTML = '';
+    categories.forEach((category) => {
+      const count = categoryUseCount(category);
+      const row = document.createElement('div');
+      row.className = 'category-item';
+      row.innerHTML = '<div class="category-item-name">' + esc(category) + '<span class="category-item-count">' + count + ' ' + (count === 1 ? 'product' : 'products') + '</span></div>' +
+        '<button type="button" class="category-action rename">Rename</button><button type="button" class="category-action danger">Delete</button>';
+      row.querySelector('.rename').addEventListener('click', () => beginCategoryRename(row, category));
+      row.querySelector('.danger').addEventListener('click', () => deleteCategory(category));
+      list.appendChild(row);
     });
   }
-
-  function addTaxonomyTag() {
-    if (!currentProduct) return;
-    const input = $('epTagInput');
-    const tag = canonicalTaxonomyValue(input.value.replace(/,+$/, ''), currentProduct.tags || []);
-    if (!tag) return;
-    if (!(currentProduct.tags || []).some((item) => item.toLocaleLowerCase() === tag.toLocaleLowerCase())) currentProduct.tags.push(tag);
-    input.value = '';
+  function beginCategoryRename(row, oldName) {
+    if (row.querySelector('.category-rename')) return;
+    const editor = document.createElement('div');
+    editor.className = 'category-rename';
+    editor.innerHTML = '<label class="sr-only" for="categoryRenameInput">New name for ' + esc(oldName) + '</label><input id="categoryRenameInput" class="field-input" value="' + esc(oldName) + '"><button type="button" class="category-action save">Save</button><button type="button" class="category-action cancel">Cancel</button><div class="category-error" aria-live="polite"></div>';
+    row.appendChild(editor);
+    const input = editor.querySelector('input');
+    input.select();
+    const cancel = () => editor.remove();
+    editor.querySelector('.cancel').addEventListener('click', cancel);
+    const save = () => {
+      const next = cleanTaxonomyValue(input.value);
+      const duplicate = knownCategories().some((category) => category.toLocaleLowerCase() === next.toLocaleLowerCase() && category.toLocaleLowerCase() !== oldName.toLocaleLowerCase());
+      if (!next || duplicate) {
+        editor.querySelector('.category-error').textContent = !next ? 'Enter a category name.' : 'That category already exists.';
+        input.focus();
+        return;
+      }
+      (draft.products || []).forEach((product) => {
+        if (cleanTaxonomyValue(product.category).toLocaleLowerCase() === oldName.toLocaleLowerCase()) product.category = next;
+      });
+      draft.settings.categories = knownCategories().map((category) => category.toLocaleLowerCase() === oldName.toLocaleLowerCase() ? next : category).filter((category, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase()) === index);
+      if (currentProduct && cleanTaxonomyValue(currentProduct.category).toLocaleLowerCase() === oldName.toLocaleLowerCase()) currentProduct.category = next;
+      markDirty();
+      setupTaxonomyEditor();
+      renderCategoryManager();
+      toast('Renamed “' + oldName + '” to “' + next + '” everywhere.', 'teal');
+    };
+    editor.querySelector('.save').addEventListener('click', save);
+    input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); save(); } });
+  }
+  async function deleteCategory(category) {
+    const count = categoryUseCount(category);
+    const ok = await confirmCute('Delete the category “' + category + '”? ' + count + ' ' + (count === 1 ? 'product uses' : 'products use') + ' it. Those products will stay intact and move to Unspecified.', 'Move to Unspecified', 'Keep category');
+    if (!ok) return;
+    (draft.products || []).forEach((product) => {
+      if (cleanTaxonomyValue(product.category).toLocaleLowerCase() === category.toLocaleLowerCase()) product.category = '';
+    });
+    draft.settings.categories = knownCategories().filter((item) => item.toLocaleLowerCase() !== category.toLocaleLowerCase());
+    if (currentProduct && cleanTaxonomyValue(currentProduct.category).toLocaleLowerCase() === category.toLocaleLowerCase()) currentProduct.category = '';
     markDirty();
-    renderTaxonomyTags();
+    setupTaxonomyEditor();
+    renderCategoryManager();
+    toast('Category removed. ' + count + ' ' + (count === 1 ? 'product is' : 'products are') + ' now Unspecified.', 'teal');
+  }
+  function openCategoryManager() {
+    categoryReturnFocus = document.activeElement;
+    renderCategoryManager();
+    $('categoryOverlay').hidden = false;
+    $('categoryClose').focus();
+  }
+  function closeCategoryManager() {
+    $('categoryOverlay').hidden = true;
+    if (categoryReturnFocus) categoryReturnFocus.focus();
   }
 
   /* field bindings */
@@ -701,6 +743,7 @@
     const isNew = this.value === '__new__';
     $('epCategoryCustomGroup').hidden = !isNew;
     if (isNew) {
+      categoryBeforeNew = cleanTaxonomyValue(currentProduct.category);
       currentProduct.category = '';
       $('epCategoryCustom').focus();
     } else {
@@ -713,6 +756,16 @@
     this.classList.remove('invalid');
     currentProduct.category = canonicalTaxonomyValue(this.value, knownCategories());
     markDirty();
+  });
+  $('epCategoryCustomCancel').addEventListener('click', function () {
+    if (!currentProduct) return;
+    $('epCategoryCustom').value = '';
+    $('epCategoryCustom').classList.remove('invalid');
+    $('epCategoryCustomGroup').hidden = true;
+    currentProduct.category = categoryBeforeNew;
+    setupTaxonomyEditor();
+    markDirty();
+    $('epCategory').focus();
   });
   $('epSeason').addEventListener('change', function () {
     if (!currentProduct) return;
@@ -727,13 +780,10 @@
     currentProduct.season = canonicalTaxonomyValue(this.value, knownSeasons());
     markDirty();
   });
-  $('epTagAdd').addEventListener('click', addTaxonomyTag);
-  $('epTagInput').addEventListener('keydown', function (event) {
-    if (event.key === 'Enter' || event.key === ',') {
-      event.preventDefault();
-      addTaxonomyTag();
-    }
-  });
+  $('manageCategories').addEventListener('click', openCategoryManager);
+  $('categoryClose').addEventListener('click', closeCategoryManager);
+  $('categoryDone').addEventListener('click', closeCategoryManager);
+  $('categoryOverlay').addEventListener('click', (event) => { if (event.target === $('categoryOverlay')) closeCategoryManager(); });
   /* ---------- pricing modes: one price / fancy tag / custom order ---------- */
   let priceMode = 'custom';
 
@@ -1881,8 +1931,19 @@
 
   /* esc closes editor / confirm */
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && !$('categoryOverlay').hidden) {
+      const focusable = Array.from($('categoryOverlay').querySelectorAll('button:not([disabled]),input:not([disabled])')).filter((item) => item.offsetParent !== null);
+      if (focusable.length) {
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      return;
+    }
     if (e.key !== 'Escape') return;
     if (!$('confirmOverlay').hidden) return; /* let the buttons decide */
+    if (!$('categoryOverlay').hidden) { closeCategoryManager(); return; }
     if (!$('pickerOverlay').hidden) { closePicker([]); return; }
     if (!$('editorOverlay').hidden) closeEditor();
   });

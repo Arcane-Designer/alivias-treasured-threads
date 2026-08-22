@@ -147,7 +147,9 @@ function listingsHtml(p) {
         ? ''
         : `<button type="button" class="btn btn-sm btn-primary" data-add-listing="${escAttr(l.id)}">Add to basket</button>`;
       return `<div class="listing-row${sold ? ' is-sold' : ''}">
-        <img class="listing-thumb" src="${escAttr(thumb)}" alt="" width="56" height="56" loading="lazy">
+        <button type="button" class="listing-image-button" data-listing-image="${escAttr(l.images && l.images[0] ? l.images[0] : 'images/brand/logo.jpg')}" aria-label="View a larger photo of ${escAttr(l.name || p.name)}">
+          <img class="listing-thumb" src="${escAttr(thumb)}" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span>
+        </button>
         <div class="listing-meta">
           <div class="listing-name">${esc(l.name)}</div>
           ${sold ? '<div class="listing-status">Sold</div>' : '<div class="listing-status">Ready to ship</div>'}

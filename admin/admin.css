@@ -34,6 +34,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 html { -webkit-text-size-adjust: 100%; }
 
@@ -154,6 +155,24 @@ a { color: var(--purple); text-decoration: none; }
 .field-input.invalid { border-color: var(--pink); }
 .field-input::placeholder { color: #B7B0C6; font-style: italic; }
 textarea.field-input { resize: vertical; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '⌄';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-58%);
+  color: var(--purple);
+  font-size: 1.2rem;
+  font-weight: 900;
+  pointer-events: none;
+}
+.themed-select {
+  padding-right: 42px;
+  border-color: var(--purple-light);
+  background: linear-gradient(135deg, #fff 0%, #fbf8ff 100%);
+  box-shadow: inset 0 0 0 1px rgba(126, 92, 205, 0.05);
+}
 
 .field-hint { font-size: 0.78rem; color: var(--ink-soft); margin-top: 5px; font-weight: 600; }
 
@@ -509,29 +528,64 @@ textarea.field-input { resize: vertical; }
 
 .taxonomy-panel {
   margin: 4px 0 20px;
-  padding: 18px;
-  border: 2px dashed var(--purple-light, #d9cdf8);
-  border-radius: 16px;
-  background: #fbf9ff;
+  padding: 12px 14px 4px;
+  border: 1px solid var(--purple-light, #d9cdf8);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff, #fbf9ff);
 }
 .inline-custom { margin-top: 10px; }
-.tag-entry-row { display: flex; gap: 10px; align-items: center; }
-.tag-entry-row .field-input { flex: 1; }
-.taxonomy-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.taxonomy-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border: 1px solid #d9cdf8;
-  border-radius: 999px;
-  background: #fff;
-  color: #4c3d65;
+.inline-custom-row { display: flex; align-items: center; gap: 8px; }
+.inline-custom-row .field-input { flex: 1; }
+.ghost-btn.compact { padding: 10px 13px; white-space: nowrap; }
+.taxonomy-manage-btn {
+  margin-top: 7px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--purple-dark);
+  font: 750 0.78rem/1.3 var(--font-body);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
 }
-.taxonomy-tag button { border: 0; background: none; color: inherit; cursor: pointer; font: inherit; }
+.category-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 750;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(45, 35, 56, 0.58);
+  backdrop-filter: blur(6px);
+}
+.category-overlay[hidden] { display: none; }
+.category-card {
+  width: min(560px, 100%);
+  max-height: min(720px, calc(100vh - 40px));
+  overflow: auto;
+  border: 4px solid #fff;
+  outline: 2px dashed var(--purple-light);
+  outline-offset: -11px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(45, 35, 56, 0.28);
+  padding: 20px;
+}
+.category-list { display: grid; gap: 9px; margin: 16px 0; }
+.category-item { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; padding: 10px; border: 1px solid var(--neutral-dark); border-radius: 12px; background: #fbf9ff; }
+.category-item-name { min-width: 0; font-weight: 800; color: var(--ink); }
+.category-item-count { display: block; color: var(--ink-soft); font-size: 0.76rem; font-weight: 650; }
+.category-action { border: 1px solid var(--purple-light); border-radius: 999px; background: #fff; color: var(--purple-dark); padding: 7px 10px; font: 750 0.78rem/1 var(--font-body); cursor: pointer; }
+.category-action.danger { border-color: var(--pink-light); color: #9f276f; }
+.category-rename { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+.category-rename .field-input { flex: 1; padding-block: 9px; }
+.category-error { grid-column: 1 / -1; color: #9f276f; font-size: 0.78rem; font-weight: 700; }
 
 @media (max-width: 600px) {
-  .tag-entry-row { align-items: stretch; flex-direction: column; }
+  .inline-custom-row { align-items: stretch; flex-direction: column; }
+  .category-item { grid-template-columns: 1fr auto; }
+  .category-item .category-action.danger { grid-column: 2; }
+  .category-rename { flex-direction: column; align-items: stretch; }
 }
 .answer-label { margin-top: 10px; }
 .settings-footer-nav {

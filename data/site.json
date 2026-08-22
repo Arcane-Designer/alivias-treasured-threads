@@ -67,7 +67,15 @@
     "faq3Question": "Can I request a custom fabric or size?",
     "faq3Answer": "Yes! Open Custom, select one or more designs, choose the quantity for each, and describe what you have in mind. I'll confirm fabric availability, timing, and price when I reply.",
     "productOrderNote": "Ready-to-buy pieces appear above.",
-    "footerTagline": "Handmade with love, one stitch at a time."
+    "footerTagline": "Handmade with love, one stitch at a time.",
+    "categories": [
+      "Bags & Pouches",
+      "Books & Crafts",
+      "Home & Kitchen",
+      "Capes",
+      "Bundles",
+      "Other"
+    ]
   },
   "products": [
     {

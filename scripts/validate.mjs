@@ -71,6 +71,16 @@ for (const k of requiredSettings) {
 const ids = new Set();
 const imageRefs = new Set();
 const categoryCases = new Map();
+if (!Array.isArray(data.settings?.categories)) fail('Settings categories must be an array');
+else {
+  const seenCategories = new Set();
+  for (const category of data.settings.categories) {
+    if (typeof category !== 'string' || !category.trim() || category !== category.trim().replace(/\s+/g, ' ')) fail('Settings has an invalid category');
+    const key = String(category).toLocaleLowerCase();
+    if (seenCategories.has(key)) fail(`Settings has duplicate category ${category}`);
+    seenCategories.add(key);
+  }
+}
 if (data.settings?.seasonImage) imageRefs.add(data.settings.seasonImage);
 for (const p of data.products || []) {
   if (!p.id || typeof p.id !== 'string') {
@@ -83,8 +93,8 @@ for (const p of data.products || []) {
   if (ids.has(p.id)) fail(`Duplicate product id: ${p.id}`);
   ids.add(p.id);
   if (!p.name) fail(`Product ${p.id} missing name`);
-  if (typeof p.category !== 'string' || !p.category.trim()) fail(`Product ${p.id} missing canonical category`);
-  else {
+  if (p.category != null && typeof p.category !== 'string') fail(`Product ${p.id} has an invalid category`);
+  else if (p.category) {
     const category = p.category.trim().replace(/\s+/g, ' ');
     if (category !== p.category) fail(`Product ${p.id} category has extra whitespace`);
     const key = category.toLocaleLowerCase();
@@ -92,18 +102,6 @@ for (const p of data.products || []) {
     categoryCases.set(key, category);
   }
   if (p.season != null && (typeof p.season !== 'string' || p.season !== p.season.trim().replace(/\s+/g, ' '))) fail(`Product ${p.id} has an invalid season`);
-  if (p.tags != null) {
-    if (!Array.isArray(p.tags)) fail(`Product ${p.id} tags must be an array`);
-    else {
-      const seenTags = new Set();
-      for (const tag of p.tags) {
-        if (typeof tag !== 'string' || !tag.trim() || tag !== tag.trim().replace(/\s+/g, ' ')) fail(`Product ${p.id} has an invalid tag`);
-        const key = String(tag).toLocaleLowerCase();
-        if (seenTags.has(key)) fail(`Product ${p.id} has duplicate tag ${tag}`);
-        seenTags.add(key);
-      }
-    }
-  }
   (p.images || []).forEach((i) => imageRefs.add(i));
   (p.listings || []).forEach((l) => {
     if (!l.id) fail(`Listing under ${p.id} missing id`);
