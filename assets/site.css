@@ -398,6 +398,7 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .product-card,
 .silhouette-card {
   display: block;
+  min-width: 0;
   position: relative;
   background: var(--white);
   border: 5px solid #fff;
