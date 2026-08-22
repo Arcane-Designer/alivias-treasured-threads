@@ -506,6 +506,33 @@ textarea.field-input { resize: vertical; }
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }
+
+.taxonomy-panel {
+  margin: 4px 0 20px;
+  padding: 18px;
+  border: 2px dashed var(--purple-light, #d9cdf8);
+  border-radius: 16px;
+  background: #fbf9ff;
+}
+.inline-custom { margin-top: 10px; }
+.tag-entry-row { display: flex; gap: 10px; align-items: center; }
+.tag-entry-row .field-input { flex: 1; }
+.taxonomy-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.taxonomy-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #d9cdf8;
+  border-radius: 999px;
+  background: #fff;
+  color: #4c3d65;
+}
+.taxonomy-tag button { border: 0; background: none; color: inherit; cursor: pointer; font: inherit; }
+
+@media (max-width: 600px) {
+  .tag-entry-row { align-items: stretch; flex-direction: column; }
+}
 .answer-label { margin-top: 10px; }
 .settings-footer-nav {
   display: flex;

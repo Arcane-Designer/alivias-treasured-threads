@@ -966,9 +966,12 @@
     if (!grid) return;
     let currentSeason = 'all';
     let currentType = 'all';
-    const typeOrder = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles'];
+    const typeOrder = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles', 'Other'];
 
     function groupedType(p) {
+      const explicit = String(p.category || '').trim().replace(/\s+/g, ' ');
+      if (explicit) return explicit;
+      /* Compatibility only for older drafts; Studio now stores category. */
       const value = ((p.itemType || '') + ' ' + (p.name || '')).toLowerCase();
       if (/bundle/.test(value)) return 'Bundles';
       if (/cape/.test(value)) return 'Capes';
@@ -979,16 +982,12 @@
     }
 
     function seasonsInData() {
-      const set = new Set();
+      const values = new Map();
       activeProducts.forEach((p) => {
-        if (p.season) set.add(String(p.season).toLowerCase());
-        (p.tags || []).forEach((t) => {
-          if (/^(fall|winter|spring|summer|halloween|holiday|seasonal)/i.test(t)) {
-            set.add(String(t).toLowerCase());
-          }
-        });
+        const season = String(p.season || '').trim().replace(/\s+/g, ' ');
+        if (season && !values.has(season.toLocaleLowerCase())) values.set(season.toLocaleLowerCase(), season);
       });
-      return Array.from(set).sort();
+      return Array.from(values, ([key, label]) => ({ key, label })).sort((a, b) => a.label.localeCompare(b.label));
     }
     function typesInData() {
       const set = new Set();
@@ -1037,7 +1036,7 @@
     }
 
     /* init from URL */
-    currentSeason = params.get('season') || 'all';
+    currentSeason = (params.get('season') || 'all').toLocaleLowerCase();
     const requestedType = params.get('type') || 'all';
     const typeAliases = {
       Bags: 'Bags & Pouches',
@@ -1073,13 +1072,13 @@
           .map(
             (s) =>
               '<button type="button" class="chip' +
-              (currentSeason === s ? ' active' : '') +
+              (currentSeason === s.key ? ' active' : '') +
               '" data-season="' +
-              esc(s) +
+              esc(s.key) +
               '" aria-pressed="' +
-              (currentSeason === s) +
+              (currentSeason === s.key) +
               '">' +
-              esc(s) +
+              esc(s.label) +
               '</button>'
           )
           .join('');
@@ -1171,6 +1170,10 @@
         rev.hidden = false;
         const track = $('homeReviewList');
         if (track) {
+          const previousShell = track.closest('.review-carousel');
+          if (previousShell) previousShell.replaceWith(track);
+          track.className = 'review-list';
+          track.style.transform = '';
           track.innerHTML = shown
             .map(
               (r) =>
@@ -1188,11 +1191,96 @@
                 '</div></article>'
             )
             .join('');
+          if (shown.length > 3) setupReviewCarousel(track, shown.length);
         }
       };
       document.addEventListener('att:ready', renderReviews);
       if ((DATA.reviews || []).length) renderReviews();
     }
+  }
+
+  function setupReviewCarousel(track, count) {
+    const shell = document.createElement('div');
+    shell.className = 'review-carousel';
+    shell.setAttribute('aria-roledescription', 'carousel');
+    shell.setAttribute('aria-label', 'Customer reviews');
+    const viewport = document.createElement('div');
+    viewport.className = 'review-viewport';
+    track.parentNode.insertBefore(shell, track);
+    shell.appendChild(viewport);
+    viewport.appendChild(track);
+    track.classList.add('review-track');
+
+    const controls = document.createElement('div');
+    controls.className = 'review-controls';
+    const previous = document.createElement('button');
+    const next = document.createElement('button');
+    previous.type = next.type = 'button';
+    previous.className = next.className = 'review-arrow';
+    previous.setAttribute('aria-label', 'Previous reviews');
+    next.setAttribute('aria-label', 'Next reviews');
+    previous.textContent = '←';
+    next.textContent = '→';
+    const status = document.createElement('span');
+    status.className = 'sr-only';
+    status.setAttribute('aria-live', 'polite');
+    controls.append(previous, next, status);
+    shell.appendChild(controls);
+
+    let index = 0;
+    let visible = 3;
+    let timer = null;
+    let paused = false;
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const cards = $$('.review-card', track);
+    cards.forEach((card, cardIndex) => {
+      card.setAttribute('role', 'group');
+      card.setAttribute('aria-label', 'Review ' + (cardIndex + 1) + ' of ' + count);
+    });
+
+    const visibleCount = () => innerWidth < 680 ? 1 : innerWidth < 980 ? 2 : 3;
+    const update = (announce) => {
+      visible = visibleCount();
+      const max = Math.max(0, count - visible);
+      if (index > max) index = max;
+      track.style.setProperty('--reviews-visible', visible);
+      const cardWidth = cards[0]?.getBoundingClientRect().width || 0;
+      const gap = parseFloat(getComputedStyle(track).gap) || 0;
+      track.style.transform = 'translateX(-' + (index * (cardWidth + gap)) + 'px)';
+      cards.forEach((card, cardIndex) => card.setAttribute('aria-hidden', cardIndex < index || cardIndex >= index + visible ? 'true' : 'false'));
+      if (announce) status.textContent = 'Showing review ' + (index + 1) + (visible > 1 ? ' through ' + Math.min(count, index + visible) : '') + ' of ' + count;
+    };
+    const move = (direction, announce) => {
+      const max = Math.max(0, count - visibleCount());
+      index = direction > 0 ? (index >= max ? 0 : index + 1) : (index <= 0 ? max : index - 1);
+      update(announce);
+    };
+    const stop = () => { if (timer) clearInterval(timer); timer = null; };
+    const start = () => {
+      stop();
+      if (!paused && !reducedMotion.matches) timer = setInterval(() => {
+        if (!shell.matches(':hover') && !shell.contains(document.activeElement) && !reducedMotion.matches) move(1, false);
+      }, 6500);
+    };
+    previous.addEventListener('click', () => { move(-1, true); start(); });
+    next.addEventListener('click', () => { move(1, true); start(); });
+    shell.addEventListener('mouseenter', () => { paused = true; stop(); });
+    shell.addEventListener('mouseleave', () => { paused = false; start(); });
+    shell.addEventListener('focusin', () => { paused = true; stop(); });
+    shell.addEventListener('focusout', (event) => {
+      if (!shell.contains(event.relatedTarget)) { paused = false; start(); }
+    });
+    let pointerStart = null;
+    viewport.addEventListener('pointerdown', (event) => { pointerStart = event.clientX; });
+    viewport.addEventListener('pointerup', (event) => {
+      if (pointerStart != null && Math.abs(event.clientX - pointerStart) > 45) move(event.clientX < pointerStart ? 1 : -1, true);
+      pointerStart = null;
+      start();
+    });
+    addEventListener('resize', update);
+    if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', start);
+    update(false);
+    start();
   }
 
   /* ---------- page-specific: product detail ---------- */

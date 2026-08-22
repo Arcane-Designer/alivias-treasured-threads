@@ -649,10 +649,41 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 /* ---------- reviews (patch cards; markup injected by site.js) ---------- */
 .review-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 1.8rem;
   max-width: 60rem;
   margin-inline: auto;
+}
+.review-carousel { max-width: 66rem; margin: 1.6rem auto 0; }
+.review-viewport { overflow: hidden; padding: 12px; touch-action: pan-y; }
+.review-list.review-track {
+  --reviews-visible: 3;
+  display: flex;
+  max-width: none;
+  margin: 0;
+  transition: transform 500ms ease;
+  will-change: transform;
+}
+.review-track .review-card {
+  flex: 0 0 calc((100% - (var(--reviews-visible) - 1) * 1.8rem) / var(--reviews-visible));
+  min-width: 0;
+}
+.review-controls { display: flex; justify-content: center; gap: 12px; margin-top: 1.2rem; }
+.review-arrow {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--purple-light);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--purple-dark);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  font: 700 1.2rem/1 var(--font-body);
+}
+.review-arrow:hover { background: var(--purple-pale); transform: translateY(-1px); }
+.review-arrow:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .review-list.review-track { transition: none; }
 }
 .review-card {
   position: relative;

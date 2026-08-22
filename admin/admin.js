@@ -20,6 +20,8 @@
   const PREVIEW_KEY = 'att-preview-data';
   const MAX_IMG_EDGE = 1400;
   const JPEG_QUALITY = 0.82;
+  const CATEGORY_PRESETS = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles', 'Other'];
+  const SEASON_PRESETS = ['Spring', 'Summer', 'Fall', 'Winter', 'Holiday', 'Year-round'];
 
   const $ = (id) => document.getElementById(id);
 
@@ -54,6 +56,16 @@
   }
 
   function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+  function cleanTaxonomyValue(value) {
+    return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+  }
+
+  function canonicalTaxonomyValue(value, known) {
+    const cleaned = cleanTaxonomyValue(value);
+    const existing = known.find((item) => item.toLocaleLowerCase() === cleaned.toLocaleLowerCase());
+    return existing || cleaned;
+  }
 
   function toast(msg, tone) {
     const t = document.createElement('div');
@@ -166,12 +178,26 @@
   }
 
   /* older data used a single `badge` string; the shop now supports up to two badges */
+  function inferLegacyCategory(product) {
+    const value = ((product.itemType || '') + ' ' + (product.name || '')).toLocaleLowerCase();
+    if (/bundle/.test(value)) return 'Bundles';
+    if (/cape/.test(value)) return 'Capes';
+    if (/tote|bag|pouch/.test(value)) return 'Bags & Pouches';
+    if (/bookmark|craft roll|sewing roll|pencil roll|brush roll|organizer/.test(value)) return 'Books & Crafts';
+    if (/coaster|pot holder|potholder|kitchen/.test(value)) return 'Home & Kitchen';
+    return 'Other';
+  }
+
   function normalizeData(d) {
     d.settings = { ...settingsDefaults, ...(d.settings || {}) };
     (d.products || []).forEach((p) => {
       if (!Array.isArray(p.badges)) p.badges = (p.badge && String(p.badge).trim()) ? [p.badge] : [];
       p.badges = p.badges.filter(Boolean).slice(0, 2);
       delete p.badge;
+      p.category = cleanTaxonomyValue(p.category) || inferLegacyCategory(p);
+      p.season = cleanTaxonomyValue(p.season);
+      if (!Array.isArray(p.tags)) p.tags = [];
+      p.tags = p.tags.map(cleanTaxonomyValue).filter(Boolean).filter((tag, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === tag.toLocaleLowerCase()) === index);
     });
     if (!Array.isArray(d.reviews)) d.reviews = [];
     return d;
@@ -476,6 +502,9 @@
       price: null,
       priceLabel: 'Custom Order',
       description: '',
+      category: 'Other',
+      season: '',
+      tags: [],
       badges: [],
       archived: false,
       oneOfAKind: false,
@@ -502,6 +531,7 @@
     $('epPriceLabel').value = currentProduct.priceLabel || '';
     $('epPrice').value = typeof currentProduct.price === 'number' ? currentProduct.price : '';
     $('epDesc').value = currentProduct.description || '';
+    setupTaxonomyEditor();
     if (!Array.isArray(currentProduct.badges)) currentProduct.badges = [];
     $('epBadge').value = currentProduct.badges.find((b) => !BADGE_PRESETS.includes(b)) || '';
     delete $('epBadge').dataset.warned;
@@ -543,6 +573,12 @@
         return;
       }
     }
+    if (!force && $('epCategory').value === '__new__' && !$('epCategoryCustom').value.trim()) {
+      $('epCategoryCustom').classList.add('invalid');
+      $('epCategoryCustom').focus();
+      toast('Give the new category a name first! 💜', 'pink');
+      return;
+    }
 
     /* gentle note: sale switch on, but the numbers don't make a deal yet */
     if (!force && currentProduct && $('epSaleOn').checked && !isOnSaleP(currentProduct)) {
@@ -573,12 +609,130 @@
     return p && !p.name && !p.description && !(p.images || []).length && !(p.listings || []).length;
   }
 
+  function knownCategories() {
+    const values = CATEGORY_PRESETS.slice();
+    (draft.products || []).forEach((product) => {
+      const value = cleanTaxonomyValue(product.category);
+      if (value && !values.some((item) => item.toLocaleLowerCase() === value.toLocaleLowerCase())) values.push(value);
+    });
+    return values;
+  }
+
+  function knownSeasons() {
+    const values = SEASON_PRESETS.slice();
+    (draft.products || []).forEach((product) => {
+      const value = cleanTaxonomyValue(product.season);
+      if (value && !values.some((item) => item.toLocaleLowerCase() === value.toLocaleLowerCase())) values.push(value);
+    });
+    return values;
+  }
+
+  function fillTaxonomySelect(select, values, current, emptyLabel, customLabel) {
+    const normalized = cleanTaxonomyValue(current);
+    select.innerHTML = (emptyLabel ? '<option value="">' + esc(emptyLabel) + '</option>' : '') +
+      values.map((value) => '<option value="' + esc(value) + '">' + esc(value) + '</option>').join('') +
+      '<option value="__new__">＋ ' + esc(customLabel) + '</option>';
+    const match = values.find((value) => value.toLocaleLowerCase() === normalized.toLocaleLowerCase());
+    if (match) select.value = match;
+    else if (normalized) select.value = '__new__';
+    else select.value = '';
+  }
+
+  function setupTaxonomyEditor() {
+    const categories = knownCategories();
+    const seasons = knownSeasons();
+    fillTaxonomySelect($('epCategory'), categories, currentProduct.category || 'Other', '', 'Create a new category');
+    const customCategory = cleanTaxonomyValue(currentProduct.category) && !categories.some((value) => value.toLocaleLowerCase() === cleanTaxonomyValue(currentProduct.category).toLocaleLowerCase());
+    $('epCategoryCustomGroup').hidden = $('epCategory').value !== '__new__';
+    $('epCategoryCustom').value = customCategory ? cleanTaxonomyValue(currentProduct.category) : '';
+    $('epCategoryCustom').classList.remove('invalid');
+
+    fillTaxonomySelect($('epSeason'), seasons, currentProduct.season || '', 'No season', 'Write a custom season');
+    const customSeason = cleanTaxonomyValue(currentProduct.season) && !seasons.some((value) => value.toLocaleLowerCase() === cleanTaxonomyValue(currentProduct.season).toLocaleLowerCase());
+    $('epSeasonCustomGroup').hidden = $('epSeason').value !== '__new__';
+    $('epSeasonCustom').value = customSeason ? cleanTaxonomyValue(currentProduct.season) : '';
+    if (!Array.isArray(currentProduct.tags)) currentProduct.tags = [];
+    currentProduct.tags = currentProduct.tags.map(cleanTaxonomyValue).filter(Boolean).filter((tag, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === tag.toLocaleLowerCase()) === index);
+    $('epTagInput').value = '';
+    renderTaxonomyTags();
+  }
+
+  function renderTaxonomyTags() {
+    const wrap = $('epTags');
+    wrap.innerHTML = '';
+    (currentProduct?.tags || []).forEach((tag) => {
+      const chip = document.createElement('span');
+      chip.className = 'taxonomy-tag';
+      chip.append(document.createTextNode(tag));
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.setAttribute('aria-label', 'Remove ' + tag + ' tag');
+      remove.textContent = '×';
+      remove.addEventListener('click', () => {
+        currentProduct.tags = currentProduct.tags.filter((item) => item !== tag);
+        markDirty();
+        renderTaxonomyTags();
+      });
+      chip.appendChild(remove);
+      wrap.appendChild(chip);
+    });
+  }
+
+  function addTaxonomyTag() {
+    if (!currentProduct) return;
+    const input = $('epTagInput');
+    const tag = canonicalTaxonomyValue(input.value.replace(/,+$/, ''), currentProduct.tags || []);
+    if (!tag) return;
+    if (!(currentProduct.tags || []).some((item) => item.toLocaleLowerCase() === tag.toLocaleLowerCase())) currentProduct.tags.push(tag);
+    input.value = '';
+    markDirty();
+    renderTaxonomyTags();
+  }
+
   /* field bindings */
   $('epName').addEventListener('input', function () {
     if (!currentProduct) return;
     currentProduct.name = this.value;
     this.classList.remove('invalid');
     markDirty();
+  });
+  $('epCategory').addEventListener('change', function () {
+    if (!currentProduct) return;
+    const isNew = this.value === '__new__';
+    $('epCategoryCustomGroup').hidden = !isNew;
+    if (isNew) {
+      currentProduct.category = '';
+      $('epCategoryCustom').focus();
+    } else {
+      currentProduct.category = canonicalTaxonomyValue(this.value, knownCategories());
+    }
+    markDirty();
+  });
+  $('epCategoryCustom').addEventListener('input', function () {
+    if (!currentProduct) return;
+    this.classList.remove('invalid');
+    currentProduct.category = canonicalTaxonomyValue(this.value, knownCategories());
+    markDirty();
+  });
+  $('epSeason').addEventListener('change', function () {
+    if (!currentProduct) return;
+    const isCustom = this.value === '__new__';
+    $('epSeasonCustomGroup').hidden = !isCustom;
+    currentProduct.season = isCustom ? '' : canonicalTaxonomyValue(this.value, knownSeasons());
+    if (isCustom) $('epSeasonCustom').focus();
+    markDirty();
+  });
+  $('epSeasonCustom').addEventListener('input', function () {
+    if (!currentProduct) return;
+    currentProduct.season = canonicalTaxonomyValue(this.value, knownSeasons());
+    markDirty();
+  });
+  $('epTagAdd').addEventListener('click', addTaxonomyTag);
+  $('epTagInput').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      addTaxonomyTag();
+    }
   });
   /* ---------- pricing modes: one price / fancy tag / custom order ---------- */
   let priceMode = 'custom';

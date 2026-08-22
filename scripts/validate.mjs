@@ -67,6 +67,7 @@ for (const k of requiredSettings) {
 
 const ids = new Set();
 const imageRefs = new Set();
+const categoryCases = new Map();
 if (data.settings?.seasonImage) imageRefs.add(data.settings.seasonImage);
 for (const p of data.products || []) {
   if (!p.id || typeof p.id !== 'string') {
@@ -79,6 +80,27 @@ for (const p of data.products || []) {
   if (ids.has(p.id)) fail(`Duplicate product id: ${p.id}`);
   ids.add(p.id);
   if (!p.name) fail(`Product ${p.id} missing name`);
+  if (typeof p.category !== 'string' || !p.category.trim()) fail(`Product ${p.id} missing canonical category`);
+  else {
+    const category = p.category.trim().replace(/\s+/g, ' ');
+    if (category !== p.category) fail(`Product ${p.id} category has extra whitespace`);
+    const key = category.toLocaleLowerCase();
+    if (categoryCases.has(key) && categoryCases.get(key) !== category) fail(`Category casing conflict: ${categoryCases.get(key)} / ${category}`);
+    categoryCases.set(key, category);
+  }
+  if (p.season != null && (typeof p.season !== 'string' || p.season !== p.season.trim().replace(/\s+/g, ' '))) fail(`Product ${p.id} has an invalid season`);
+  if (p.tags != null) {
+    if (!Array.isArray(p.tags)) fail(`Product ${p.id} tags must be an array`);
+    else {
+      const seenTags = new Set();
+      for (const tag of p.tags) {
+        if (typeof tag !== 'string' || !tag.trim() || tag !== tag.trim().replace(/\s+/g, ' ')) fail(`Product ${p.id} has an invalid tag`);
+        const key = String(tag).toLocaleLowerCase();
+        if (seenTags.has(key)) fail(`Product ${p.id} has duplicate tag ${tag}`);
+        seenTags.add(key);
+      }
+    }
+  }
   (p.images || []).forEach((i) => imageRefs.add(i));
   (p.listings || []).forEach((l) => {
     if (!l.id) fail(`Listing under ${p.id} missing id`);
