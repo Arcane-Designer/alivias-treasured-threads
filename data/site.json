@@ -195,6 +195,15 @@
       ],
       "listings": [
         {
+          "id": "l-mt3s3zpw45zh",
+          "name": "Chai Time Tote",
+          "images": [
+            "images/uploads/chai-time-tote-mt3s56zwfdu.jpg",
+            "images/uploads/chai-time-tote-mt3s571orlf.jpg"
+          ],
+          "sold": false
+        },
+        {
           "id": "tote-black-halloween",
           "name": "Black Halloween Tote",
           "images": [
@@ -376,7 +385,7 @@
           "images": [
             "images/uploads/corner-bookmark-fall-fun-mrmdo6gz7ho.jpg"
           ],
-          "sold": false
+          "sold": true
         },
         {
           "id": "cbk-green",
@@ -384,7 +393,7 @@
           "images": [
             "images/uploads/corner-bookmark-green-mrmdofmmd4a.jpg"
           ],
-          "sold": false
+          "sold": true
         },
         {
           "id": "l-ms3maccio56j",
@@ -482,7 +491,9 @@
         {
           "id": "l-mshwiv36uu6e",
           "name": "Off The Wall Mini Tote",
-          "images": [],
+          "images": [
+            "images/uploads/off-the-wall-mini-tote-mt3s5xucb1m.jpg"
+          ],
           "sold": false
         }
       ],
