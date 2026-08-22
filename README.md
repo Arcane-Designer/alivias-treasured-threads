@@ -8,7 +8,7 @@ Polished multi-page storefront with isolated Stripe test and production environm
 - **Ready inventory:** basket → server-validated Stripe-hosted Checkout; staging stays in test mode and production is explicitly gated to live mode
 - **Custom requests:** multi-design form → existing Web3Forms / mailto fallback
 
-Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads/
+Live shop (current): https://aliviastreasuredthreads.com/
 
 ---
 
@@ -71,7 +71,7 @@ Product HTML is **data-driven**. After editing `data/site.json` (or after Studio
 ```bash
 node scripts/generate-pages.mjs
 # optional public origin for canonicals + sitemap:
-node scripts/generate-pages.mjs --base https://arcane-designer.github.io/alivias-treasured-threads
+node scripts/generate-pages.mjs --base https://aliviastreasuredthreads.com
 ```
 
 Outputs:

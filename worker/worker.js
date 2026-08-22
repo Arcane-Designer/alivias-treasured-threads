@@ -1,8 +1,14 @@
 /* Alivia's Treasured Threads API: reviews plus test-mode Stripe Checkout. */
 const REPO = 'Arcane-Designer/alivias-treasured-threads';
 const DEFAULT_CATALOG_URL = 'https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json';
-const DEFAULT_SITE_URL = 'https://arcane-designer.github.io/alivias-treasured-threads';
-const ALLOWED_ORIGINS = ['https://arcane-designer.github.io', 'http://localhost:4173', 'http://127.0.0.1:4173'];
+const DEFAULT_SITE_URL = 'https://aliviastreasuredthreads.com';
+const ALLOWED_ORIGINS = [
+  'https://aliviastreasuredthreads.com',
+  'https://www.aliviastreasuredthreads.com',
+  'https://arcane-designer.github.io',
+  'http://localhost:4173',
+  'http://127.0.0.1:4173',
+];
 const MAX_INBOX = 200;
 const RATE_LIMIT_PER_HOUR = 5;
 const MAX_CART_ITEMS = 40;

@@ -25,7 +25,7 @@
   "vars": {
     "PAYMENTS_MODE": "live",
     "SHIPPING_RATE_CENTS": "600",
-    "SITE_URL": "https://arcane-designer.github.io/alivias-treasured-threads",
+    "SITE_URL": "https://aliviastreasuredthreads.com",
     "CATALOG_URL": "https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json"
   },
   "env": {

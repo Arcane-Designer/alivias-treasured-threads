@@ -10,7 +10,7 @@
  *
  * Usage (from repo root):
  *   node scripts/generate-pages.mjs
- *   node scripts/generate-pages.mjs --base https://arcane-designer.github.io/alivias-treasured-threads
+ *   node scripts/generate-pages.mjs --base https://aliviastreasuredthreads.com
  *
  * Safe for GitHub Pages project sites and future custom domains:
  * pass --base with the public origin (no trailing slash). Relative asset
@@ -32,7 +32,7 @@ function argVal(flag, fallback) {
   const i = args.indexOf(flag);
   return i >= 0 && args[i + 1] ? args[i + 1] : fallback;
 }
-const BASE = (argVal('--base', 'https://arcane-designer.github.io/alivias-treasured-threads') || '').replace(/\/+$/, '');
+const BASE = (argVal('--base', 'https://aliviastreasuredthreads.com') || '').replace(/\/+$/, '');
 
 function esc(s) {
   return String(s ?? '')
