@@ -47,7 +47,10 @@ function mockOrders() {
     prepare(sql) {
       return {
         sql, args: [], bind(...args) { this.args = args; return this; },
-        async first() { return sql.startsWith('SELECT order_ref FROM orders') ? { order_ref: 'ATT-TESTORDER' } : null; },
+        async first() {
+          if (sql.startsWith('SELECT order_ref, status, stripe_event_id FROM orders')) return { order_ref: 'ATT-TESTORDER', status: 'paid', stripe_event_id: 'evt_test_verified' };
+          return sql.startsWith('SELECT order_ref FROM orders') ? { order_ref: 'ATT-TESTORDER' } : null;
+        },
       };
     },
     async batch(statements) {
@@ -88,7 +91,9 @@ statusOrders.prepare = (sql) => ({
 });
 const statusEnv = { ...webhookEnv, ORDERS: statusOrders };
 const verifiedStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_test_verified', { headers: { Origin: 'http://localhost:4173' } }), statusEnv);
-assert.equal((await verifiedStatus.json()).verified, true);
+const verifiedStatusBody = await verifiedStatus.json();
+assert.equal(verifiedStatusBody.verified, true);
+assert.equal(verifiedStatusBody.webhookVerified, false, 'status fallback must remain distinguishable from a signed Stripe webhook');
 const openStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_test_open', { headers: { Origin: 'http://localhost:4173' } }), statusEnv);
 assert.equal((await openStatus.json()).verified, false);
 const fakeStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=fake', { headers: { Origin: 'http://localhost:4173' } }), statusEnv);

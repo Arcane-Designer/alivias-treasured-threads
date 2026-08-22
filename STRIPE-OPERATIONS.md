@@ -22,6 +22,7 @@ Automatic `site.json` mutation is intentionally not implemented. The static Stud
 - Stripe Tax is not enabled. The Session deliberately omits `automatic_tax`.
 - Stripe holds payment/refund records. D1 stores the Alivia order reference, exact inventory IDs, customer contact/shipping details needed for fulfillment, payment state, and processed webhook IDs.
 - Treat D1 order data as customer data. Restrict access, define retention before launch, and never expose an order-query endpoint publicly.
+- Local storefront previews use the non-secret `settings.checkoutTestApiUrl`; deployed pages continue using `settings.checkoutApiUrl`. This proves sandbox success without pointing production visitors at staging.
 
 ## Refunds and cancellations
 
@@ -85,3 +86,10 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 8. At the action-time handoff, Nathan or Alivia switches Stripe to live mode, completes any remaining account activation, creates the live webhook endpoint for the production Worker, and securely stores the live `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Change the reviewed Worker gate from test to live only in that launch revision; keep `SHIPPING_RATE_CENTS=600`, US-only shipping, and Tax off.
 9. Deploy the production Worker with `att-orders-production`, then verify the deployed version and secret names without revealing values. Merge/publish the static site only when its checkout endpoint and production Worker are both ready.
 10. Run one explicitly confirmed low-value canary purchase using Nathan-controlled customer/address details. Confirm Stripe payment, receipt/notification, signed webhook, D1 paid order, exact reservation, verified success, and manual Studio sold-state update. Refund it from Stripe, verify the refund record, and deliberately decide whether to restore the physical item before changing Studio or D1.
+
+## Current sandbox proof
+
+- Two official Stripe sandbox card payments completed through hosted Checkout with $6 US shipping and Stripe Tax off.
+- Verified success returned the matching order reference and item; cancel preserved its basket; verified success cleared it. Desktop and 390px renders passed without horizontal overflow.
+- The status response includes `webhookVerified` so QA can distinguish signed-event processing from the safe Stripe-status fallback.
+- The latest sandbox payment was recovered safely by the status fallback, but Stripe's delivery log returned HTTP 400 `bad signature`. The replacement sandbox destination exists; its signing secret still needs to be copied into the encrypted staging `STRIPE_WEBHOOK_SECRET` binding and the failed event resent before the signed-webhook checkbox can be closed.
