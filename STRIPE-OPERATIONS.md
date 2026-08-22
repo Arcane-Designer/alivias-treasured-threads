@@ -67,7 +67,7 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 ### Release and first live canary
 
 - [x] Deploy the isolated Worker staging environment and verify real hosted Checkout Session creation
-- [ ] Complete the static local/staging browser flow and a sandbox card payment through signed webhook success
+- [x] Complete the static local/staging browser flow and a sandbox card payment through signed webhook success
 - [ ] Review CSP/headers on the actual hosting layer; redirects need no Stripe JavaScript allowance
 - [ ] Explicitly authorize production deployment and live payments
 - [ ] Run one small live canary purchase to Nathan-controlled details
@@ -89,7 +89,8 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 
 ## Current sandbox proof
 
-- Two official Stripe sandbox card payments completed through hosted Checkout with $6 US shipping and Stripe Tax off.
+- Three official Stripe sandbox card payments completed through hosted Checkout with $6 US shipping and Stripe Tax off.
 - Verified success returned the matching order reference and item; cancel preserved its basket; verified success cleared it. Desktop and 390px renders passed without horizontal overflow.
 - The status response includes `webhookVerified` so QA can distinguish signed-event processing from the safe Stripe-status fallback.
-- The latest sandbox payment was recovered safely by the status fallback, but Stripe's delivery log returned HTTP 400 `bad signature`. The replacement sandbox destination exists; its signing secret still needs to be copied into the encrypted staging `STRIPE_WEBHOOK_SECRET` binding and the failed event resent before the signed-webhook checkbox can be closed.
+- The final proof payment returned `webhookVerified: true`; Stripe recorded HTTP 200 for `checkout.session.completed`, and replay also returned HTTP 200. A new attempt to buy the paid inventory returned `409 inventory_changed`.
+- The superseded sandbox destination retains its historical HTTP 400 attempts. Keep `Alivia Checkout Staging Verified` as the active staging destination and remove or disable the obsolete destination during Stripe sandbox cleanup.
