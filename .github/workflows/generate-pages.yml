@@ -30,7 +30,7 @@ jobs:
 
       - name: Generate pages
         env:
-          GENERATE_BASE: ${{ vars.GENERATE_BASE || 'https://arcane-designer.github.io/alivias-treasured-threads' }}
+          GENERATE_BASE: ${{ vars.GENERATE_BASE || 'https://aliviastreasuredthreads.com' }}
         run: node scripts/generate-pages.mjs --base "$GENERATE_BASE"
 
       - name: Validate
