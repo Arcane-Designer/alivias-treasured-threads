@@ -98,6 +98,18 @@ const openStatus = await worker.fetch(new Request('https://worker.test/checkout/
 assert.equal((await openStatus.json()).verified, false);
 const fakeStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=fake', { headers: { Origin: 'http://localhost:4173' } }), statusEnv);
 assert.equal(fakeStatus.status, 400);
+const wrongModeStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_live_wrongmode', { headers: { Origin: 'http://localhost:4173' } }), statusEnv);
+assert.equal(wrongModeStatus.status, 400, 'test mode must reject live Checkout references before calling Stripe');
+
+const liveEnv = { ...statusEnv, PAYMENTS_MODE: 'live', STRIPE_SECRET_KEY: 'rk_live_fixture_only' };
+globalThis.fetch = async (url) => {
+  if (String(url).includes('/v1/checkout/sessions/cs_live_verified')) return new Response(JSON.stringify({ id: 'cs_live_verified', livemode: true, status: 'complete', payment_status: 'paid', client_reference_id: 'ATT-TESTORDER', amount_total: 1200, customer_details: { email: 'safe@example.invalid', name: 'Fixture' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  throw new Error('unexpected live fixture fetch');
+};
+const liveStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_live_verified', { headers: { Origin: 'https://arcane-designer.github.io' } }), liveEnv);
+assert.equal((await liveStatus.json()).verified, true, 'live mode must accept only verified live Checkout state');
+const liveRejectsTest = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_test_verified', { headers: { Origin: 'https://arcane-designer.github.io' } }), liveEnv);
+assert.equal(liveRejectsTest.status, 400, 'live mode must reject test Checkout references');
 globalThis.fetch = originalFetch;
 
 console.log('Worker checkout fixtures: OK');

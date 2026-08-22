@@ -1,6 +1,6 @@
 # Stripe Checkout operations
 
-The staging integration is deployed in Stripe sandbox mode with isolated encrypted credentials and the staging D1 database. Live payments remain disabled, and the production Worker and live site are unchanged.
+The staging integration is deployed in Stripe sandbox mode with isolated encrypted credentials and the staging D1 database. Production uses separate encrypted live credentials and `att-orders-production`; the Worker rejects any key, Session, reference, or webhook whose mode does not match its environment.
 
 ## Paid-order workflow
 
@@ -8,7 +8,7 @@ The staging integration is deployed in Stripe sandbox mode with isolated encrypt
 2. The Worker reloads canonical `data/site.json`, validates availability, recalculates prices, reserves each exact inventory key in D1, and creates a Stripe-hosted Checkout Session.
 3. Stripe collects the customer's name, email, payment, and US shipping address. Standard shipping is a single configured flat rate with a configurable business-day estimate.
 4. A signed `checkout.session.completed` or `checkout.session.async_payment_succeeded` webhook records payment idempotently. A paid D1 reservation keeps the item from being sold through another Checkout Session.
-5. The success page independently retrieves the Session through the Worker. It clears the browser basket only after Stripe reports test-mode `complete` and `paid` and the Session matches the D1 order.
+5. The success page independently retrieves the Session through the Worker. It clears the browser basket only after Stripe reports the environment-matched Session `complete` and `paid` and the Session matches the D1 order.
 6. Alivia checks the paid order in Stripe and D1, marks each exact listing sold in Studio, publishes that content change through the normal workflow, packs it, and ships it.
 
 Automatic `site.json` mutation is intentionally not implemented. The static Studio/GitHub publishing flow has no safe atomic transaction with Stripe and D1. A paid reservation is the server-side source that prevents a second sale until the manual Studio update lands.
@@ -43,14 +43,14 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 - [x] US-only Stripe-hosted Checkout Session parameters
 - [x] Verified success, honest cancel, and basket behavior
 - [x] Fixture tests for tampering, unavailable items, invalid baskets, signatures, and duplicate webhooks
-- [ ] Stripe test-mode end-to-end Session, payment, webhook retry, cancel, and refund using official test values
+- [x] Stripe test-mode end-to-end Session, payment, webhook retry, cancel, and inventory blocking using official test values
 
 ### Nathan/account decisions and actions
 
 - [x] Nathan chose one $6.00 flat standard-shipping charge per US order
 - [ ] Choose an honest business-day shipping estimate or leave it unset
 - [ ] Confirm whether/when to enable Stripe Tax; it is off now
-- [ ] Complete Stripe business identity, legal terms, payout bank, statement descriptor, support, and receipt settings
+- [x] Verify Stripe shows no active account requirements and a linked payout destination, without exposing private account data
 - [ ] Decide customer/order record retention and who may access D1
 
 ### Credentials and Cloudflare bindings
@@ -62,14 +62,14 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 - [x] Store the approved `SHIPPING_RATE_CENTS=600` as a non-secret environment variable
 - [x] Register `/stripe/webhook` for Checkout Session completed/async-success events in Stripe sandbox mode
 - [x] Pin the Worker to Stripe API version `2026-07-29.dahlia`, matching the sandbox webhook endpoint
-- [ ] Keep `PAYMENTS_MODE=test` until a separately reviewed live-mode change
+- [x] Keep staging at `PAYMENTS_MODE=test` and set production to `PAYMENTS_MODE=live` with strict mode matching
 
 ### Release and first live canary
 
 - [x] Deploy the isolated Worker staging environment and verify real hosted Checkout Session creation
 - [x] Complete the static local/staging browser flow and a sandbox card payment through signed webhook success
 - [ ] Review CSP/headers on the actual hosting layer; redirects need no Stripe JavaScript allowance
-- [ ] Explicitly authorize production deployment and live payments
+- [x] Explicitly authorize production deployment and live payments
 - [ ] Run one small live canary purchase to Nathan-controlled details
 - [ ] Confirm paid record, notification, manual Studio sold update, and customer receipt
 - [ ] Refund the canary in Stripe and verify the refund/manual inventory workflow

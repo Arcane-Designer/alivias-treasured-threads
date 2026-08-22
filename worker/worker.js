@@ -201,7 +201,7 @@ async function createCheckoutSession(request, env, cors) {
   let session = null;
   try {
     session = await stripeRequest(env, '/v1/checkout/sessions', { method: 'POST', body: buildStripeSessionParams(cart, env, orderRef, expiresAt), idempotencyKey: `att-${attemptId}` });
-    if (!session.id || !session.url || session.livemode !== false) throw new Error('Stripe returned an invalid test session');
+    if (!session.id || !session.url || !sessionMatchesMode(session, env)) throw new Error('Stripe returned a session for the wrong payment mode');
     await env.ORDERS.prepare('UPDATE orders SET stripe_session_id = ?, checkout_url = ?, status = ? WHERE order_ref = ?').bind(session.id, session.url, 'pending', orderRef).run();
     return json({ url: session.url }, 200, cors);
   } catch (error) {
@@ -264,11 +264,11 @@ async function stripeRequest(env, path, options = {}) {
 async function checkoutStatus(url, env, cors) {
   requireStatusConfig(env);
   const sessionId = url.searchParams.get('session_id') || '';
-  if (!/^cs_test_[A-Za-z0-9_]+$/.test(sessionId)) return json({ verified: false, error: 'Invalid checkout reference.' }, 400, cors);
+  if (!sessionIdMatchesMode(sessionId, env)) return json({ verified: false, error: 'Invalid checkout reference.' }, 400, cors);
   let session;
   try { session = await stripeRequest(env, `/v1/checkout/sessions/${encodeURIComponent(sessionId)}`); }
   catch { return json({ verified: false, error: 'Invalid checkout reference.' }, 400, cors); }
-  if (session.livemode !== false || session.status !== 'complete' || session.payment_status !== 'paid') return json({ verified: false, status: session.status || 'unknown' }, 200, cors);
+  if (!sessionMatchesMode(session, env) || session.status !== 'complete' || session.payment_status !== 'paid') return json({ verified: false, status: session.status || 'unknown' }, 200, cors);
   const order = await env.ORDERS.prepare('SELECT order_ref, status, stripe_event_id FROM orders WHERE stripe_session_id = ?').bind(sessionId).first();
   if (!order || session.client_reference_id !== order.order_ref) return json({ verified: false, error: 'Order record could not be verified.' }, 409, cors);
   try { await markPaid(env, session, `status:${sessionId}`); } catch (error) { if (!isUniqueConstraint(error)) throw error; }
@@ -285,7 +285,7 @@ export async function stripeWebhook(request, env) {
   if (!event.id || !event.type) return json({ error: 'bad event' }, 400);
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     const session = event.data?.object;
-    if (session?.livemode !== false || session?.payment_status !== 'paid') return json({ received: true });
+    if (!sessionMatchesMode(session, env) || session?.payment_status !== 'paid') return json({ received: true });
     try { await markPaid(env, session, event.id); } catch (error) { if (isUniqueConstraint(error)) return json({ received: true, duplicate: true }); throw error; }
   }
   return json({ received: true });
@@ -323,21 +323,20 @@ function constantTimeEqual(left, right) {
   return mismatch === 0;
 }
 function hex(bytes) { return [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join(''); }
-function requireTestMode(env) {
-  if (env.PAYMENTS_MODE !== 'test') throw new Error('PAYMENTS_MODE must remain test until launch approval');
+function paymentMode(env) {
+  if (env.PAYMENTS_MODE !== 'test' && env.PAYMENTS_MODE !== 'live') throw new Error('PAYMENTS_MODE must be test or live');
+  return env.PAYMENTS_MODE;
 }
 function requireCheckoutConfig(env) {
-  requireTestMode(env);
-  if (!isTestStripeKey(env.STRIPE_SECRET_KEY)) throw new Error('test Stripe secret is not configured');
+  if (!stripeKeyMatchesMode(env.STRIPE_SECRET_KEY, paymentMode(env))) throw new Error('Stripe secret does not match PAYMENTS_MODE');
   if (!env.STRIPE_WEBHOOK_SECRET || !env.ORDERS) throw new Error('payment bindings are incomplete');
   parseShippingCents(env.SHIPPING_RATE_CENTS);
 }
 function requireStatusConfig(env) {
-  requireTestMode(env);
-  if (!isTestStripeKey(env.STRIPE_SECRET_KEY) || !env.ORDERS) throw new Error('payment status bindings are incomplete');
+  if (!stripeKeyMatchesMode(env.STRIPE_SECRET_KEY, paymentMode(env)) || !env.ORDERS) throw new Error('payment status bindings are incomplete');
 }
 function requireWebhookConfig(env) {
-  requireTestMode(env);
+  paymentMode(env);
   if (!env.STRIPE_WEBHOOK_SECRET || !env.ORDERS) throw new Error('webhook bindings are incomplete');
 }
 function parseShippingCents(value) {
@@ -345,7 +344,15 @@ function parseShippingCents(value) {
   if (!Number.isInteger(cents) || cents < 0 || cents > 10000) throw new Error('SHIPPING_RATE_CENTS must be configured');
   return cents;
 }
-function isTestStripeKey(value) { return typeof value === 'string' && (value.startsWith('sk_test_') || value.startsWith('rk_test_')); }
+function stripeKeyMatchesMode(value, mode) {
+  if (typeof value !== 'string') return false;
+  return mode === 'live' ? value.startsWith('sk_live_') || value.startsWith('rk_live_') : value.startsWith('sk_test_') || value.startsWith('rk_test_');
+}
+function sessionMatchesMode(session, env) { return Boolean(session) && session.livemode === (paymentMode(env) === 'live'); }
+function sessionIdMatchesMode(value, env) {
+  const prefix = paymentMode(env) === 'live' ? 'cs_live_' : 'cs_test_';
+  return new RegExp(`^${prefix}[A-Za-z0-9_]+$`).test(value);
+}
 function positiveInt(value) { const result = Number(value); return Number.isInteger(result) && result > 0 ? result : null; }
 function createOrderRef() { return 'ATT-' + crypto.randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase(); }
 function checkoutError(error, cors) { if (error instanceof CheckoutError) return json({ error: error.message, code: error.code }, error.status, cors); throw error; }

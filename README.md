@@ -1,12 +1,11 @@
-# Alivia's Treasured Threads - Storefront 2.0 (staging)
+# Alivia's Treasured Threads - Storefront 2.0
 
-Polished multi-page storefront rebuild for **staging / isolated worktree use only**.
-Do not deploy, push, or point live GitHub Pages at this tree until you explicitly promote it.
+Polished multi-page storefront with isolated Stripe test and production environments.
 
 - **Canonical content:** `data/site.json` (unchanged contract for Alivia's Studio)
 - **Admin:** `admin/` preserved; same GitHub magic-key publish flow
 - **Reviews:** form → Cloudflare Worker inbox + Web3Forms email (unchanged)
-- **Ready inventory:** basket → server-validated Stripe-hosted Checkout in test mode
+- **Ready inventory:** basket → server-validated Stripe-hosted Checkout; staging stays in test mode and production is explicitly gated to live mode
 - **Custom requests:** multi-design form → existing Web3Forms / mailto fallback
 
 Live shop (current): https://arcane-designer.github.io/alivias-treasured-threads/
@@ -101,11 +100,11 @@ It does **not** deploy Pages or push to `main`. Read the comments in that file b
 
 ---
 
-## Stripe Checkout staging boundary
+## Stripe Checkout environment boundary
 
 `worker/worker.js` creates Checkout Sessions from canonical `site.json` inventory and prices. The browser sends IDs only. Stripe hosts every payment field; this site never handles card data. D1 reservations block duplicate sale attempts and paid records stay blocked until Alivia marks the corresponding listing sold in Studio.
 
-No credentials are committed. See `worker/.dev.vars.example`, `worker/schema.sql`, and `STRIPE-OPERATIONS.md`. This branch is hard-gated to `PAYMENTS_MODE=test`; live activation requires a separate reviewed change.
+No credentials are committed. See `worker/.dev.vars.example`, `worker/schema.sql`, and `STRIPE-OPERATIONS.md`. The Worker rejects keys, Checkout references, Sessions, and webhooks whose test/live mode does not match `PAYMENTS_MODE`; staging is `test` and production is `live`.
 
 ---
 
@@ -124,13 +123,14 @@ Admin continues to own writes to this file. Do not put secrets in browser-readab
 
 ## Staging / live boundary
 
-| Safe here | Not in this pass |
-|-----------|------------------|
-| Local static preview | Deploy / `git push` to live Pages |
-| Generate + validate scripts | Activating the workflow for production |
-| Test-mode hosted Checkout code and fixtures | Stripe account changes, credentials, webhook registration, or live mode |
-| Draft policy labels | Invented shipping/returns/legal claims |
-| Studio content contract unchanged | Automatic paid-order edits to `site.json` |
+| Staging | Production |
+|---------|------------|
+| `PAYMENTS_MODE=test` with sandbox credentials | `PAYMENTS_MODE=live` with separate encrypted live credentials |
+| `att-orders-staging` D1 | `att-orders-production` D1 |
+| Local preview return URL and staged catalog | Canonical GitHub Pages return URL and live catalog |
+| Official Stripe test values only | Real customer payments only after live launch and canary approval |
+
+Stripe Tax remains off in both environments. Automatic paid-order edits to `site.json` remain intentionally out of scope; Alivia marks the exact item sold in Studio after payment.
 
 Promote only from an isolated worktree after visual QA and `node scripts/validate.mjs`.
 
