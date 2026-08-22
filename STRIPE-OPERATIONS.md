@@ -1,6 +1,6 @@
 # Stripe Checkout operations
 
-This integration is code-complete for local fixture testing. The empty staging and production D1 databases exist and have the reviewed schema, but checkout code and Stripe credentials are not deployed. Live payments remain disabled.
+The staging integration is deployed in Stripe sandbox mode with isolated encrypted credentials and the staging D1 database. Live payments remain disabled, and the production Worker and live site are unchanged.
 
 ## Paid-order workflow
 
@@ -57,15 +57,16 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 - [x] Create separate `att-orders-staging` and `att-orders-production` D1 databases; apply and verify `worker/schema.sql`
 - [x] Configure staging for the local preview return URL and the staged branch catalog; production uses the canonical live URLs
 - [x] Add the `ORDERS` D1 binding IDs to the appropriate Wrangler environments
-- [ ] Store `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` as environment secrets, never vars/source
+- [x] Store the restricted sandbox `STRIPE_SECRET_KEY` and sandbox `STRIPE_WEBHOOK_SECRET` as encrypted staging environment secrets, never vars/source
 - [x] Store the approved `SHIPPING_RATE_CENTS=600` as a non-secret environment variable
-- [ ] Register `/stripe/webhook` for Checkout Session completed/async-success events in Stripe test mode
+- [x] Register `/stripe/webhook` for Checkout Session completed/async-success events in Stripe sandbox mode
 - [x] Pin the Worker to Stripe API version `2026-07-29.dahlia`, matching the sandbox webhook endpoint
 - [ ] Keep `PAYMENTS_MODE=test` until a separately reviewed live-mode change
 
 ### Release and first live canary
 
-- [ ] Deploy Worker staging and static staging; rerun all test-mode checks
+- [x] Deploy the isolated Worker staging environment and verify real hosted Checkout Session creation
+- [ ] Complete the static local/staging browser flow and a sandbox card payment through signed webhook success
 - [ ] Review CSP/headers on the actual hosting layer; redirects need no Stripe JavaScript allowance
 - [ ] Explicitly authorize production deployment and live payments
 - [ ] Run one small live canary purchase to Nathan-controlled details
