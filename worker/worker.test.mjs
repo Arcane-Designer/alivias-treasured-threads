@@ -87,12 +87,13 @@ const statusOrders = mockOrders();
 statusOrders.prepare = (sql) => ({
   sql, args: [], bind(...args) { this.args = args; return this; },
   async first() { return sql.startsWith('SELECT order_ref') ? { order_ref: 'ATT-TESTORDER', status: 'pending' } : null; },
-  async all() { return { results: [{ display_name: 'Fall Fun Bookmark' }] }; },
+  async all() { return { results: [{ inventory_key: 'listing:bookmarks:bk-fall-fun', product_id: 'bookmarks', listing_id: 'bk-fall-fun', display_name: 'Fall Fun Bookmark' }] }; },
 });
 const statusEnv = { ...webhookEnv, ORDERS: statusOrders };
 const verifiedStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_test_verified', { headers: { Origin: 'http://localhost:4173' } }), statusEnv);
 const verifiedStatusBody = await verifiedStatus.json();
 assert.equal(verifiedStatusBody.verified, true);
+assert.deepEqual(verifiedStatusBody.purchasedItems, [{ inventoryKey: 'listing:bookmarks:bk-fall-fun', productId: 'bookmarks', listingId: 'bk-fall-fun', name: 'Fall Fun Bookmark' }]);
 assert.equal(verifiedStatusBody.webhookVerified, false, 'status fallback must remain distinguishable from a signed Stripe webhook');
 const openStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_test_open', { headers: { Origin: 'http://localhost:4173' } }), statusEnv);
 assert.equal((await openStatus.json()).verified, false);
@@ -115,7 +116,7 @@ const paidOrders = mockOrders();
 paidOrders.prepare = (sql) => ({
   sql, args: [], bind(...args) { this.args = args; return this; },
   async first() { return sql.startsWith('SELECT order_ref') ? { order_ref: 'ATT-TESTORDER', status: 'paid', stripe_event_id: 'evt_signed_fixture' } : null; },
-  async all() { return { results: [{ display_name: 'Fall Fun Bookmark' }] }; },
+  async all() { return { results: [{ inventory_key: 'listing:bookmarks:bk-fall-fun', product_id: 'bookmarks', listing_id: 'bk-fall-fun', display_name: 'Fall Fun Bookmark' }] }; },
 });
 globalThis.fetch = async () => { throw new Error('paid signed-webhook status must not depend on Stripe retrieval'); };
 const signedWebhookStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_live_signed', { headers: { Origin: 'https://arcane-designer.github.io' } }), { ...liveEnv, ORDERS: paidOrders });

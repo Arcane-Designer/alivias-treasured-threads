@@ -384,10 +384,14 @@
           const response = await fetch(checkoutApiUrl() + '/checkout/status?session_id=' + encodeURIComponent(sessionId));
           const status = await response.json();
           if (response.ok && status.verified === true && status.orderRef) {
-            localStorage.removeItem(BASKET_KEY);
+            const purchased = Array.isArray(status.purchasedItems) ? status.purchasedItems : [];
+            basket = basket.filter((item) => !purchased.some((paid) =>
+              paid && paid.productId === item.productId &&
+              ((item.type === 'listing' && paid.listingId === item.listingId) ||
+               (item.type === 'oneoff' && !paid.listingId))
+            ));
+            saveBasket();
             sessionStorage.removeItem('att-checkout-attempt');
-            basket = [];
-            renderBasketUI();
             if (message) text(message, 'Payment confirmed. Thank you for supporting Alivia’s handmade shop!');
             if ($('successTitle')) text($('successTitle'), 'Order confirmed');
             if ($('resultIcon')) text($('resultIcon'), '✓');

@@ -278,8 +278,14 @@ async function checkoutStatus(url, env, cors) {
 }
 
 async function verifiedOrder(env, order, cors, webhookVerified) {
-  const items = await env.ORDERS.prepare('SELECT display_name FROM order_items WHERE order_ref = ? ORDER BY rowid').bind(order.order_ref).all();
-  return json({ verified: true, orderRef: order.order_ref, items: (items.results || []).map((item) => item.display_name), webhookVerified }, 200, cors);
+  const items = await env.ORDERS.prepare('SELECT inventory_key, product_id, listing_id, display_name FROM order_items WHERE order_ref = ? ORDER BY rowid').bind(order.order_ref).all();
+  const purchasedItems = (items.results || []).map((item) => ({
+    inventoryKey: item.inventory_key,
+    productId: item.product_id,
+    listingId: item.listing_id || null,
+    name: item.display_name,
+  }));
+  return json({ verified: true, orderRef: order.order_ref, items: purchasedItems.map((item) => item.name), purchasedItems, webhookVerified }, 200, cors);
 }
 
 export async function stripeWebhook(request, env) {
