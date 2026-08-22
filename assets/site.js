@@ -153,6 +153,7 @@
   }
 
   /* ---------- product helpers ---------- */
+  const CATEGORY_ORDER = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles', 'Other'];
   function productById(id) {
     return (DATA.products || []).find((p) => p.id === id);
   }
@@ -161,6 +162,18 @@
   }
   function isReady(p) {
     return !!(p.oneOfAKind || unsoldListings(p).length > 0);
+  }
+  function categoryForProduct(p) {
+    const explicit = String(p.category || '').trim().replace(/\s+/g, ' ');
+    if (explicit) return explicit;
+    /* Compatibility only for an older unpublished Studio draft. */
+    const value = ((p.itemType || '') + ' ' + (p.name || '')).toLowerCase();
+    if (/bundle/.test(value)) return 'Bundles';
+    if (/cape/.test(value)) return 'Capes';
+    if (/tote|bag|pouch/.test(value)) return 'Bags & Pouches';
+    if (/bookmark|craft roll|sewing roll|pencil roll|brush roll|organizer/.test(value)) return 'Books & Crafts';
+    if (/coaster|pot holder|potholder|kitchen/.test(value)) return 'Home & Kitchen';
+    return 'Other';
   }
   function isCustomOnly(p) {
     return p.price === null && !p.oneOfAKind;
@@ -966,19 +979,8 @@
     if (!grid) return;
     let currentSeason = 'all';
     let currentType = 'all';
-    const typeOrder = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles', 'Other'];
-
     function groupedType(p) {
-      const explicit = String(p.category || '').trim().replace(/\s+/g, ' ');
-      if (explicit) return explicit;
-      /* Compatibility only for older drafts; Studio now stores category. */
-      const value = ((p.itemType || '') + ' ' + (p.name || '')).toLowerCase();
-      if (/bundle/.test(value)) return 'Bundles';
-      if (/cape/.test(value)) return 'Capes';
-      if (/tote|bag|pouch/.test(value)) return 'Bags & Pouches';
-      if (/bookmark|craft roll|sewing roll|pencil roll|brush roll|organizer/.test(value)) return 'Books & Crafts';
-      if (/coaster|pot holder|potholder|kitchen/.test(value)) return 'Home & Kitchen';
-      return 'Other';
+      return categoryForProduct(p);
     }
 
     function seasonsInData() {
@@ -992,7 +994,7 @@
     function typesInData() {
       const set = new Set();
       activeProducts.forEach((p) => set.add(groupedType(p)));
-      return [...typeOrder.filter((type) => set.has(type)), ...Array.from(set).filter((type) => !typeOrder.includes(type)).sort()];
+      return [...CATEGORY_ORDER.filter((type) => set.has(type)), ...Array.from(set).filter((type) => !CATEGORY_ORDER.includes(type)).sort()];
     }
 
     function filtered() {
@@ -1155,6 +1157,29 @@
       const featured = activeProducts.filter((p) => isReady(p) || (p.badges && p.badges.length)).slice(0, 6);
       const list = featured.length ? featured : activeProducts.slice(0, 6);
       grid.innerHTML = list.map(productCardHtml).join('');
+      renderCategoryTiles();
+    }
+
+    function renderCategoryTiles() {
+      const tiles = $('categoryTiles');
+      if (!tiles) return;
+      const groups = new Map();
+      activeProducts.forEach((product) => {
+        const category = categoryForProduct(product);
+        if (!groups.has(category)) groups.set(category, []);
+        groups.get(category).push(product);
+      });
+      const categories = [...CATEGORY_ORDER.filter((category) => groups.has(category)), ...Array.from(groups.keys()).filter((category) => !CATEGORY_ORDER.includes(category)).sort()];
+      tiles.innerHTML = categories.map((category) => {
+        const products = groups.get(category);
+        const ready = products.filter(isReady).length;
+        const cover = products.find(isReady) || products[0];
+        const summary = products.length + (products.length === 1 ? ' design' : ' designs') + (ready ? ' · ' + ready + ' ready now' : ' · Made to order');
+        return '<a class="tile" href="' + esc(ROOT + 'shop/?type=' + encodeURIComponent(category)) + '">' +
+          '<div class="tile-photo"><img src="' + esc(coverImg(cover)) + '" alt="' + esc(category + ' handmade by Alivia') + '" width="800" height="800" loading="lazy"></div>' +
+          '<div class="tile-name">' + esc(category) + '</div>' +
+          '<div class="tile-sub">' + esc(summary) + '</div></a>';
+      }).join('');
     }
     document.addEventListener('att:ready', render);
     if (activeProducts.length) render();
@@ -1227,10 +1252,11 @@
     controls.append(previous, next, status);
     shell.appendChild(controls);
 
-    let index = 0;
-    let visible = 3;
+    let logicalIndex = 0;
+    let visible = 2;
     let timer = null;
     let paused = false;
+    let animating = false;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const cards = $$('.review-card', track);
     cards.forEach((card, cardIndex) => {
@@ -1238,22 +1264,44 @@
       card.setAttribute('aria-label', 'Review ' + (cardIndex + 1) + ' of ' + count);
     });
 
-    const visibleCount = () => innerWidth < 680 ? 1 : innerWidth < 980 ? 2 : 3;
+    const visibleCount = () => innerWidth < 680 ? 1 : 2;
     const update = (announce) => {
       visible = visibleCount();
-      const max = Math.max(0, count - visible);
-      if (index > max) index = max;
       track.style.setProperty('--reviews-visible', visible);
-      const cardWidth = cards[0]?.getBoundingClientRect().width || 0;
-      const gap = parseFloat(getComputedStyle(track).gap) || 0;
-      track.style.transform = 'translateX(-' + (index * (cardWidth + gap)) + 'px)';
-      cards.forEach((card, cardIndex) => card.setAttribute('aria-hidden', cardIndex < index || cardIndex >= index + visible ? 'true' : 'false'));
-      if (announce) status.textContent = 'Showing review ' + (index + 1) + (visible > 1 ? ' through ' + Math.min(count, index + visible) : '') + ' of ' + count;
+      $$('.review-card', track).forEach((card, cardIndex) => card.setAttribute('aria-hidden', cardIndex >= visible ? 'true' : 'false'));
+      if (announce) status.textContent = 'Showing review ' + (logicalIndex + 1) + (visible > 1 ? ' and the next review' : '') + ' of ' + count;
     };
     const move = (direction, announce) => {
-      const max = Math.max(0, count - visibleCount());
-      index = direction > 0 ? (index >= max ? 0 : index + 1) : (index <= 0 ? max : index - 1);
-      update(announce);
+      if (animating) return;
+      animating = true;
+      const currentCards = $$('.review-card', track);
+      const width = currentCards[0]?.getBoundingClientRect().width || 0;
+      const gap = parseFloat(getComputedStyle(track).gap) || 0;
+      const step = width + gap;
+      if (direction > 0) {
+        track.style.transition = reducedMotion.matches ? 'none' : 'transform 500ms ease';
+        track.style.transform = 'translateX(-' + step + 'px)';
+        setTimeout(() => {
+          track.appendChild(track.firstElementChild);
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+          logicalIndex = (logicalIndex + 1) % count;
+          update(announce);
+          animating = false;
+        }, reducedMotion.matches ? 0 : 510);
+      } else {
+        track.insertBefore(track.lastElementChild, track.firstElementChild);
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(-' + step + 'px)';
+        track.getBoundingClientRect();
+        track.style.transition = reducedMotion.matches ? 'none' : 'transform 500ms ease';
+        track.style.transform = 'translateX(0)';
+        setTimeout(() => {
+          logicalIndex = (logicalIndex - 1 + count) % count;
+          update(announce);
+          animating = false;
+        }, reducedMotion.matches ? 0 : 510);
+      }
     };
     const stop = () => { if (timer) clearInterval(timer); timer = null; };
     const start = () => {
@@ -1277,13 +1325,41 @@
       pointerStart = null;
       start();
     });
-    addEventListener('resize', update);
+    addEventListener('resize', () => update(false));
     if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', start);
     update(false);
     start();
   }
 
   /* ---------- page-specific: product detail ---------- */
+  function renderCanonicalProductPage(root, p) {
+    const images = allImages(p);
+    if (!images.length) images.push(PLACEHOLDER);
+    const gallery = '<div class="gallery"><div class="gallery-main"><img id="galleryMainImg" src="' + esc(resolveImg(images[0])) + '" alt="' + esc(p.name) + '" width="800" height="800"></div>' +
+      '<div class="gallery-thumbs">' + images.map((src, index) => '<button type="button" data-gallery-idx="' + index + '" aria-current="' + (index === 0) + '" aria-label="Photo ' + (index + 1) + '"><img src="' + esc(resolveImg(src)) + '" alt="" width="64" height="64" loading="lazy"></button>').join('') + '</div></div>';
+    let listings = '';
+    if (!p.oneOfAKind) {
+      const rows = [...(p.listings || [])].sort((a, b) => (a.sold === b.sold ? 0 : a.sold ? 1 : -1));
+      if (!rows.some((listing) => !listing.sold)) {
+        listings = '<div class="availability-empty"><h3>No finished pieces available right now</h3><p>Request a custom one and choose the details with Alivia.</p></div>';
+      } else {
+        listings = '<div class="listings-block"><h3>Available now</h3>' + rows.map((listing) => {
+          const image = listing.images?.[0] ? resolveImg(listing.images[0]) : resolveImg(PLACEHOLDER);
+          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><div class="listing-meta"><div class="listing-name">' + esc(listing.name || p.name) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
+        }).join('') + '</div>';
+      }
+    }
+    const actions = (p.oneOfAKind ? '<button type="button" class="btn btn-primary" id="addOneOffBtn">Add to basket</button>' : '') +
+      (!p.oneOfAKind ? '<a class="btn btn-secondary" href="' + esc(ROOT + 'custom/?design=' + encodeURIComponent(p.id) + '#customRequest') + '">' + (unsoldListings(p).length ? 'Request a custom version' : 'Request a Custom One') + '</a>' : '');
+    root.innerHTML = '<nav class="breadcrumb" aria-label="Breadcrumb"><a href="' + esc(ROOT) + '">Home</a> <span aria-hidden="true">/</span> <a href="' + esc(ROOT + 'shop/') + '">Shop</a> <span aria-hidden="true">/</span> <span>' + esc(p.name) + '</span></nav>' +
+      '<div class="product-detail">' + gallery + '<div class="product-detail-info"><h1>' + esc(p.name) + '</h1>' +
+      (p.badges || []).map((badge) => '<span class="sticker sticker-inline">' + esc(badge) + '</span>').join('') +
+      '<div class="price-block' + (typeof p.price !== 'number' ? ' custom' : '') + '">' + priceHtml(p) + '</div><div class="product-desc">' + esc(p.description || '') + '</div>' +
+      (p.descriptionLink?.url ? '<p><a href="' + esc(p.descriptionLink.url) + '" target="_blank" rel="noopener noreferrer">' + esc(p.descriptionLink.text || 'Learn more') + '</a></p>' : '') +
+      listings + '<div class="product-actions">' + actions + '</div></div></div>';
+    document.title = p.name + " | Alivia's Treasured Threads";
+  }
+
   function setupProductPage() {
     const root = $('productRoot');
     if (!root) return;
@@ -1297,7 +1373,9 @@
           '">Browse the collection</a>.</p>';
         return;
       }
-      /* enhance interactive bits that static HTML may already have */
+      /* Canonical data always wins over generated HTML, so a Studio publish
+         updates variants immediately while CI refreshes crawlable markup. */
+      renderCanonicalProductPage(root, p);
       const addOne = $('addOneOffBtn');
       if (addOne) {
         addOne.addEventListener('click', () => addOneOff(p.id));

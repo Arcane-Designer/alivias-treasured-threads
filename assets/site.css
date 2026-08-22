@@ -657,7 +657,7 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .review-carousel { max-width: 66rem; margin: 1.6rem auto 0; }
 .review-viewport { overflow: hidden; padding: 12px; touch-action: pan-y; }
 .review-list.review-track {
-  --reviews-visible: 3;
+  --reviews-visible: 2;
   display: flex;
   max-width: none;
   margin: 0;

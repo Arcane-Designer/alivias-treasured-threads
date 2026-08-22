@@ -24,6 +24,9 @@ function fail(msg) {
 function warn(msg) {
   warnings.push(msg);
 }
+function htmlText(value) {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 function loadJson(path) {
   try {
@@ -148,6 +151,15 @@ if (!existsSync(productRoot)) {
     }
     if (!html.includes('href="../../shop/"')) {
       fail(`shop/${id}/index.html missing shop link at ../../shop/`);
+    }
+    for (const listing of product.listings || []) {
+      if (!html.includes(htmlText(listing.name))) fail(`shop/${id}/index.html missing listing ${listing.id}`);
+      const addMarker = `data-add-listing="${listing.id}"`;
+      if (!listing.sold && !html.includes(addMarker)) fail(`shop/${id}/index.html cannot add available listing ${listing.id}`);
+      if (listing.sold && html.includes(addMarker)) fail(`shop/${id}/index.html can add sold listing ${listing.id}`);
+      for (const image of listing.images || []) {
+        if (!html.includes(image)) fail(`shop/${id}/index.html missing listing image ${image}`);
+      }
     }
     /* no secrets in browser */
     if (/github_pat_|sk_live|sk_test|whsec_/i.test(html)) {

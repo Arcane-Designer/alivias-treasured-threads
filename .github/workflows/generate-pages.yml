@@ -1,44 +1,20 @@
-# STAGING-ONLY artifact workflow. NOT activated for live deploy.
-#
-# Purpose: when Studio pushes data/site.json (or product images), regenerate
-# crawlable product/<id>/index.html pages, sitemap.xml, and robots.txt as a
-# downloadable artifact. Review the artifact in an isolated worktree before
-# any live promotion.
-#
-# This workflow does NOT:
-#   - push commits to main
-#   - deploy to GitHub Pages
-#   - touch the live shop
-#
-# Migration implications (read before enabling push-to-main automation later):
-#   1. Prefer generating pages in CI and committing them on a staging branch,
-#      or ship the generator so Studio publish also runs `node scripts/generate-pages.mjs`
-#      and includes the product/ tree in the same commit.
-#   2. GitHub Pages serves whatever is on the Pages branch; if product pages
-#      lag behind site.json, crawlers see 404s for new IDs until regeneration.
-#   3. Base URL: set GENERATE_BASE to the public origin (project Pages path or
-#      custom domain) so canonicals/sitemap stay correct.
-#   4. Keep admin/ writing only data/site.json + images; never hand-edit
-#      product HTML; always regenerate from data.
-#
-# To use as an artifact job only (current intent): leave as workflow_dispatch
-# or push to a non-Pages branch. Do not enable pages-deploy steps without an
-# explicit staging → live checklist.
-
-name: Generate product pages (staging artifact)
+name: Keep Studio product pages current
 
 on:
   workflow_dispatch:
-  # Optional: uncomment to run on content pushes to a staging branch only.
-  # push:
-  #   branches: [storefront-2-staging]
-  #   paths:
-  #     - 'data/site.json'
-  #     - 'scripts/generate-pages.mjs'
-  #     - 'images/**'
+  push:
+    branches: [main]
+    paths:
+      - 'data/site.json'
+      - 'scripts/generate-pages.mjs'
+      - '.github/workflows/generate-pages.yml'
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: studio-generated-pages
+  cancel-in-progress: false
 
 jobs:
   generate:
@@ -50,7 +26,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Generate pages
         env:
@@ -60,12 +36,14 @@ jobs:
       - name: Validate
         run: node scripts/validate.mjs
 
-      - name: Upload staging artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: storefront-generated-pages
-          path: |
-            product/
-            sitemap.xml
-            robots.txt
-          retention-days: 14
+      - name: Commit regenerated crawlable pages
+        run: |
+          if git diff --quiet; then
+            echo "Generated pages are already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add shop product sitemap.xml robots.txt
+          git commit -m "Refresh generated Shop pages from Studio data"
+          git push
