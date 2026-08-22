@@ -219,6 +219,7 @@ export function buildStripeSessionParams(cart, env, orderRef, expiresAt) {
   const params = new URLSearchParams();
   params.set('mode', 'payment');
   params.set('payment_method_types[0]', 'card');
+  params.set('wallet_options[link][display]', 'never');
   params.set('success_url', `${site}/checkout/success/?session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${site}/checkout/cancel/`);
   params.set('client_reference_id', orderRef);
@@ -251,7 +252,7 @@ export function buildStripeSessionParams(cart, env, orderRef, expiresAt) {
 }
 
 async function stripeRequest(env, path, options = {}) {
-  const headers = { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Stripe-Version': '2026-02-25.clover' };
+  const headers = { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Stripe-Version': '2026-07-29.dahlia' };
   if (options.body) headers['Content-Type'] = 'application/x-www-form-urlencoded';
   if (options.idempotencyKey) headers['Idempotency-Key'] = options.idempotencyKey;
   const response = await fetch(`https://api.stripe.com${path}`, { method: options.method || 'GET', headers, body: options.body });
@@ -264,7 +265,9 @@ async function checkoutStatus(url, env, cors) {
   requireStatusConfig(env);
   const sessionId = url.searchParams.get('session_id') || '';
   if (!/^cs_test_[A-Za-z0-9_]+$/.test(sessionId)) return json({ verified: false, error: 'Invalid checkout reference.' }, 400, cors);
-  const session = await stripeRequest(env, `/v1/checkout/sessions/${encodeURIComponent(sessionId)}`);
+  let session;
+  try { session = await stripeRequest(env, `/v1/checkout/sessions/${encodeURIComponent(sessionId)}`); }
+  catch { return json({ verified: false, error: 'Invalid checkout reference.' }, 400, cors); }
   if (session.livemode !== false || session.status !== 'complete' || session.payment_status !== 'paid') return json({ verified: false, status: session.status || 'unknown' }, 200, cors);
   const order = await env.ORDERS.prepare('SELECT order_ref, status FROM orders WHERE stripe_session_id = ?').bind(sessionId).first();
   if (!order || session.client_reference_id !== order.order_ref) return json({ verified: false, error: 'Order record could not be verified.' }, 409, cors);
@@ -325,13 +328,13 @@ function requireTestMode(env) {
 }
 function requireCheckoutConfig(env) {
   requireTestMode(env);
-  if (!env.STRIPE_SECRET_KEY || !env.STRIPE_SECRET_KEY.startsWith('sk_test_')) throw new Error('test Stripe secret is not configured');
+  if (!isTestStripeKey(env.STRIPE_SECRET_KEY)) throw new Error('test Stripe secret is not configured');
   if (!env.STRIPE_WEBHOOK_SECRET || !env.ORDERS) throw new Error('payment bindings are incomplete');
   parseShippingCents(env.SHIPPING_RATE_CENTS);
 }
 function requireStatusConfig(env) {
   requireTestMode(env);
-  if (!env.STRIPE_SECRET_KEY || !env.STRIPE_SECRET_KEY.startsWith('sk_test_') || !env.ORDERS) throw new Error('payment status bindings are incomplete');
+  if (!isTestStripeKey(env.STRIPE_SECRET_KEY) || !env.ORDERS) throw new Error('payment status bindings are incomplete');
 }
 function requireWebhookConfig(env) {
   requireTestMode(env);
@@ -342,6 +345,7 @@ function parseShippingCents(value) {
   if (!Number.isInteger(cents) || cents < 0 || cents > 10000) throw new Error('SHIPPING_RATE_CENTS must be configured');
   return cents;
 }
+function isTestStripeKey(value) { return typeof value === 'string' && (value.startsWith('sk_test_') || value.startsWith('rk_test_')); }
 function positiveInt(value) { const result = Number(value); return Number.isInteger(result) && result > 0 ? result : null; }
 function createOrderRef() { return 'ATT-' + crypto.randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase(); }
 function checkoutError(error, cors) { if (error instanceof CheckoutError) return json({ error: error.message, code: error.code }, error.status, cors); throw error; }

@@ -23,6 +23,7 @@ const params = buildStripeSessionParams(cart, {
 }, 'ATT-TESTORDER', 2000000000);
 assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
 assert.equal(params.get('payment_method_types[0]'), 'card', 'Checkout must stay limited to card and card-wallet payments');
+assert.equal(params.get('wallet_options[link][display]'), 'never', 'Link bank and pay-later options must stay disabled');
 assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '600');
 assert.equal(params.get('automatic_tax[enabled]'), null, 'Stripe Tax must stay disabled');
 assert.match(params.get('success_url'), /\{CHECKOUT_SESSION_ID\}/);
