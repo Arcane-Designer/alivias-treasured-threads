@@ -110,6 +110,18 @@ const liveStatus = await worker.fetch(new Request('https://worker.test/checkout/
 assert.equal((await liveStatus.json()).verified, true, 'live mode must accept only verified live Checkout state');
 const liveRejectsTest = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_test_verified', { headers: { Origin: 'https://arcane-designer.github.io' } }), liveEnv);
 assert.equal(liveRejectsTest.status, 400, 'live mode must reject test Checkout references');
+
+const paidOrders = mockOrders();
+paidOrders.prepare = (sql) => ({
+  sql, args: [], bind(...args) { this.args = args; return this; },
+  async first() { return sql.startsWith('SELECT order_ref') ? { order_ref: 'ATT-TESTORDER', status: 'paid', stripe_event_id: 'evt_signed_fixture' } : null; },
+  async all() { return { results: [{ display_name: 'Fall Fun Bookmark' }] }; },
+});
+globalThis.fetch = async () => { throw new Error('paid signed-webhook status must not depend on Stripe retrieval'); };
+const signedWebhookStatus = await worker.fetch(new Request('https://worker.test/checkout/status?session_id=cs_live_signed', { headers: { Origin: 'https://arcane-designer.github.io' } }), { ...liveEnv, ORDERS: paidOrders });
+const signedWebhookBody = await signedWebhookStatus.json();
+assert.equal(signedWebhookBody.verified, true);
+assert.equal(signedWebhookBody.webhookVerified, true);
 globalThis.fetch = originalFetch;
 
 console.log('Worker checkout fixtures: OK');

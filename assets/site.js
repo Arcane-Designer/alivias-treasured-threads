@@ -374,25 +374,35 @@
       if (details) details.hidden = true;
       if (errorPanel) errorPanel.hidden = false;
     };
-    if (!/^cs_test_[A-Za-z0-9_]+$/.test(sessionId)) { fail(); return; }
+    if (!/^cs_(?:test|live)_[A-Za-z0-9_]+$/.test(sessionId)) { fail(); return; }
+    let verificationStarted = false;
     const verify = async () => {
-      try {
-        const response = await fetch(checkoutApiUrl() + '/checkout/status?session_id=' + encodeURIComponent(sessionId));
-        const status = await response.json();
-        if (!response.ok || status.verified !== true || !status.orderRef) { fail(); return; }
-        localStorage.removeItem(BASKET_KEY);
-        sessionStorage.removeItem('att-checkout-attempt');
-        basket = [];
-        renderBasketUI();
-        if (message) text(message, 'Payment confirmed. Thank you for supporting Alivia’s handmade shop!');
-        if ($('successTitle')) text($('successTitle'), 'Order confirmed');
-        if ($('resultIcon')) text($('resultIcon'), '✓');
-        document.title = "Order Confirmed | Alivia's Treasured Threads";
-        if ($('orderReference')) text($('orderReference'), status.orderRef);
-        if ($('confirmedItems')) $('confirmedItems').innerHTML = (status.items || []).map((item) => '<li>' + esc(item) + '</li>').join('');
-        if (details) details.hidden = false;
-        if (errorPanel) errorPanel.hidden = true;
-      } catch { fail(); }
+      if (verificationStarted) return;
+      verificationStarted = true;
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        try {
+          const response = await fetch(checkoutApiUrl() + '/checkout/status?session_id=' + encodeURIComponent(sessionId));
+          const status = await response.json();
+          if (response.ok && status.verified === true && status.orderRef) {
+            localStorage.removeItem(BASKET_KEY);
+            sessionStorage.removeItem('att-checkout-attempt');
+            basket = [];
+            renderBasketUI();
+            if (message) text(message, 'Payment confirmed. Thank you for supporting Alivia’s handmade shop!');
+            if ($('successTitle')) text($('successTitle'), 'Order confirmed');
+            if ($('resultIcon')) text($('resultIcon'), '✓');
+            document.title = "Order Confirmed | Alivia's Treasured Threads";
+            if ($('orderReference')) text($('orderReference'), status.orderRef);
+            if ($('confirmedItems')) $('confirmedItems').innerHTML = (status.items || []).map((item) => '<li>' + esc(item) + '</li>').join('');
+            if (details) details.hidden = false;
+            if (errorPanel) errorPanel.hidden = true;
+            return;
+          }
+          if (!response.ok && response.status !== 500 && response.status !== 502 && response.status !== 503) { fail(); return; }
+        } catch { /* brief network and webhook races are retried below */ }
+        if (attempt < 7) await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+      fail();
     };
     document.addEventListener('att:ready', verify);
     if (DATA.settings && Object.keys(DATA.settings).length) verify();

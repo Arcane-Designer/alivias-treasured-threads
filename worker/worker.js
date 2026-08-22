@@ -265,15 +265,21 @@ async function checkoutStatus(url, env, cors) {
   requireStatusConfig(env);
   const sessionId = url.searchParams.get('session_id') || '';
   if (!sessionIdMatchesMode(sessionId, env)) return json({ verified: false, error: 'Invalid checkout reference.' }, 400, cors);
+  const order = await env.ORDERS.prepare('SELECT order_ref, status, stripe_event_id FROM orders WHERE stripe_session_id = ?').bind(sessionId).first();
+  if (!order) return json({ verified: false, error: 'Order record could not be verified.' }, 409, cors);
+  if (order.status === 'paid' && /^evt_/.test(order.stripe_event_id || '')) return verifiedOrder(env, order, cors, true);
   let session;
   try { session = await stripeRequest(env, `/v1/checkout/sessions/${encodeURIComponent(sessionId)}`); }
-  catch { return json({ verified: false, error: 'Invalid checkout reference.' }, 400, cors); }
+  catch { return json({ verified: false, status: order.status || 'pending' }, 200, cors); }
   if (!sessionMatchesMode(session, env) || session.status !== 'complete' || session.payment_status !== 'paid') return json({ verified: false, status: session.status || 'unknown' }, 200, cors);
-  const order = await env.ORDERS.prepare('SELECT order_ref, status, stripe_event_id FROM orders WHERE stripe_session_id = ?').bind(sessionId).first();
-  if (!order || session.client_reference_id !== order.order_ref) return json({ verified: false, error: 'Order record could not be verified.' }, 409, cors);
+  if (session.client_reference_id !== order.order_ref) return json({ verified: false, error: 'Order record could not be verified.' }, 409, cors);
   try { await markPaid(env, session, `status:${sessionId}`); } catch (error) { if (!isUniqueConstraint(error)) throw error; }
+  return verifiedOrder(env, order, cors, false);
+}
+
+async function verifiedOrder(env, order, cors, webhookVerified) {
   const items = await env.ORDERS.prepare('SELECT display_name FROM order_items WHERE order_ref = ? ORDER BY rowid').bind(order.order_ref).all();
-  return json({ verified: true, orderRef: order.order_ref, items: (items.results || []).map((item) => item.display_name), webhookVerified: /^evt_/.test(order.stripe_event_id || '') }, 200, cors);
+  return json({ verified: true, orderRef: order.order_ref, items: (items.results || []).map((item) => item.display_name), webhookVerified }, 200, cors);
 }
 
 export async function stripeWebhook(request, env) {
