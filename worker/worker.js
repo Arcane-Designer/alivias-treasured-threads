@@ -165,7 +165,7 @@ function pricedLineItems(items) {
 async function fetchCatalog(env) {
   const source = new URL(env.CATALOG_URL || DEFAULT_CATALOG_URL);
   source.searchParams.set('checkout_catalog', String(Date.now()));
-  const response = await fetch(source.toString(), { headers: { Accept: 'application/json' }, cache: 'no-store', cf: { cacheTtl: 0 } });
+  const response = await fetch(source.toString(), { headers: { Accept: 'application/json' }, cache: 'no-store' });
   if (!response.ok) throw new CheckoutError('catalog unavailable', 503, 'catalog_unavailable');
   return await response.json();
 }
