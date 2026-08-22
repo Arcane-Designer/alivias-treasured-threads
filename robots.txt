@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://aliviastreasuredthreads.com/sitemap.xml
+Sitemap: https://arcane-designer.github.io/alivias-treasured-threads/sitemap.xml
