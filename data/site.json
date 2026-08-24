@@ -74,7 +74,8 @@
       "Home & Kitchen",
       "Capes",
       "Bundles",
-      "Other"
+      "Other",
+      "Baby"
     ]
   },
   "products": [
@@ -99,7 +100,8 @@
       ],
       "listings": [],
       "salePrice": 60,
-      "saleLabel": ""
+      "saleLabel": "",
+      "season": ""
     },
     {
       "id": "p-mrsqof4x8ebz",
@@ -122,7 +124,8 @@
       ],
       "listings": [],
       "salePrice": 60,
-      "saleLabel": ""
+      "saleLabel": "",
+      "season": ""
     },
     {
       "id": "p-ms3nk6mp2otm",
@@ -145,7 +148,8 @@
       ],
       "listings": [],
       "salePrice": 60,
-      "saleLabel": ""
+      "saleLabel": "",
+      "season": ""
     },
     {
       "id": "mini-zipper-pouch",
@@ -183,6 +187,37 @@
       ],
       "badges": [
         "Back in stock!"
+      ],
+      "season": ""
+    },
+    {
+      "id": "p-mt6guvdjpugz",
+      "name": "Baby Cube",
+      "price": 10,
+      "priceLabel": "$10",
+      "description": "A cube for your  baby! Trust me, they love them. For the baby who has everything. ",
+      "category": "Baby",
+      "season": "",
+      "badges": [
+        "NEW!"
+      ],
+      "archived": false,
+      "oneOfAKind": false,
+      "images": [
+        "images/uploads/baby-cube-mt6h000pzeu.jpg",
+        "images/uploads/baby-cube-mt6h001u5h2.jpg"
+      ],
+      "listings": [
+        {
+          "id": "l-mt6h1sxahf1x",
+          "name": "Pink and Blue Cube",
+          "images": [
+            "images/uploads/pink-and-blue-cube-mt6h1qjcb7s.jpg",
+            "images/uploads/pink-and-blue-cube-mt6h1qkhyi9.jpg",
+            "images/uploads/pink-and-blue-cube-mt6h1qll823.jpg"
+          ],
+          "sold": false
+        }
       ]
     },
     {
@@ -228,7 +263,8 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "zipper-pouch",
@@ -261,7 +297,8 @@
       ],
       "badges": [
         "Now available in mini!"
-      ]
+      ],
+      "season": ""
     },
     {
       "id": "bookmarks",
@@ -424,7 +461,8 @@
           "qty": 2,
           "price": 6
         }
-      ]
+      ],
+      "season": ""
     },
     {
       "id": "cute-quilted-coasters",
@@ -482,7 +520,8 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "mini-tote-bag",
@@ -507,7 +546,8 @@
       ],
       "badges": [
         "NEW!"
-      ]
+      ],
+      "season": ""
     },
     {
       "id": "overnighter-tote",
@@ -523,7 +563,8 @@
         "images/products/products-2.jpg"
       ],
       "listings": [],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "pot-holders",
@@ -556,7 +597,8 @@
           "sold": false
         }
       ],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "craft-roll",
@@ -572,7 +614,8 @@
         "images/products/pencil-brush-roll-4.jpg"
       ],
       "listings": [],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "hooded-cape",
@@ -587,7 +630,8 @@
         "images/products/cape-2.jpg"
       ],
       "listings": [],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "p-mrlk6gshtsmk",
@@ -611,7 +655,8 @@
       ],
       "listings": [],
       "salePrice": 60,
-      "saleLabel": ""
+      "saleLabel": "",
+      "season": ""
     },
     {
       "id": "heart-bag",
@@ -625,7 +670,8 @@
         "images/products/products-4.jpg"
       ],
       "listings": [],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "messenger-bag",
@@ -639,7 +685,8 @@
         "images/products/products-4.jpg"
       ],
       "listings": [],
-      "badges": []
+      "badges": [],
+      "season": ""
     },
     {
       "id": "sewing-roll",
@@ -654,7 +701,8 @@
         "images/products/pencil-brush-roll-2.jpg"
       ],
       "listings": [],
-      "badges": []
+      "badges": [],
+      "season": ""
     }
   ],
   "reviews": [
