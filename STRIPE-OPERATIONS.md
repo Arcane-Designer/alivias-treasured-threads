@@ -1,6 +1,15 @@
 # Stripe Checkout operations
 
-The staging integration is deployed in Stripe sandbox mode with isolated encrypted credentials and the staging D1 database. Production uses separate encrypted live credentials and `att-orders-production`; the Worker rejects any key, Session, reference, or webhook whose mode does not match its environment.
+## Staging retirement (2026-08-24)
+
+Staging is no longer needed and is retired. Removed from the repo: the `env.staging` Wrangler config and the storefront's `checkoutTestApiUrl` setting. Still pending manual cleanup in the external accounts:
+
+- **Stripe sandbox:** disable or delete both webhook destinations pointing at `https://att-checkout-staging.nathanagellatly.workers.dev/stripe/webhook` (the superseded destination and `Alivia Checkout Staging Verified`). Failing test-mode deliveries to that URL are what trigger Stripe's warning emails.
+- **Cloudflare:** delete the `att-checkout-staging` Worker (this also removes its two Stripe secrets), then the `att-orders-staging` D1 database if its test orders are no longer wanted. The `REVIEWS` KV namespace is shared with production — keep it.
+
+Production — the `att-review-inbox` Worker, `att-orders-production` D1, and the live-mode webhook — stays as is.
+
+The staging integration ran in Stripe sandbox mode with isolated encrypted credentials and the staging D1 database. Production uses separate encrypted live credentials and `att-orders-production`; the Worker rejects any key, Session, reference, or webhook whose mode does not match its environment.
 
 ## Paid-order workflow
 
@@ -93,4 +102,4 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 - Verified success returned the matching order reference and item; cancel preserved its basket; verified success cleared it. Desktop and 390px renders passed without horizontal overflow.
 - The status response includes `webhookVerified` so QA can distinguish signed-event processing from the safe Stripe-status fallback.
 - The final proof payment returned `webhookVerified: true`; Stripe recorded HTTP 200 for `checkout.session.completed`, and replay also returned HTTP 200. A new attempt to buy the paid inventory returned `409 inventory_changed`.
-- The superseded sandbox destination retains its historical HTTP 400 attempts. Keep `Alivia Checkout Staging Verified` as the active staging destination and remove or disable the obsolete destination during Stripe sandbox cleanup.
+- The superseded sandbox destination retains its historical HTTP 400 attempts. With staging retired, both sandbox destinations — the superseded one and `Alivia Checkout Staging Verified` — are obsolete; see the staging retirement section.

@@ -123,6 +123,8 @@ Admin continues to own writes to this file. Do not put secrets in browser-readab
 
 ## Staging / live boundary
 
+**Staging retired (2026-08-24).** The Staging column below is historical; only Production is active. See `STRIPE-OPERATIONS.md` for the retirement details.
+
 | Staging | Production |
 |---------|------------|
 | `PAYMENTS_MODE=test` with sandbox credentials | `PAYMENTS_MODE=live` with separate encrypted live credentials |

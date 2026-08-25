@@ -22,7 +22,6 @@
     "leaveReviewIntro": "Took home a treasure? I'd love to hear how you like it! Your note might even end up on the site 💜",
     "reviewInboxUrl": "https://att-review-inbox.nathanagellatly.workers.dev",
     "checkoutApiUrl": "https://att-review-inbox.nathanagellatly.workers.dev",
-    "checkoutTestApiUrl": "https://att-checkout-staging.nathanagellatly.workers.dev",
     "checkoutEnabled": true,
     "standardShippingCents": 600,
     "instagramUrl": "https://www.instagram.com/alivias_treasured_threads?igsh=ajdiMWM4ajBtaHBn",
