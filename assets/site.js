@@ -198,19 +198,10 @@
   }
   function coverImg(p) {
     if (p.images && p.images[0]) return resolveImg(p.images[0]);
-    const u = unsoldListings(p);
-    if (u[0] && u[0].images && u[0].images[0]) return resolveImg(u[0].images[0]);
     return resolveImg(PLACEHOLDER);
   }
   function allImages(p) {
-    const out = [];
-    (p.images || []).forEach((i) => out.push(i));
-    (p.listings || []).forEach((l) => {
-      (l.images || []).forEach((i) => {
-        if (out.indexOf(i) === -1) out.push(i);
-      });
-    });
-    return out;
+    return p.images && p.images.length ? p.images.slice() : [];
   }
   function productHref(p) {
     return ROOT + 'shop/' + encodeURIComponent(p.id) + '/';

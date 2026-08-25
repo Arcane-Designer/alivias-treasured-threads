@@ -53,21 +53,11 @@ function loadData() {
 
 function coverPath(p) {
   if (p.images && p.images[0]) return p.images[0];
-  const listing = (p.listings || []).find((l) => l.images && l.images[0]);
-  if (listing) return listing.images[0];
   return 'images/brand/logo.jpg';
 }
 
 function allImages(p) {
-  const out = [];
-  (p.images || []).forEach((i) => out.push(i));
-  (p.listings || []).forEach((l) => {
-    (l.images || []).forEach((i) => {
-      if (!out.includes(i)) out.push(i);
-    });
-  });
-  if (!out.length) out.push('images/brand/logo.jpg');
-  return out;
+  return p.images && p.images.length ? [...p.images] : ['images/brand/logo.jpg'];
 }
 
 function isOnSale(p) {

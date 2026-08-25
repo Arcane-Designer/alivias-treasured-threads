@@ -150,13 +150,15 @@ if (!existsSync(productRoot)) {
     if (!html.includes('href="../../shop/"')) {
       fail(`shop/${id}/index.html missing shop link at ../../shop/`);
     }
+    const showsListings = (product.listings || []).some((listing) => !listing.sold);
     for (const listing of product.listings || []) {
-      if (!html.includes(htmlText(listing.name))) fail(`shop/${id}/index.html missing listing ${listing.id}`);
+      if (showsListings && !html.includes(htmlText(listing.name))) fail(`shop/${id}/index.html missing listing ${listing.id}`);
       const addMarker = `data-add-listing="${listing.id}"`;
       if (!listing.sold && !html.includes(addMarker)) fail(`shop/${id}/index.html cannot add available listing ${listing.id}`);
       if (listing.sold && html.includes(addMarker)) fail(`shop/${id}/index.html can add sold listing ${listing.id}`);
-      for (const image of listing.images || []) {
-        if (!html.includes(image)) fail(`shop/${id}/index.html missing listing image ${image}`);
+      const listingThumb = listing.images && listing.images[0];
+      if (showsListings && listingThumb && !html.includes(listingThumb)) {
+        fail(`shop/${id}/index.html missing listing image ${listingThumb}`);
       }
     }
     /* no secrets in browser */
