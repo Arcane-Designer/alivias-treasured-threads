@@ -548,7 +548,6 @@
     $('newListingName').value = '';
     $('newListingPreview').innerHTML = '';
     $('newListingPhotoLabel').textContent = '📷 Pick photo(s)';
-    $('newListingAlsoProduct').checked = false;
 
     renderEditorPhotos();
     renderEditorListings();
@@ -1489,17 +1488,8 @@
     /* newest listing goes first */
     currentProduct.listings.unshift(listing);
 
-    /* one tap, both places: mirror the photos into the product gallery */
-    if ($('newListingAlsoProduct').checked) {
-      listing.images.forEach((path) => {
-        if (!currentProduct.images.includes(path)) currentProduct.images.push(path);
-      });
-      renderEditorPhotos();
-    }
-
     stagedListingPhotos = [];
     $('newListingName').value = '';
-    $('newListingAlsoProduct').checked = false;
     renderStagedPreview();
     markDirty();
     renderEditorListings();
