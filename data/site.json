@@ -235,6 +235,14 @@
       ],
       "listings": [
         {
+          "id": "l-mtdckjc6ept6",
+          "name": "Blue Strawberry Tote",
+          "images": [
+            "images/uploads/listing-mtdck1n3ijt.jpg"
+          ],
+          "sold": false
+        },
+        {
           "id": "l-mt3s3zpw45zh",
           "name": "Chai Time Tote",
           "images": [
@@ -532,6 +540,14 @@
         "images/uploads/jackie-mini-tote-bag-ms3m7hjifr8.jpg"
       ],
       "listings": [
+        {
+          "id": "l-mtdcjtj307ii",
+          "name": "Strawberry Jam Mini Tote",
+          "images": [
+            "images/uploads/listing-mtdcjig6obp.jpg"
+          ],
+          "sold": false
+        },
         {
           "id": "l-mshwiv36uu6e",
           "name": "Off The Wall Mini Tote",
