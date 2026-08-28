@@ -1207,14 +1207,6 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.45);
 }
-.studio-link {
-  text-decoration: none;
-  opacity: 0.5;
-  display: inline-block;
-  transition: opacity var(--transition), transform var(--transition);
-}
-.studio-link:hover { opacity: 1; transform: rotate(-14deg) scale(1.25); }
-
 /* ---------- basket fab (original purple circle) ---------- */
 .basket-fab {
   position: fixed;

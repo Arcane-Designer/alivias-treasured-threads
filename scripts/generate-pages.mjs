@@ -289,7 +289,6 @@ ${jsonLdProduct(p, pageUrl)}
       </div>
       <div class="footer-bottom">
         <span>© <span data-brand>Alivia's Treasured Threads</span></span>
-        <a class="studio-link" href="../../admin/" title="Alivia's Studio">🧵</a>
       </div>
     </div>
   </footer>
@@ -364,6 +363,7 @@ ${body}
 function writeRobots() {
   const txt = `User-agent: *
 Allow: /
+Disallow: /admin/
 
 Sitemap: ${BASE}/sitemap.xml
 `;
