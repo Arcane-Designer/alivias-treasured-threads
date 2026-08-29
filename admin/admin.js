@@ -36,7 +36,7 @@
     { label: 'Thanksgiving', emoji: '🦃' },
     { label: 'Christmas', emoji: '🎄' },
     { label: 'Faith', emoji: '✝️' },
-    { label: 'Harry Potter', emoji: '⚡' },
+    { label: 'Wizarding', emoji: '🪄' },
   ];
   const THEME_EMOJI_CHOICES = ['🌷', '🌸', '🌻', '☀️', '🌊', '🍂', '🍁', '🎃', '🦃', '❄️', '⛄', '🎄', '💝', '🍀', '🎆', '🐣', '🎓', '✏️', '🌙', '⭐', '🎀', '🧵', '🍎', '🌈', '🕯️', '🎁', '✝️', '🕊️', '🙏', '⚡', '🪄', '🦄', '🐾', '⚓'];
 
@@ -255,6 +255,69 @@
   function defaultThemeEmoji(label) {
     const preset = THEME_PRESETS.find((s) => s.label.toLocaleLowerCase() === String(label || '').toLocaleLowerCase());
     return preset ? preset.emoji : '🧵';
+  }
+
+  /* ---------- publishing safely next to another device ----------
+     The Studio writes the whole site.json from memory, so two publishes that
+     started from different versions used to overwrite each other wholesale
+     (the git-level retry below even made that overwrite succeed). Before
+     writing we re-read what is actually live and replay only the changes she
+     made on this device, so nothing from either side is lost. */
+  function indexById(list) {
+    const map = new Map();
+    (list || []).forEach((item) => { if (item && item.id) map.set(item.id, item); });
+    return map;
+  }
+
+  function mergeCollection(baseList, mineList, liveList) {
+    const base = indexById(baseList);
+    const mine = indexById(mineList);
+    const live = indexById(liveList);
+    const same = (a, b) => JSON.stringify(a === undefined ? null : a) === JSON.stringify(b === undefined ? null : b);
+    const bothChanged = [];
+
+    let out = (liveList || [])
+      .filter((item) => !(base.has(item.id) && !mine.has(item.id))) /* she deleted it */
+      .map((item) => {
+        const mineItem = mine.get(item.id);
+        if (!mineItem) return item;
+        if (same(mineItem, base.get(item.id))) return item; /* she left it alone */
+        if (!same(item, base.get(item.id))) bothChanged.push(item.name || item.id);
+        return mineItem; /* she edited it, hers is the version in front of her */
+      });
+
+    (mineList || []).forEach((item) => {
+      if (!base.has(item.id) && !live.has(item.id)) out.push(item); /* she added it */
+    });
+
+    /* if she reordered things, keep her order and park anything only the other
+       device knows about at the end */
+    const baseOrder = (baseList || []).map((i) => i.id).join('|');
+    const mineOrder = (mineList || []).map((i) => i.id).join('|');
+    if (baseOrder !== mineOrder) {
+      const rank = new Map((mineList || []).map((item, n) => [item.id, n]));
+      out = out.slice().sort((a, b) => (rank.has(a.id) ? rank.get(a.id) : 1e6) - (rank.has(b.id) ? rank.get(b.id) : 1e6));
+    }
+    return { list: out, bothChanged };
+  }
+
+  function mergeSiteData(base, mine, live) {
+    const merged = JSON.parse(JSON.stringify(live));
+
+    /* settings, one key at a time */
+    const keys = new Set([...Object.keys(base.settings || {}), ...Object.keys(mine.settings || {})]);
+    keys.forEach((k) => {
+      if (JSON.stringify(mine.settings ? mine.settings[k] : undefined) === JSON.stringify(base.settings ? base.settings[k] : undefined)) return;
+      if (mine.settings && k in mine.settings) merged.settings[k] = mine.settings[k];
+      else delete merged.settings[k];
+    });
+
+    const products = mergeCollection(base.products, mine.products, live.products);
+    merged.products = products.list;
+    const reviews = mergeCollection(base.reviews, mine.reviews, live.reviews);
+    merged.reviews = reviews.list;
+
+    return { merged, clashes: [...products.bothChanged, ...reviews.bothChanged] };
   }
 
   /* one commit containing the JSON + any new photos */
@@ -2110,8 +2173,43 @@
     return touched;
   }
 
+  let publishing = false;
+
   $('publishBtn').addEventListener('click', async () => {
-    if (!isDirty()) return;
+    if (!isDirty() || publishing) return;
+    publishing = true;
+    $('publishBtn').disabled = true;
+    try {
+      await runPublish();
+    } finally {
+      publishing = false;
+      $('publishBtn').disabled = false;
+    }
+  });
+
+  async function runPublish() {
+    /* pick up anything published from her other device first, so this publish
+       adds to that work instead of replacing it */
+    try {
+      progress('Checking for updates from your other devices…');
+      const live = await fetchLiveData();
+      const liveJson = JSON.stringify(live);
+      if (liveJson !== publishedSnapshot) {
+        const { merged, clashes } = mergeSiteData(JSON.parse(publishedSnapshot), draft, live);
+        draft = merged;
+        renderProducts();
+        renderReviews();
+        renderSettings();
+        renderSeasonPhoto();
+        if (clashes.length) {
+          toast('Heads up: ' + clashes.slice(0, 2).join(' and ') + ' changed somewhere else too. Your version here is the one going live.', 'pink');
+        } else {
+          toast('Picked up an update from your other device ~ nothing lost, publishing both. ✨', 'teal');
+        }
+      }
+    } catch (e) {
+      /* if the check itself fails we still publish; the git step stays safe */
+    }
 
     /* best-effort safety net: never publish photo paths that would 404 */
     try {
@@ -2154,7 +2252,7 @@
         toast("Publishing hiccuped: " + err.message + " ~ your changes are safe here, try again in a moment!", 'pink');
       }
     }
-  });
+  }
 
   /* ================================================
      login / logout wiring

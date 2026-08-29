@@ -37,6 +37,8 @@ jobs:
         run: node scripts/validate.mjs
 
       - name: Commit regenerated crawlable pages
+        env:
+          GENERATE_BASE: ${{ vars.GENERATE_BASE || 'https://aliviastreasuredthreads.com' }}
         run: |
           if git diff --quiet; then
             echo "Generated pages are already current."
@@ -46,4 +48,18 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add shop product sitemap.xml robots.txt
           git commit -m "Refresh generated Shop pages from Studio data"
-          git push
+          # A publish from the Studio can land while this run is working. Rebase
+          # onto it and regenerate rather than failing and leaving pages stale.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Remote moved, rebasing and regenerating (attempt $attempt)."
+            git pull --rebase --autostash origin main
+            node scripts/generate-pages.mjs --base "$GENERATE_BASE"
+            git add shop product sitemap.xml robots.txt
+            git diff --cached --quiet || git commit --amend --no-edit
+          done
+          echo "Could not push regenerated pages after 3 attempts." >&2
+          exit 1

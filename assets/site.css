@@ -1239,7 +1239,7 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .theme-tint--thanksgiving { --theme-ink: #8a5b2b; --theme-soft: #f7efe4; }
 .theme-tint--christmas { --theme-ink: #a33f4a; --theme-soft: #fbeaec; }
 .theme-tint--faith { --theme-ink: #6d7fa8; --theme-soft: #eef1f8; }
-.theme-tint--harry-potter { --theme-ink: #7a5aa6; --theme-soft: #f0eafa; }
+.theme-tint--wizarding { --theme-ink: #7a5aa6; --theme-soft: #f0eafa; }
 
 .theme-badge {
   position: absolute;
@@ -1270,7 +1270,7 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .theme-badge--thanksgiving { --theme-ink: #8a5b2b; --theme-soft: #f7efe4; }
 .theme-badge--christmas { --theme-ink: #a33f4a; --theme-soft: #fbeaec; }
 .theme-badge--faith { --theme-ink: #6d7fa8; --theme-soft: #eef1f8; }
-.theme-badge--harry-potter { --theme-ink: #7a5aa6; --theme-soft: #f0eafa; }
+.theme-badge--wizarding { --theme-ink: #7a5aa6; --theme-soft: #f0eafa; }
 
 /* inline variant used beside a listing's status line */
 .theme-badge--sm {

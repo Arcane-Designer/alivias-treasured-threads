@@ -177,7 +177,7 @@
     { label: "Valentine's Day", emoji: '💝' }, { label: "St. Patrick's Day", emoji: '🍀' },
     { label: 'Fourth of July', emoji: '🎆' }, { label: 'Halloween', emoji: '🎃' },
     { label: 'Thanksgiving', emoji: '🦃' }, { label: 'Christmas', emoji: '🎄' },
-    { label: 'Faith', emoji: '✝️' }, { label: 'Harry Potter', emoji: '⚡' },
+    { label: 'Faith', emoji: '✝️' }, { label: 'Wizarding', emoji: '🪄' },
   ];
   function cleanTheme(value) {
     return String(value || '').trim().replace(/\s+/g, ' ');
