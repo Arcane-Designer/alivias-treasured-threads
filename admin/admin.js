@@ -146,7 +146,15 @@
      GitHub client
      ================================================ */
   async function gh(path, opts = {}) {
-    const res = await fetch('https://api.github.com' + path, {
+    /* GitHub answers authenticated reads with Cache-Control: max-age=60, so a
+       plain fetch can hand back a minute-old copy. That is long enough to miss
+       an update published from another device, which is exactly the check we
+       rely on before overwriting site.json, so never read from cache. */
+    const bust = (opts.method || 'GET') === 'GET'
+      ? (path.includes('?') ? '&' : '?') + '_=' + Date.now()
+      : '';
+    const res = await fetch('https://api.github.com' + path + bust, {
+      cache: 'no-store',
       ...opts,
       headers: {
         'Authorization': 'Bearer ' + token,
@@ -2188,6 +2196,7 @@
   });
 
   async function runPublish() {
+    let mergedIn = false;
     /* pick up anything published from her other device first, so this publish
        adds to that work instead of replacing it */
     try {
@@ -2201,6 +2210,7 @@
         renderReviews();
         renderSettings();
         renderSeasonPhoto();
+        mergedIn = true;
         if (clashes.length) {
           toast('Heads up: ' + clashes.slice(0, 2).join(' and ') + ' changed somewhere else too. Your version here is the one going live.', 'pink');
         } else {
@@ -2242,7 +2252,9 @@
       updatePublishBar();
       renderProducts();
       confettiBurst();
-      toast('Published!! 🎉 Give it a minute or two to appear on the site.', 'teal');
+      toast(mergedIn
+        ? 'Published!! 🎉 Your other device\'s update was folded in too, nothing lost.'
+        : 'Published!! 🎉 Give it a minute or two to appear on the site.', 'teal');
     } catch (err) {
       progress(null);
       console.error(err);
