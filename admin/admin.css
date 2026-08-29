@@ -581,6 +581,49 @@ textarea.field-input { resize: vertical; }
 .category-rename .field-input { flex: 1; padding-block: 9px; }
 .category-error { grid-column: 1 / -1; color: #9f276f; font-size: 0.78rem; font-weight: 700; }
 
+/* ---------- seasons ---------- */
+.season-item { grid-template-columns: auto 1fr auto auto; }
+.season-emoji-btn {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  border: 1px dashed var(--purple-light);
+  background: #fff;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--transition), border-color var(--transition);
+}
+.season-emoji-btn:hover { transform: scale(1.08); border-color: var(--purple); }
+.season-emoji-palette {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--neutral-dark);
+}
+.season-emoji-choice {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--neutral-dark);
+  background: #fff;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--transition), border-color var(--transition);
+}
+.season-emoji-choice:hover { transform: scale(1.12); border-color: var(--pink); }
+.season-add { margin-top: 14px; padding-top: 12px; border-top: 2px dashed var(--neutral-dark); }
+.season-error { color: #9f276f; font-size: 0.78rem; font-weight: 700; min-height: 1em; }
+.listing-season { margin-top: 6px; }
+.listing-season .select-wrap.compact select { padding-block: 7px; font-size: 0.85rem; }
+.mini-chip.season { background: var(--purple-pale); color: var(--purple-dark); }
+
+@media (max-width: 600px) {
+  .season-item { grid-template-columns: auto 1fr auto; }
+  .season-item .category-action.danger { grid-column: 3; }
+}
+
 @media (max-width: 600px) {
   .inline-custom-row { align-items: stretch; flex-direction: column; }
   .category-item { grid-template-columns: 1fr auto; }

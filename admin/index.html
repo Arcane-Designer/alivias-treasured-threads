@@ -296,10 +296,8 @@
             <div class="field-group">
               <label class="field-label" for="epSeason">Season <span class="tiny-note">optional</span></label>
               <div class="select-wrap"><select id="epSeason" class="field-input themed-select"></select></div>
-              <div id="epSeasonCustomGroup" class="inline-custom" hidden>
-                <label class="field-label" for="epSeasonCustom">Custom season</label>
-                <input type="text" id="epSeasonCustom" class="field-input" placeholder="For example, Back to School">
-              </div>
+              <p class="field-hint" id="epSeasonHint">Tags the whole product.</p>
+              <button type="button" class="taxonomy-manage-btn" id="manageSeasons">Manage seasons</button>
             </div>
           </div>
         </div>
@@ -443,6 +441,27 @@
       <p class="picker-hint">Rename a category everywhere, or remove it without deleting any products.</p>
       <div class="category-list" id="categoryList"></div>
       <div class="picker-foot"><button class="btn btn-gradient" id="categoryDone">Done ✓</button></div>
+    </div>
+  </div>
+
+  <!-- ================= SEASON MANAGER ================= -->
+  <div class="category-overlay" id="seasonOverlay" hidden>
+    <div class="category-card" role="dialog" aria-modal="true" aria-labelledby="seasonManagerTitle">
+      <div class="picker-head">
+        <h3 id="seasonManagerTitle">Manage seasons</h3>
+        <button class="icon-btn" id="seasonClose" aria-label="Close season manager">×</button>
+      </div>
+      <p class="picker-hint">Rename a season everywhere, pick its little symbol, or remove one without deleting any products.</p>
+      <div class="category-list" id="seasonList"></div>
+      <div class="season-add">
+        <label class="field-label" for="seasonAddInput">Add a season</label>
+        <div class="inline-custom-row">
+          <input type="text" id="seasonAddInput" class="field-input" placeholder="For example, Back to School" maxlength="60">
+          <button type="button" class="btn btn-teal btn-small" id="seasonAddBtn">Add</button>
+        </div>
+        <div class="season-error" id="seasonAddError" aria-live="polite"></div>
+      </div>
+      <div class="picker-foot"><button class="btn btn-gradient" id="seasonDone">Done ✓</button></div>
     </div>
   </div>
 

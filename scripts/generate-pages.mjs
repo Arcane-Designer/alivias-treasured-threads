@@ -122,6 +122,27 @@ function jsonLdProduct(p, pageUrl) {
   return JSON.stringify(obj, null, 2);
 }
 
+/* Seasons live on individual listings, so the crawlable page has to carry
+   them too. Vocabulary (label + emoji) comes from settings.seasons. */
+let SEASON_VOCAB = [];
+function setSeasonVocab(settings) {
+  SEASON_VOCAB = (Array.isArray(settings.seasons) ? settings.seasons : [])
+    .map((entry) => (typeof entry === 'string'
+      ? { label: String(entry).trim(), emoji: '' }
+      : { label: String(entry?.label || '').trim(), emoji: String(entry?.emoji || '').trim() }))
+    .filter((s) => s.label);
+}
+function seasonSlug(label) {
+  return String(label || '').trim().toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+function seasonBadge(label, extraClass) {
+  const clean = String(label || '').trim().replace(/\s+/g, ' ');
+  if (!clean) return '';
+  const meta = SEASON_VOCAB.find((s) => s.label.toLowerCase() === clean.toLowerCase());
+  const emoji = (meta && meta.emoji) || '🧵';
+  return `<span class="season-badge season-badge--${escAttr(seasonSlug(clean) || 'custom')}${extraClass ? ' ' + extraClass : ''}" title="${escAttr(clean)}"><span aria-hidden="true">${esc(emoji)}</span> ${esc(clean)}</span>`;
+}
+
 function listingsHtml(p) {
   const listings = p.listings || [];
   if (p.oneOfAKind) return '';
@@ -142,7 +163,7 @@ function listingsHtml(p) {
         </button>
         <div class="listing-meta">
           <div class="listing-name">${esc(l.name)}</div>
-          ${sold ? '<div class="listing-status">Sold</div>' : '<div class="listing-status">Ready to ship</div>'}
+          <div class="listing-status">${sold ? 'Sold' : 'Ready to ship'}${seasonBadge(l.season, 'season-badge--sm')}</div>
         </div>
         ${action}
       </div>`;
@@ -187,7 +208,7 @@ function productPage(p, settings) {
   const ogImg = `${BASE}/${coverPath(p).replace(/^\//, '')}`;
   const badges = (p.badges || [])
     .map((b) => `<span class="sticker sticker-inline">${esc(b)}</span>`)
-    .join('');
+    .join('') + seasonBadge(p.season, 'season-badge--sm');
   const archivedNote = p.archived
     ? `<p class="muted" style="margin-bottom:1rem">This piece isn't currently listed in the shop. The page stays up for reference.</p>`
     : '';
@@ -397,6 +418,7 @@ function legacyRedirect(p) {
 function main() {
   const data = loadData();
   const settings = data.settings || {};
+  setSeasonVocab(settings);
   const products = data.products || [];
   const ids = new Set();
   for (const p of products) {

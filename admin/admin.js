@@ -21,7 +21,22 @@
   const MAX_IMG_EDGE = 1400;
   const JPEG_QUALITY = 0.82;
   const CATEGORY_PRESETS = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles', 'Other'];
-  const SEASON_PRESETS = ['Spring', 'Summer', 'Fall', 'Winter', 'Holiday', 'Year-round'];
+  /* Seasons carry an emoji so chips and badges look styled without Alivia
+     needing to fuss with design. Presets are seeded into settings.seasons so
+     she can rename, restyle, or remove any of them like she does categories. */
+  const SEASON_PRESETS = [
+    { label: 'Spring', emoji: '🌷' },
+    { label: 'Summer', emoji: '☀️' },
+    { label: 'Fall', emoji: '🍂' },
+    { label: 'Winter', emoji: '❄️' },
+    { label: "Valentine's Day", emoji: '💝' },
+    { label: "St. Patrick's Day", emoji: '🍀' },
+    { label: 'Fourth of July', emoji: '🎆' },
+    { label: 'Halloween', emoji: '🎃' },
+    { label: 'Thanksgiving', emoji: '🦃' },
+    { label: 'Christmas', emoji: '🎄' },
+  ];
+  const SEASON_EMOJI_CHOICES = ['🌷', '🌸', '🌻', '☀️', '🌊', '🍂', '🍁', '🎃', '🦃', '❄️', '⛄', '🎄', '💝', '🍀', '🎆', '🐣', '🎓', '✏️', '🌙', '⭐', '🎀', '🧵', '🍎', '🌈', '🕯️', '🎁'];
 
   const $ = (id) => document.getElementById(id);
 
@@ -191,6 +206,7 @@
       p.category = cleanTaxonomyValue(p.category);
       p.season = cleanTaxonomyValue(p.season);
       delete p.tags;
+      (p.listings || []).forEach((l) => { l.season = cleanTaxonomyValue(l.season); });
     });
     const categorySource = Array.isArray(d.settings.categories) ? d.settings.categories : CATEGORY_PRESETS;
     d.settings.categories = categorySource.map(cleanTaxonomyValue).filter(Boolean).filter((category, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase()) === index);
@@ -198,8 +214,32 @@
       const category = cleanTaxonomyValue(product.category);
       if (category && !d.settings.categories.some((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase())) d.settings.categories.push(category);
     });
+    /* seasons: {label, emoji} list, seeded from presets, plus any label a
+       product or listing already uses so a tag can never orphan itself */
+    const seasonSource = Array.isArray(d.settings.seasons) ? d.settings.seasons : SEASON_PRESETS;
+    const seenSeasons = new Map();
+    seasonSource.forEach((entry) => {
+      const label = cleanTaxonomyValue(typeof entry === 'string' ? entry : entry && entry.label);
+      if (!label || seenSeasons.has(label.toLocaleLowerCase())) return;
+      const emoji = typeof entry === 'object' && entry ? String(entry.emoji || '').trim().slice(0, 4) : '';
+      seenSeasons.set(label.toLocaleLowerCase(), { label, emoji: emoji || defaultSeasonEmoji(label) });
+    });
+    (d.products || []).forEach((product) => {
+      [product.season, ...(product.listings || []).map((l) => l.season)].forEach((value) => {
+        const label = cleanTaxonomyValue(value);
+        if (label && !seenSeasons.has(label.toLocaleLowerCase())) {
+          seenSeasons.set(label.toLocaleLowerCase(), { label, emoji: defaultSeasonEmoji(label) });
+        }
+      });
+    });
+    d.settings.seasons = Array.from(seenSeasons.values());
     if (!Array.isArray(d.reviews)) d.reviews = [];
     return d;
+  }
+
+  function defaultSeasonEmoji(label) {
+    const preset = SEASON_PRESETS.find((s) => s.label.toLocaleLowerCase() === String(label || '').toLocaleLowerCase());
+    return preset ? preset.emoji : '🧵';
   }
 
   /* one commit containing the JSON + any new photos */
@@ -619,13 +659,50 @@
     return values;
   }
 
+  /* returns [{label, emoji}] */
   function knownSeasons() {
-    const values = SEASON_PRESETS.slice();
-    (draft.products || []).forEach((product) => {
-      const value = cleanTaxonomyValue(product.season);
-      if (value && !values.some((item) => item.toLocaleLowerCase() === value.toLocaleLowerCase())) values.push(value);
+    const source = Array.isArray(draft.settings?.seasons) ? draft.settings.seasons : SEASON_PRESETS;
+    const out = [];
+    source.forEach((entry) => {
+      const label = cleanTaxonomyValue(typeof entry === 'string' ? entry : entry && entry.label);
+      if (!label || out.some((s) => s.label.toLocaleLowerCase() === label.toLocaleLowerCase())) return;
+      const emoji = typeof entry === 'object' && entry ? String(entry.emoji || '').trim() : '';
+      out.push({ label, emoji: emoji || defaultSeasonEmoji(label) });
     });
-    return values;
+    return out;
+  }
+
+  function seasonEmojiFor(label) {
+    const clean = cleanTaxonomyValue(label);
+    if (!clean) return '';
+    const match = knownSeasons().find((s) => s.label.toLocaleLowerCase() === clean.toLocaleLowerCase());
+    return match ? match.emoji : defaultSeasonEmoji(clean);
+  }
+
+  /* one <select> of seasons, used by the product field and every listing row */
+  function seasonOptionsHtml(current, emptyLabel) {
+    const clean = cleanTaxonomyValue(current);
+    const seasons = knownSeasons();
+    const known = seasons.some((s) => s.label.toLocaleLowerCase() === clean.toLocaleLowerCase());
+    return '<option value="">' + esc(emptyLabel) + '</option>' +
+      seasons.map((s) => '<option value="' + esc(s.label) + '"' +
+        (known && s.label.toLocaleLowerCase() === clean.toLocaleLowerCase() ? ' selected' : '') + '>' +
+        esc((s.emoji ? s.emoji + ' ' : '') + s.label) + '</option>').join('') +
+      (clean && !known ? '<option value="' + esc(clean) + '" selected>' + esc(clean) + '</option>' : '');
+  }
+
+  /* a product counts as seasonal if it is tagged itself (bundles and
+     made-to-order pieces) or if any unsold listing carries the tag */
+  function seasonUseCount(label) {
+    const target = label.toLocaleLowerCase();
+    let n = 0;
+    (draft.products || []).forEach((product) => {
+      if (cleanTaxonomyValue(product.season).toLocaleLowerCase() === target) n++;
+      (product.listings || []).forEach((l) => {
+        if (cleanTaxonomyValue(l.season).toLocaleLowerCase() === target) n++;
+      });
+    });
+    return n;
   }
 
   function fillTaxonomySelect(select, values, current, emptyLabel, customLabel) {
@@ -649,10 +726,19 @@
     $('epCategoryCustom').value = customCategory ? cleanTaxonomyValue(currentProduct.category) : '';
     $('epCategoryCustom').classList.remove('invalid');
 
-    fillTaxonomySelect($('epSeason'), seasons, currentProduct.season || '', 'No season', 'Write a custom season');
-    const customSeason = cleanTaxonomyValue(currentProduct.season) && !seasons.some((value) => value.toLocaleLowerCase() === cleanTaxonomyValue(currentProduct.season).toLocaleLowerCase());
-    $('epSeasonCustomGroup').hidden = $('epSeason').value !== '__new__';
-    $('epSeasonCustom').value = customSeason ? cleanTaxonomyValue(currentProduct.season) : '';
+    $('epSeason').innerHTML = seasonOptionsHtml(currentProduct.season || '', 'No season');
+    updateSeasonScopeHint();
+  }
+
+  /* Whole-product seasons only make sense when the product IS the item (a
+     bundle) or has no ready-to-ship pieces to tag individually. */
+  function updateSeasonScopeHint() {
+    const hint = $('epSeasonHint');
+    if (!hint || !currentProduct) return;
+    const listingCount = (currentProduct.listings || []).length;
+    hint.textContent = currentProduct.oneOfAKind || !listingCount
+      ? 'Tags this whole product.'
+      : 'Tags the whole product. Each ready-to-ship piece below can have its own season instead.';
   }
 
   let categoryReturnFocus = null;
@@ -730,6 +816,150 @@
     if (categoryReturnFocus) categoryReturnFocus.focus();
   }
 
+  /* ---------- season manager ---------- */
+  let seasonReturnFocus = null;
+
+  function writeSeasons(list) {
+    draft.settings.seasons = list.map((s) => ({ label: s.label, emoji: s.emoji }));
+  }
+
+  function retagSeason(oldLabel, next) {
+    const target = oldLabel.toLocaleLowerCase();
+    (draft.products || []).forEach((product) => {
+      if (cleanTaxonomyValue(product.season).toLocaleLowerCase() === target) product.season = next;
+      (product.listings || []).forEach((l) => {
+        if (cleanTaxonomyValue(l.season).toLocaleLowerCase() === target) l.season = next;
+      });
+    });
+  }
+
+  function refreshSeasonUi() {
+    if (currentProduct) {
+      $('epSeason').innerHTML = seasonOptionsHtml(currentProduct.season || '', 'No season');
+      renderEditorListings();
+    }
+    renderSeasonManager();
+  }
+
+  function renderSeasonManager() {
+    const list = $('seasonList');
+    const seasons = knownSeasons();
+    list.innerHTML = '';
+    if (!seasons.length) {
+      list.innerHTML = '<p class="field-hint">No seasons yet. Add one below!</p>';
+      return;
+    }
+    seasons.forEach((season) => {
+      const count = seasonUseCount(season.label);
+      const row = document.createElement('div');
+      row.className = 'category-item season-item';
+      row.innerHTML =
+        '<button type="button" class="season-emoji-btn" aria-label="Change the symbol for ' + esc(season.label) + '">' + esc(season.emoji || '🧵') + '</button>' +
+        '<div class="category-item-name">' + esc(season.label) +
+          '<span class="category-item-count">' + count + ' ' + (count === 1 ? 'item' : 'items') + '</span></div>' +
+        '<button type="button" class="category-action rename">Rename</button>' +
+        '<button type="button" class="category-action danger">Delete</button>';
+
+      row.querySelector('.season-emoji-btn').addEventListener('click', () => beginSeasonEmoji(row, season.label));
+      row.querySelector('.rename').addEventListener('click', () => beginSeasonRename(row, season.label));
+      row.querySelector('.danger').addEventListener('click', () => deleteSeason(season.label));
+      list.appendChild(row);
+    });
+  }
+
+  function beginSeasonEmoji(row, label) {
+    if (row.querySelector('.season-emoji-palette')) return;
+    const palette = document.createElement('div');
+    palette.className = 'season-emoji-palette';
+    palette.innerHTML = SEASON_EMOJI_CHOICES
+      .map((e) => '<button type="button" class="season-emoji-choice" aria-label="Use ' + esc(e) + '">' + esc(e) + '</button>')
+      .join('');
+    row.appendChild(palette);
+    palette.querySelectorAll('.season-emoji-choice').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const next = knownSeasons().map((s) =>
+          s.label.toLocaleLowerCase() === label.toLocaleLowerCase() ? { label: s.label, emoji: btn.textContent } : s
+        );
+        writeSeasons(next);
+        markDirty();
+        refreshSeasonUi();
+      });
+    });
+  }
+
+  function beginSeasonRename(row, oldName) {
+    if (row.querySelector('.category-rename')) return;
+    const editor = document.createElement('div');
+    editor.className = 'category-rename';
+    editor.innerHTML = '<label class="sr-only" for="seasonRenameInput">New name for ' + esc(oldName) + '</label><input id="seasonRenameInput" class="field-input" value="' + esc(oldName) + '" maxlength="60"><button type="button" class="category-action save">Save</button><button type="button" class="category-action cancel">Cancel</button><div class="category-error" aria-live="polite"></div>';
+    row.appendChild(editor);
+    const input = editor.querySelector('input');
+    input.select();
+    editor.querySelector('.cancel').addEventListener('click', () => editor.remove());
+    const save = () => {
+      const next = cleanTaxonomyValue(input.value);
+      const duplicate = knownSeasons().some((s) => s.label.toLocaleLowerCase() === next.toLocaleLowerCase() && s.label.toLocaleLowerCase() !== oldName.toLocaleLowerCase());
+      if (!next || duplicate) {
+        editor.querySelector('.category-error').textContent = !next ? 'Enter a season name.' : 'That season already exists.';
+        input.focus();
+        return;
+      }
+      retagSeason(oldName, next);
+      writeSeasons(knownSeasons().map((s) => s.label.toLocaleLowerCase() === oldName.toLocaleLowerCase() ? { label: next, emoji: s.emoji } : s));
+      markDirty();
+      refreshSeasonUi();
+      toast('Renamed “' + oldName + '” to “' + next + '” everywhere.', 'teal');
+    };
+    editor.querySelector('.save').addEventListener('click', save);
+    input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); save(); } });
+  }
+
+  async function deleteSeason(label) {
+    const count = seasonUseCount(label);
+    const ok = await confirmCute(
+      'Delete the season “' + label + '”? ' + count + ' ' + (count === 1 ? 'item uses' : 'items use') + ' it. Nothing gets deleted, those pieces simply lose the season tag.',
+      'Remove season',
+      'Keep season'
+    );
+    if (!ok) return;
+    retagSeason(label, '');
+    writeSeasons(knownSeasons().filter((s) => s.label.toLocaleLowerCase() !== label.toLocaleLowerCase()));
+    markDirty();
+    refreshSeasonUi();
+    toast('Season removed.', 'teal');
+  }
+
+  function addSeason() {
+    const input = $('seasonAddInput');
+    const label = cleanTaxonomyValue(input.value);
+    const error = $('seasonAddError');
+    if (!label) { error.textContent = 'Enter a season name.'; input.focus(); return; }
+    if (knownSeasons().some((s) => s.label.toLocaleLowerCase() === label.toLocaleLowerCase())) {
+      error.textContent = 'That season already exists.';
+      input.focus();
+      return;
+    }
+    error.textContent = '';
+    input.value = '';
+    writeSeasons(knownSeasons().concat([{ label, emoji: defaultSeasonEmoji(label) }]));
+    markDirty();
+    refreshSeasonUi();
+    toast('Added “' + label + '”. Tap its symbol to pick an icon! ✨', 'teal');
+  }
+
+  function openSeasonManager() {
+    seasonReturnFocus = document.activeElement;
+    $('seasonAddError').textContent = '';
+    $('seasonAddInput').value = '';
+    renderSeasonManager();
+    $('seasonOverlay').hidden = false;
+    $('seasonClose').focus();
+  }
+  function closeSeasonManager() {
+    $('seasonOverlay').hidden = true;
+    if (seasonReturnFocus) seasonReturnFocus.focus();
+  }
+
   /* field bindings */
   $('epName').addEventListener('input', function () {
     if (!currentProduct) return;
@@ -768,17 +998,16 @@
   });
   $('epSeason').addEventListener('change', function () {
     if (!currentProduct) return;
-    const isCustom = this.value === '__new__';
-    $('epSeasonCustomGroup').hidden = !isCustom;
-    currentProduct.season = isCustom ? '' : canonicalTaxonomyValue(this.value, knownSeasons());
-    if (isCustom) $('epSeasonCustom').focus();
+    currentProduct.season = canonicalTaxonomyValue(this.value, knownSeasons().map((s) => s.label));
     markDirty();
   });
-  $('epSeasonCustom').addEventListener('input', function () {
-    if (!currentProduct) return;
-    currentProduct.season = canonicalTaxonomyValue(this.value, knownSeasons());
-    markDirty();
-  });
+  $('manageSeasons').addEventListener('click', openSeasonManager);
+  $('seasonClose').addEventListener('click', closeSeasonManager);
+  $('seasonDone').addEventListener('click', closeSeasonManager);
+  $('seasonAddBtn').addEventListener('click', addSeason);
+  $('seasonAddInput').addEventListener('input', function () { $('seasonAddError').textContent = ''; });
+  $('seasonAddInput').addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); addSeason(); } });
+  $('seasonOverlay').addEventListener('click', (event) => { if (event.target === $('seasonOverlay')) closeSeasonManager(); });
   $('manageCategories').addEventListener('click', openCategoryManager);
   $('categoryClose').addEventListener('click', closeCategoryManager);
   $('categoryDone').addEventListener('click', closeCategoryManager);
@@ -1251,6 +1480,13 @@
               (listing.sold ? '<span class="mini-chip sold">Sold</span>' : '<span class="mini-chip">Available</span>') +
               '<span class="mini-chip">📷 ' + (listing.images || []).length + '</span>' +
               (isNewPhoto ? '<span class="mini-chip new">new photo</span>' : '') +
+              (cleanTaxonomyValue(listing.season) ? '<span class="mini-chip season">' + esc((seasonEmojiFor(listing.season) + ' ' + cleanTaxonomyValue(listing.season)).trim()) + '</span>' : '') +
+            '</div>' +
+            '<div class="listing-season">' +
+              '<label class="sr-only" for="lseason-' + esc(listing.id) + '">Season for ' + esc(listing.name || 'this piece') + '</label>' +
+              '<div class="select-wrap compact"><select class="field-input themed-select listing-season-select" id="lseason-' + esc(listing.id) + '">' +
+                seasonOptionsHtml(listing.season, 'No season') +
+              '</select></div>' +
             '</div>' +
           '</div>' +
           '<div class="listing-actions">' +
@@ -1267,6 +1503,12 @@
         markDirty();
       });
 
+      row.querySelector('.listing-season-select').addEventListener('change', function () {
+        listing.season = canonicalTaxonomyValue(this.value, knownSeasons().map((s) => s.label));
+        markDirty();
+        renderEditorListings();
+      });
+
       row.querySelector('.sold-chip').addEventListener('click', () => {
         listing.sold = !listing.sold;
         markDirty();
@@ -1278,7 +1520,7 @@
         /* "Fall Fun Bookmark" -> "Fall Fun Bookmark 2"; "… 2" -> "… 3" */
         const m = (listing.name || '').match(/^(.*?)(\d+)\s*$/);
         const nextName = m ? m[1] + (parseInt(m[2], 10) + 1) : ((listing.name || 'Untitled') + ' 2');
-        const copy = { id: uid('l'), name: nextName, images: [...(listing.images || [])], sold: false };
+        const copy = { id: uid('l'), name: nextName, images: [...(listing.images || [])], sold: false, season: listing.season || '' };
         const at = currentProduct.listings.indexOf(listing);
         currentProduct.listings.splice(at + 1, 0, copy);
         markDirty();
@@ -1379,6 +1621,7 @@
       none.textContent = 'No ready-to-ship listings yet ~ add one below whenever something is finished and ready for a new home!';
       wrap.appendChild(none);
     }
+    updateSeasonScopeHint();
   }
 
   /* ---------- photo library picker (reuse without re-uploading) ---------- */
@@ -1480,7 +1723,7 @@
     }
     $('newListingName').classList.remove('invalid');
 
-    const listing = { id: uid('l'), name, images: [], sold: false };
+    const listing = { id: uid('l'), name, images: [], sold: false, season: '' };
     stagedListingPhotos.forEach(({ path, dataUrl, base64, existing }) => {
       if (!existing) pendingImages[path] = { dataUrl, base64 };
       if (!listing.images.includes(path)) listing.images.push(path);

@@ -70,6 +70,7 @@ for (const k of requiredSettings) {
 
 const ids = new Set();
 const imageRefs = new Set();
+let seasonTagCount = 0;
 const categoryCases = new Map();
 if (!Array.isArray(data.settings?.categories)) fail('Settings categories must be an array');
 else {
@@ -218,6 +219,29 @@ for (const img of imageRefs) {
   if (img.startsWith('/')) warn(`Root-absolute image path (may break project Pages base): ${img}`);
 }
 
+/* every season tag should resolve to a season in settings, otherwise a rename
+   or delete left an orphan that would never show up in the shop filters */
+{
+  const vocab = new Set(
+    (Array.isArray(data.settings?.seasons) ? data.settings.seasons : [])
+      .map((s) => String(typeof s === 'string' ? s : s?.label || '').trim().toLowerCase())
+      .filter(Boolean)
+  );
+  const seenTags = new Set();
+  for (const p of data.products || []) {
+    const tags = [['product', p.name, p.season], ...(p.listings || []).map((l) => ['listing', l.name, l.season])];
+    for (const [kind, name, value] of tags) {
+      const clean = String(value || '').trim().replace(/\s+/g, ' ');
+      if (!clean) continue;
+      seenTags.add(clean);
+      if (!vocab.has(clean.toLowerCase())) {
+        warn(`Season "${clean}" on ${kind} "${name}" is not in settings.seasons, so shoppers cannot filter by it.`);
+      }
+    }
+  }
+  seasonTagCount = seenTags.size;
+}
+
 /* scan HTML for secrets / bad checkout placeholders */
 for (const file of walkHtml(ROOT)) {
   const html = readFileSync(file, 'utf8');
@@ -236,5 +260,5 @@ if (failures.length) {
   failures.forEach((f) => console.log('  ✖ ' + f));
   process.exit(1);
 }
-console.log(`OK: ${ids.size} products, ${imageRefs.size} image refs checked.`);
+console.log(`OK: ${ids.size} products, ${imageRefs.size} image refs, ${seasonTagCount} season tag(s) checked.`);
 process.exit(0);

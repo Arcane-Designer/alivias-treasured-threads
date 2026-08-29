@@ -75,6 +75,48 @@
       "Bundles",
       "Other",
       "Baby"
+    ],
+    "seasons": [
+      {
+        "label": "Spring",
+        "emoji": "🌷"
+      },
+      {
+        "label": "Summer",
+        "emoji": "☀️"
+      },
+      {
+        "label": "Fall",
+        "emoji": "🍂"
+      },
+      {
+        "label": "Winter",
+        "emoji": "❄️"
+      },
+      {
+        "label": "Valentine's Day",
+        "emoji": "💝"
+      },
+      {
+        "label": "St. Patrick's Day",
+        "emoji": "🍀"
+      },
+      {
+        "label": "Fourth of July",
+        "emoji": "🎆"
+      },
+      {
+        "label": "Halloween",
+        "emoji": "🎃"
+      },
+      {
+        "label": "Thanksgiving",
+        "emoji": "🦃"
+      },
+      {
+        "label": "Christmas",
+        "emoji": "🎄"
+      }
     ]
   },
   "products": [

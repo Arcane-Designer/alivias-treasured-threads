@@ -1207,6 +1207,94 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.45);
 }
+/* ---------- seasons ----------
+   The season row is a second, softer axis under the type filters, so the two
+   never read as one long undifferentiated list of chips. */
+#seasonChips { --season-ink: #6b5cb8; --season-soft: #f1edfc; }
+#seasonChips.filter-bar { margin-top: 0.45rem; padding-top: 0.55rem; border-top: 1px dashed var(--neutral-dark); }
+
+.chip-season {
+  border-style: solid;
+  border-color: transparent;
+  background: var(--season-soft, #f1edfc);
+  color: var(--season-ink, #6b5cb8);
+  font-weight: 750;
+}
+.chip-season:hover { border-color: currentColor; color: var(--season-ink, #6b5cb8); }
+.chip-season.active {
+  background: var(--season-ink, #6b5cb8);
+  border-color: var(--season-ink, #6b5cb8);
+  color: #fff;
+}
+
+/* per-season pastels, tuned to sit beside the brand purple/pink/teal */
+.season-tint--spring { --season-ink: #4f8f5f; --season-soft: #eaf6ec; }
+.season-tint--summer { --season-ink: #b8791f; --season-soft: #fdf3e0; }
+.season-tint--fall { --season-ink: #a85a25; --season-soft: #fbeee2; }
+.season-tint--winter { --season-ink: #4a7fa8; --season-soft: #e9f2f9; }
+.season-tint--valentines-day { --season-ink: #c0447f; --season-soft: #fdeaf3; }
+.season-tint--st-patricks-day { --season-ink: #3f8a53; --season-soft: #e8f5ea; }
+.season-tint--fourth-of-july { --season-ink: #8a5fb0; --season-soft: #f0eafa; }
+.season-tint--halloween { --season-ink: #9c5312; --season-soft: #fbeddd; }
+.season-tint--thanksgiving { --season-ink: #8a5b2b; --season-soft: #f7efe4; }
+.season-tint--christmas { --season-ink: #a33f4a; --season-soft: #fbeaec; }
+
+.season-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--season-soft, #f1edfc);
+  color: var(--season-ink, #6b5cb8);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 5px 11px;
+  border-radius: 30px;
+  box-shadow: 0 0 0 3px #fff, 0 3px 8px rgba(45, 35, 56, 0.16);
+  transform: rotate(2deg);
+}
+.season-badge--spring { --season-ink: #4f8f5f; --season-soft: #eaf6ec; }
+.season-badge--summer { --season-ink: #b8791f; --season-soft: #fdf3e0; }
+.season-badge--fall { --season-ink: #a85a25; --season-soft: #fbeee2; }
+.season-badge--winter { --season-ink: #4a7fa8; --season-soft: #e9f2f9; }
+.season-badge--valentines-day { --season-ink: #c0447f; --season-soft: #fdeaf3; }
+.season-badge--st-patricks-day { --season-ink: #3f8a53; --season-soft: #e8f5ea; }
+.season-badge--fourth-of-july { --season-ink: #8a5fb0; --season-soft: #f0eafa; }
+.season-badge--halloween { --season-ink: #9c5312; --season-soft: #fbeddd; }
+.season-badge--thanksgiving { --season-ink: #8a5b2b; --season-soft: #f7efe4; }
+.season-badge--christmas { --season-ink: #a33f4a; --season-soft: #fbeaec; }
+
+/* inline variant used beside a listing's status line */
+.season-badge--sm {
+  position: static;
+  transform: none;
+  box-shadow: none;
+  font-size: 0.66rem;
+  padding: 3px 9px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.listings-note {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+}
+.listing-row.is-season-match {
+  background: #fbf9ff;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1.5px var(--purple-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .season-badge { transform: none; }
+}
+
 /* ---------- basket fab (original purple circle) ---------- */
 .basket-fab {
   position: fixed;

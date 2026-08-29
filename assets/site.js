@@ -166,6 +166,60 @@
   function categoryForProduct(p) {
     return String(p.category || '').trim().replace(/\s+/g, ' ') || 'Unspecified';
   }
+
+  /* ---------- seasons ----------
+     A season lives on the individual piece, because one tote can be fall and
+     the next winter. A product is "in" a season when it is tagged itself
+     (bundles, made-to-order pieces) or when any unsold listing carries it. */
+  const SEASON_FALLBACK = [
+    { label: 'Spring', emoji: '🌷' }, { label: 'Summer', emoji: '☀️' },
+    { label: 'Fall', emoji: '🍂' }, { label: 'Winter', emoji: '❄️' },
+    { label: "Valentine's Day", emoji: '💝' }, { label: "St. Patrick's Day", emoji: '🍀' },
+    { label: 'Fourth of July', emoji: '🎆' }, { label: 'Halloween', emoji: '🎃' },
+    { label: 'Thanksgiving', emoji: '🦃' }, { label: 'Christmas', emoji: '🎄' },
+  ];
+  function cleanSeason(value) {
+    return String(value || '').trim().replace(/\s+/g, ' ');
+  }
+  function seasonVocab() {
+    const raw = Array.isArray(DATA.settings?.seasons) && DATA.settings.seasons.length
+      ? DATA.settings.seasons
+      : SEASON_FALLBACK;
+    return raw
+      .map((entry) => (typeof entry === 'string' ? { label: cleanSeason(entry), emoji: '' } : { label: cleanSeason(entry?.label), emoji: String(entry?.emoji || '').trim() }))
+      .filter((s) => s.label);
+  }
+  function seasonMeta(label) {
+    const key = cleanSeason(label).toLocaleLowerCase();
+    return seasonVocab().find((s) => s.label.toLocaleLowerCase() === key) || { label: cleanSeason(label), emoji: '🧵' };
+  }
+  function seasonSlug(label) {
+    return cleanSeason(label).toLocaleLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+  /* every season label attached to a product, own tag first */
+  function productSeasons(p) {
+    const out = [];
+    const push = (value) => {
+      const clean = cleanSeason(value);
+      if (clean && !out.some((s) => s.toLocaleLowerCase() === clean.toLocaleLowerCase())) out.push(clean);
+    };
+    push(p.season);
+    unsoldListings(p).forEach((l) => push(l.season));
+    return out;
+  }
+  function productInSeason(p, seasonKey) {
+    return productSeasons(p).some((s) => s.toLocaleLowerCase() === seasonKey);
+  }
+  /* unsold listings matching a season, used to show the right photo and count */
+  function seasonalListings(p, seasonKey) {
+    return unsoldListings(p).filter((l) => cleanSeason(l.season).toLocaleLowerCase() === seasonKey);
+  }
+  function seasonBadgeHtml(label, extraClass) {
+    const meta = seasonMeta(label);
+    if (!meta.label) return '';
+    return '<span class="season-badge season-badge--' + esc(seasonSlug(meta.label) || 'custom') + (extraClass ? ' ' + extraClass : '') +
+      '" title="' + esc(meta.label) + '"><span aria-hidden="true">' + esc(meta.emoji || '🧵') + '</span> ' + esc(meta.label) + '</span>';
+  }
   function isCustomOnly(p) {
     return p.price === null && !p.oneOfAKind;
   }
@@ -217,26 +271,44 @@
   }
 
   /* ---------- cards ---------- */
-  function productCardHtml(p) {
+  function productCardHtml(p, seasonKey) {
     const stock = unsoldListings(p).length;
     const badges = (p.badges || []).slice(0, 2);
     const badgeHtml = badges
       .map((b) => '<span class="sticker">' + esc(b) + '</span>')
       .join('');
-    const readyTag =
-      stock > 0 || p.oneOfAKind
-        ? '<div class="product-card-meta">' +
-          (p.oneOfAKind ? 'One of a kind' : stock + ' ready to ship') +
-          '</div>'
-        : '<div class="product-card-meta custom">Made to order</div>';
+
+    /* When a season is being browsed, show the piece that actually matches it
+       rather than the product's usual cover photo, so nothing looks misleading. */
+    const matches = seasonKey ? seasonalListings(p, seasonKey) : [];
+    const ownMatch = seasonKey && cleanSeason(p.season).toLocaleLowerCase() === seasonKey;
+    const activeSeason = seasonKey && (matches.length || ownMatch)
+      ? (matches.length ? cleanSeason(matches[0].season) : cleanSeason(p.season))
+      : '';
+    const cover = matches.length && matches[0].images && matches[0].images[0]
+      ? resolveImg(matches[0].images[0])
+      : coverImg(p);
+    const seasonHtml = activeSeason ? seasonBadgeHtml(activeSeason, 'season-badge--card') : '';
+
+    let readyTag;
+    if (matches.length) {
+      readyTag = '<div class="product-card-meta">' + matches.length + ' ' + esc(activeSeason.toLocaleLowerCase()) +
+        (matches.length === 1 ? ' one ready' : ' ones ready') + '</div>';
+    } else if (stock > 0 || p.oneOfAKind) {
+      readyTag = '<div class="product-card-meta">' + (p.oneOfAKind ? 'One of a kind' : stock + ' ready to ship') + '</div>';
+    } else {
+      readyTag = '<div class="product-card-meta custom">Made to order</div>';
+    }
+
     return (
       '<a class="product-card" href="' +
-      esc(productHref(p)) +
+      esc(productHref(p) + (seasonKey && activeSeason ? '?season=' + encodeURIComponent(seasonKey) : '')) +
       '">' +
       '<div class="product-card-media">' +
       badgeHtml +
+      seasonHtml +
       '<img src="' +
-      esc(coverImg(p)) +
+      esc(cover) +
       '" alt="' +
       esc(p.name) +
       '" loading="lazy" width="400" height="400">' +
@@ -988,13 +1060,27 @@
       return categoryForProduct(p);
     }
 
+    /* Only offer seasons that exist inside whatever type is being viewed, so
+       a category with nothing seasonal never shows an empty row of chips. */
     function seasonsInData() {
-      const values = new Map();
-      activeProducts.forEach((p) => {
-        const season = String(p.season || '').trim().replace(/\s+/g, ' ');
-        if (season && !values.has(season.toLocaleLowerCase())) values.set(season.toLocaleLowerCase(), season);
+      const pool = currentType === 'all' ? activeProducts : activeProducts.filter((p) => groupedType(p) === currentType);
+      const found = new Map();
+      pool.forEach((p) => {
+        productSeasons(p).forEach((label) => {
+          const key = label.toLocaleLowerCase();
+          if (!found.has(key)) found.set(key, label);
+        });
       });
-      return Array.from(values, ([key, label]) => ({ key, label })).sort((a, b) => a.label.localeCompare(b.label));
+      const order = seasonVocab().map((s) => s.label.toLocaleLowerCase());
+      return Array.from(found, ([key, label]) => ({ key, label, emoji: seasonMeta(label).emoji }))
+        .sort((a, b) => {
+          const ia = order.indexOf(a.key);
+          const ib = order.indexOf(b.key);
+          if (ia !== -1 && ib !== -1) return ia - ib;
+          if (ia !== -1) return -1;
+          if (ib !== -1) return 1;
+          return a.label.localeCompare(b.label);
+        });
     }
     function typesInData() {
       const set = new Set();
@@ -1004,15 +1090,8 @@
 
     function filtered() {
       let list = activeProducts.slice();
-      if (currentSeason !== 'all') {
-        list = list.filter((p) => {
-          const s = (p.season || '').toLowerCase();
-          return s === currentSeason;
-        });
-      }
-      if (currentType !== 'all') {
-        list = list.filter((p) => groupedType(p) === currentType);
-      }
+      if (currentSeason !== 'all') list = list.filter((p) => productInSeason(p, currentSeason));
+      if (currentType !== 'all') list = list.filter((p) => groupedType(p) === currentType);
       return list;
     }
 
@@ -1027,7 +1106,8 @@
         return;
       }
       if (empty) empty.hidden = true;
-      grid.innerHTML = list.map(productCardHtml).join('');
+      const seasonKey = currentSeason === 'all' ? '' : currentSeason;
+      grid.innerHTML = list.map((p) => productCardHtml(p, seasonKey)).join('');
     }
 
     function syncUrl() {
@@ -1069,7 +1149,7 @@
       }
       seasonWrap.hidden = false;
       seasonWrap.innerHTML =
-        '<button type="button" class="chip' +
+        '<button type="button" class="chip chip-season' +
         (currentSeason === 'all' ? ' active' : '') +
         '" data-season="all" aria-pressed="' +
         (currentSeason === 'all') +
@@ -1077,13 +1157,16 @@
         seasons
           .map(
             (s) =>
-              '<button type="button" class="chip' +
+              '<button type="button" class="chip chip-season season-tint--' +
+              esc(seasonSlug(s.label) || 'custom') +
               (currentSeason === s.key ? ' active' : '') +
               '" data-season="' +
               esc(s.key) +
               '" aria-pressed="' +
               (currentSeason === s.key) +
-              '">' +
+              '"><span aria-hidden="true">' +
+              esc(s.emoji || '🧵') +
+              '</span> ' +
               esc(s.label) +
               '</button>'
           )
@@ -1139,6 +1222,10 @@
           c.classList.toggle('active', on);
           c.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
+        /* the seasons on offer change with the type, and a season that no
+           longer exists here would otherwise leave an empty grid behind */
+        if (currentSeason !== 'all' && !seasonsInData().some((s) => s.key === currentSeason)) currentSeason = 'all';
+        buildSeasonChips();
         syncUrl();
         render();
       });
@@ -1366,14 +1453,26 @@
       '<div class="gallery-thumbs">' + images.map((src, index) => '<button type="button" data-gallery-idx="' + index + '" aria-current="' + (index === 0) + '" aria-label="Photo ' + (index + 1) + '"><img src="' + esc(resolveImg(src)) + '" alt="" width="64" height="64" loading="lazy"></button>').join('') + '</div></div>';
     let listings = '';
     if (!p.oneOfAKind) {
-      const rows = [...(p.listings || [])].sort((a, b) => (a.sold === b.sold ? 0 : a.sold ? 1 : -1));
+      /* arriving from a season filter puts those pieces first, highlighted,
+         without ever hiding the rest of her work */
+      const seasonKey = cleanSeason(params.get('season') || '').toLocaleLowerCase();
+      const isMatch = (l) => seasonKey && !l.sold && cleanSeason(l.season).toLocaleLowerCase() === seasonKey;
+      const rows = [...(p.listings || [])].sort((a, b) => {
+        if (isMatch(a) !== isMatch(b)) return isMatch(a) ? -1 : 1;
+        return a.sold === b.sold ? 0 : a.sold ? 1 : -1;
+      });
+      const matchCount = rows.filter(isMatch).length;
       if (!rows.some((listing) => !listing.sold)) {
         listings = '<div class="availability-empty"><h3>No finished pieces available right now</h3><p>Request a custom one and choose the details with Alivia.</p></div>';
       } else {
-        listings = '<div class="listings-block"><h3>Available now</h3>' + rows.map((listing) => {
+        const seasonNote = matchCount
+          ? '<p class="listings-note">' + esc(seasonMeta(params.get('season')).emoji) + ' Showing ' +
+            esc(cleanSeason(params.get('season')).toLocaleLowerCase()) + ' first. Every finished piece is listed below.</p>'
+          : '';
+        listings = '<div class="listings-block"><h3>Available now</h3>' + seasonNote + rows.map((listing) => {
           const image = listing.images?.[0] ? resolveImg(listing.images[0]) : resolveImg(PLACEHOLDER);
           const listingName = listing.name || p.name;
-          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
+          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + (isMatch(listing) ? ' is-season-match' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + (cleanSeason(listing.season) ? ' ' + seasonBadgeHtml(listing.season, 'season-badge--sm') : '') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
         }).join('') + '</div>';
       }
     }
