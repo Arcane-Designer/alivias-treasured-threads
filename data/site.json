@@ -248,7 +248,7 @@
       "name": "Baby Cube",
       "price": 10,
       "priceLabel": "$10",
-      "description": "A cube for your  baby! Trust me, they love them. For the baby who has everything.  [A-FINAL]",
+      "description": "A cube for your  baby! Trust me, they love them. For the baby who has everything.",
       "category": "Baby",
       "badges": [
         "NEW!"
@@ -336,7 +336,7 @@
       "category": "Bags & Pouches",
       "price": 14,
       "priceLabel": "$14",
-      "description": "A cute and handy zipper pouch. Great for makeup, school supplies, sewing notions, or whatever you need to keep organized! [B-FINAL]",
+      "description": "A cute and handy zipper pouch. Great for makeup, school supplies, sewing notions, or whatever you need to keep organized!",
       "archived": false,
       "images": [
         "images/uploads/zipper-pouch-mrllwtakomy.jpg"
