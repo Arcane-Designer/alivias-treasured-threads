@@ -76,7 +76,7 @@
       "Other",
       "Baby"
     ],
-    "seasons": [
+    "themes": [
       {
         "label": "Spring",
         "emoji": "🌷"
@@ -116,6 +116,14 @@
       {
         "label": "Christmas",
         "emoji": "🎄"
+      },
+      {
+        "label": "Faith",
+        "emoji": "✝️"
+      },
+      {
+        "label": "Harry Potter",
+        "emoji": "⚡"
       }
     ]
   },
@@ -142,7 +150,7 @@
       "listings": [],
       "salePrice": 60,
       "saleLabel": "",
-      "season": ""
+      "theme": ""
     },
     {
       "id": "p-mrsqof4x8ebz",
@@ -166,7 +174,7 @@
       "listings": [],
       "salePrice": 60,
       "saleLabel": "",
-      "season": ""
+      "theme": ""
     },
     {
       "id": "p-ms3nk6mp2otm",
@@ -190,7 +198,7 @@
       "listings": [],
       "salePrice": 60,
       "saleLabel": "",
-      "season": ""
+      "theme": ""
     },
     {
       "id": "mini-zipper-pouch",
@@ -231,7 +239,7 @@
       "badges": [
         "Back in stock!"
       ],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "p-mt6guvdjpugz",
@@ -240,7 +248,6 @@
       "priceLabel": "$10",
       "description": "A cube for your  baby! Trust me, they love them. For the baby who has everything. ",
       "category": "Baby",
-      "season": "",
       "badges": [
         "NEW!"
       ],
@@ -259,7 +266,8 @@
           ],
           "sold": false
         }
-      ]
+      ],
+      "theme": ""
     },
     {
       "id": "annas-everyday-tote",
@@ -313,7 +321,7 @@
         }
       ],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "zipper-pouch",
@@ -387,7 +395,7 @@
       "badges": [
         "Now available in mini!"
       ],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "bookmarks",
@@ -551,7 +559,7 @@
           "price": 6
         }
       ],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "cute-quilted-coasters",
@@ -610,7 +618,7 @@
         }
       ],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "mini-tote-bag",
@@ -644,7 +652,7 @@
       "badges": [
         "NEW!"
       ],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "overnighter-tote",
@@ -661,7 +669,7 @@
       ],
       "listings": [],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "pot-holders",
@@ -695,7 +703,7 @@
         }
       ],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "craft-roll",
@@ -712,7 +720,7 @@
       ],
       "listings": [],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "hooded-cape",
@@ -728,7 +736,7 @@
       ],
       "listings": [],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "p-mrlk6gshtsmk",
@@ -753,7 +761,7 @@
       "listings": [],
       "salePrice": 60,
       "saleLabel": "",
-      "season": ""
+      "theme": ""
     },
     {
       "id": "heart-bag",
@@ -768,7 +776,7 @@
       ],
       "listings": [],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "messenger-bag",
@@ -783,7 +791,7 @@
       ],
       "listings": [],
       "badges": [],
-      "season": ""
+      "theme": ""
     },
     {
       "id": "sewing-roll",
@@ -799,7 +807,7 @@
       ],
       "listings": [],
       "badges": [],
-      "season": ""
+      "theme": ""
     }
   ],
   "reviews": [

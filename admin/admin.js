@@ -22,9 +22,9 @@
   const JPEG_QUALITY = 0.82;
   const CATEGORY_PRESETS = ['Bags & Pouches', 'Books & Crafts', 'Home & Kitchen', 'Capes', 'Bundles', 'Other'];
   /* Seasons carry an emoji so chips and badges look styled without Alivia
-     needing to fuss with design. Presets are seeded into settings.seasons so
+     needing to fuss with design. Presets are seeded into settings.themes so
      she can rename, restyle, or remove any of them like she does categories. */
-  const SEASON_PRESETS = [
+  const THEME_PRESETS = [
     { label: 'Spring', emoji: '🌷' },
     { label: 'Summer', emoji: '☀️' },
     { label: 'Fall', emoji: '🍂' },
@@ -35,8 +35,10 @@
     { label: 'Halloween', emoji: '🎃' },
     { label: 'Thanksgiving', emoji: '🦃' },
     { label: 'Christmas', emoji: '🎄' },
+    { label: 'Faith', emoji: '✝️' },
+    { label: 'Harry Potter', emoji: '⚡' },
   ];
-  const SEASON_EMOJI_CHOICES = ['🌷', '🌸', '🌻', '☀️', '🌊', '🍂', '🍁', '🎃', '🦃', '❄️', '⛄', '🎄', '💝', '🍀', '🎆', '🐣', '🎓', '✏️', '🌙', '⭐', '🎀', '🧵', '🍎', '🌈', '🕯️', '🎁'];
+  const THEME_EMOJI_CHOICES = ['🌷', '🌸', '🌻', '☀️', '🌊', '🍂', '🍁', '🎃', '🦃', '❄️', '⛄', '🎄', '💝', '🍀', '🎆', '🐣', '🎓', '✏️', '🌙', '⭐', '🎀', '🧵', '🍎', '🌈', '🕯️', '🎁', '✝️', '🕊️', '🙏', '⚡', '🪄', '🦄', '🐾', '⚓'];
 
   const $ = (id) => document.getElementById(id);
 
@@ -204,9 +206,20 @@
       p.badges = p.badges.filter(Boolean).slice(0, 2);
       delete p.badge;
       p.category = cleanTaxonomyValue(p.category);
-      p.season = cleanTaxonomyValue(p.season);
+      /* "season" was the earlier name for this idea; holidays, fandoms and
+         faith are themes too, so carry any older tag across */
+      if (p.season && !p.theme) p.theme = p.season;
+      delete p.season;
+      p.theme = cleanTaxonomyValue(p.theme);
+      /* only a one-of-a-kind product is itself a piece, so only it can carry
+         a theme; anything else is a type and its pieces are tagged below */
+      if (!p.oneOfAKind) p.theme = '';
       delete p.tags;
-      (p.listings || []).forEach((l) => { l.season = cleanTaxonomyValue(l.season); });
+      (p.listings || []).forEach((l) => {
+        if (l.season && !l.theme) l.theme = l.season;
+        delete l.season;
+        l.theme = cleanTaxonomyValue(l.theme);
+      });
     });
     const categorySource = Array.isArray(d.settings.categories) ? d.settings.categories : CATEGORY_PRESETS;
     d.settings.categories = categorySource.map(cleanTaxonomyValue).filter(Boolean).filter((category, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase()) === index);
@@ -214,31 +227,33 @@
       const category = cleanTaxonomyValue(product.category);
       if (category && !d.settings.categories.some((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase())) d.settings.categories.push(category);
     });
-    /* seasons: {label, emoji} list, seeded from presets, plus any label a
+    /* themes: {label, emoji} list, seeded from presets, plus any label a
        product or listing already uses so a tag can never orphan itself */
-    const seasonSource = Array.isArray(d.settings.seasons) ? d.settings.seasons : SEASON_PRESETS;
-    const seenSeasons = new Map();
-    seasonSource.forEach((entry) => {
+    const themeSource = Array.isArray(d.settings.themes) ? d.settings.themes
+      : (Array.isArray(d.settings.seasons) ? d.settings.seasons : THEME_PRESETS);
+    delete d.settings.seasons;
+    const seenThemes = new Map();
+    themeSource.forEach((entry) => {
       const label = cleanTaxonomyValue(typeof entry === 'string' ? entry : entry && entry.label);
-      if (!label || seenSeasons.has(label.toLocaleLowerCase())) return;
+      if (!label || seenThemes.has(label.toLocaleLowerCase())) return;
       const emoji = typeof entry === 'object' && entry ? String(entry.emoji || '').trim().slice(0, 4) : '';
-      seenSeasons.set(label.toLocaleLowerCase(), { label, emoji: emoji || defaultSeasonEmoji(label) });
+      seenThemes.set(label.toLocaleLowerCase(), { label, emoji: emoji || defaultThemeEmoji(label) });
     });
     (d.products || []).forEach((product) => {
-      [product.season, ...(product.listings || []).map((l) => l.season)].forEach((value) => {
+      [product.theme, ...(product.listings || []).map((l) => l.theme)].forEach((value) => {
         const label = cleanTaxonomyValue(value);
-        if (label && !seenSeasons.has(label.toLocaleLowerCase())) {
-          seenSeasons.set(label.toLocaleLowerCase(), { label, emoji: defaultSeasonEmoji(label) });
+        if (label && !seenThemes.has(label.toLocaleLowerCase())) {
+          seenThemes.set(label.toLocaleLowerCase(), { label, emoji: defaultThemeEmoji(label) });
         }
       });
     });
-    d.settings.seasons = Array.from(seenSeasons.values());
+    d.settings.themes = Array.from(seenThemes.values());
     if (!Array.isArray(d.reviews)) d.reviews = [];
     return d;
   }
 
-  function defaultSeasonEmoji(label) {
-    const preset = SEASON_PRESETS.find((s) => s.label.toLocaleLowerCase() === String(label || '').toLocaleLowerCase());
+  function defaultThemeEmoji(label) {
+    const preset = THEME_PRESETS.find((s) => s.label.toLocaleLowerCase() === String(label || '').toLocaleLowerCase());
     return preset ? preset.emoji : '🧵';
   }
 
@@ -542,7 +557,7 @@
       priceLabel: 'Custom Order',
       description: '',
       category: '',
-      season: '',
+      theme: '',
       badges: [],
       archived: false,
       oneOfAKind: false,
@@ -660,46 +675,46 @@
   }
 
   /* returns [{label, emoji}] */
-  function knownSeasons() {
-    const source = Array.isArray(draft.settings?.seasons) ? draft.settings.seasons : SEASON_PRESETS;
+  function knownThemes() {
+    const source = Array.isArray(draft.settings?.themes) ? draft.settings.themes : THEME_PRESETS;
     const out = [];
     source.forEach((entry) => {
       const label = cleanTaxonomyValue(typeof entry === 'string' ? entry : entry && entry.label);
       if (!label || out.some((s) => s.label.toLocaleLowerCase() === label.toLocaleLowerCase())) return;
       const emoji = typeof entry === 'object' && entry ? String(entry.emoji || '').trim() : '';
-      out.push({ label, emoji: emoji || defaultSeasonEmoji(label) });
+      out.push({ label, emoji: emoji || defaultThemeEmoji(label) });
     });
     return out;
   }
 
-  function seasonEmojiFor(label) {
+  function themeEmojiFor(label) {
     const clean = cleanTaxonomyValue(label);
     if (!clean) return '';
-    const match = knownSeasons().find((s) => s.label.toLocaleLowerCase() === clean.toLocaleLowerCase());
-    return match ? match.emoji : defaultSeasonEmoji(clean);
+    const match = knownThemes().find((s) => s.label.toLocaleLowerCase() === clean.toLocaleLowerCase());
+    return match ? match.emoji : defaultThemeEmoji(clean);
   }
 
-  /* one <select> of seasons, used by the product field and every listing row */
-  function seasonOptionsHtml(current, emptyLabel) {
+  /* one <select> of themes, used by the product field and every listing row */
+  function themeOptionsHtml(current, emptyLabel) {
     const clean = cleanTaxonomyValue(current);
-    const seasons = knownSeasons();
-    const known = seasons.some((s) => s.label.toLocaleLowerCase() === clean.toLocaleLowerCase());
+    const themes = knownThemes();
+    const known = themes.some((s) => s.label.toLocaleLowerCase() === clean.toLocaleLowerCase());
     return '<option value="">' + esc(emptyLabel) + '</option>' +
-      seasons.map((s) => '<option value="' + esc(s.label) + '"' +
+      themes.map((s) => '<option value="' + esc(s.label) + '"' +
         (known && s.label.toLocaleLowerCase() === clean.toLocaleLowerCase() ? ' selected' : '') + '>' +
         esc((s.emoji ? s.emoji + ' ' : '') + s.label) + '</option>').join('') +
       (clean && !known ? '<option value="' + esc(clean) + '" selected>' + esc(clean) + '</option>' : '');
   }
 
-  /* a product counts as seasonal if it is tagged itself (bundles and
+  /* a product counts as themed if it is tagged itself (bundles and
      made-to-order pieces) or if any unsold listing carries the tag */
-  function seasonUseCount(label) {
+  function themeUseCount(label) {
     const target = label.toLocaleLowerCase();
     let n = 0;
     (draft.products || []).forEach((product) => {
-      if (cleanTaxonomyValue(product.season).toLocaleLowerCase() === target) n++;
+      if (cleanTaxonomyValue(product.theme).toLocaleLowerCase() === target) n++;
       (product.listings || []).forEach((l) => {
-        if (cleanTaxonomyValue(l.season).toLocaleLowerCase() === target) n++;
+        if (cleanTaxonomyValue(l.theme).toLocaleLowerCase() === target) n++;
       });
     });
     return n;
@@ -718,7 +733,7 @@
 
   function setupTaxonomyEditor() {
     const categories = knownCategories();
-    const seasons = knownSeasons();
+    const themes = knownThemes();
     fillTaxonomySelect($('epCategory'), categories, currentProduct.category || '', 'Unspecified', 'Create a new category');
     categoryBeforeNew = cleanTaxonomyValue(currentProduct.category);
     const customCategory = cleanTaxonomyValue(currentProduct.category) && !categories.some((value) => value.toLocaleLowerCase() === cleanTaxonomyValue(currentProduct.category).toLocaleLowerCase());
@@ -726,19 +741,21 @@
     $('epCategoryCustom').value = customCategory ? cleanTaxonomyValue(currentProduct.category) : '';
     $('epCategoryCustom').classList.remove('invalid');
 
-    $('epSeason').innerHTML = seasonOptionsHtml(currentProduct.season || '', 'No season');
-    updateSeasonScopeHint();
+    $('epTheme').innerHTML = themeOptionsHtml(currentProduct.theme || '', 'No theme');
+    updateThemeScopeHint();
   }
 
-  /* Whole-product seasons only make sense when the product IS the item (a
-     bundle) or has no ready-to-ship pieces to tag individually. */
-  function updateSeasonScopeHint() {
-    const hint = $('epSeasonHint');
+  /* A theme belongs to an actual finished piece. A product that holds many
+     listings is a type, not a theme, so the product-level field only appears
+     when the product IS the piece (one of a kind). */
+  function updateThemeScopeHint() {
+    const hint = $('epThemeHint');
     if (!hint || !currentProduct) return;
-    const listingCount = (currentProduct.listings || []).length;
-    hint.textContent = currentProduct.oneOfAKind || !listingCount
-      ? 'Tags this whole product.'
-      : 'Tags the whole product. Each ready-to-ship piece below can have its own season instead.';
+    /* the whole panel disappears for products that hold listings, keeping the
+       editor uncluttered; "Manage themes" then lives with the listings */
+    const isOneOff = !!currentProduct.oneOfAKind;
+    $('themePanel').hidden = !isOneOff;
+    hint.textContent = 'Tags this one-of-a-kind piece.';
   }
 
   let categoryReturnFocus = null;
@@ -816,148 +833,148 @@
     if (categoryReturnFocus) categoryReturnFocus.focus();
   }
 
-  /* ---------- season manager ---------- */
-  let seasonReturnFocus = null;
+  /* ---------- theme manager ---------- */
+  let themeReturnFocus = null;
 
-  function writeSeasons(list) {
-    draft.settings.seasons = list.map((s) => ({ label: s.label, emoji: s.emoji }));
+  function writeThemes(list) {
+    draft.settings.themes = list.map((s) => ({ label: s.label, emoji: s.emoji }));
   }
 
-  function retagSeason(oldLabel, next) {
+  function retagTheme(oldLabel, next) {
     const target = oldLabel.toLocaleLowerCase();
     (draft.products || []).forEach((product) => {
-      if (cleanTaxonomyValue(product.season).toLocaleLowerCase() === target) product.season = next;
+      if (cleanTaxonomyValue(product.theme).toLocaleLowerCase() === target) product.theme = next;
       (product.listings || []).forEach((l) => {
-        if (cleanTaxonomyValue(l.season).toLocaleLowerCase() === target) l.season = next;
+        if (cleanTaxonomyValue(l.theme).toLocaleLowerCase() === target) l.theme = next;
       });
     });
   }
 
-  function refreshSeasonUi() {
+  function refreshThemeUi() {
     if (currentProduct) {
-      $('epSeason').innerHTML = seasonOptionsHtml(currentProduct.season || '', 'No season');
+      $('epTheme').innerHTML = themeOptionsHtml(currentProduct.theme || '', 'No theme');
       renderEditorListings();
     }
-    renderSeasonManager();
+    renderThemeManager();
   }
 
-  function renderSeasonManager() {
-    const list = $('seasonList');
-    const seasons = knownSeasons();
+  function renderThemeManager() {
+    const list = $('themeList');
+    const themes = knownThemes();
     list.innerHTML = '';
-    if (!seasons.length) {
-      list.innerHTML = '<p class="field-hint">No seasons yet. Add one below!</p>';
+    if (!themes.length) {
+      list.innerHTML = '<p class="field-hint">No themes yet. Add one below!</p>';
       return;
     }
-    seasons.forEach((season) => {
-      const count = seasonUseCount(season.label);
+    themes.forEach((theme) => {
+      const count = themeUseCount(theme.label);
       const row = document.createElement('div');
-      row.className = 'category-item season-item';
+      row.className = 'category-item theme-item';
       row.innerHTML =
-        '<button type="button" class="season-emoji-btn" aria-label="Change the symbol for ' + esc(season.label) + '">' + esc(season.emoji || '🧵') + '</button>' +
-        '<div class="category-item-name">' + esc(season.label) +
+        '<button type="button" class="theme-emoji-btn" aria-label="Change the symbol for ' + esc(theme.label) + '">' + esc(theme.emoji || '🧵') + '</button>' +
+        '<div class="category-item-name">' + esc(theme.label) +
           '<span class="category-item-count">' + count + ' ' + (count === 1 ? 'item' : 'items') + '</span></div>' +
         '<button type="button" class="category-action rename">Rename</button>' +
         '<button type="button" class="category-action danger">Delete</button>';
 
-      row.querySelector('.season-emoji-btn').addEventListener('click', () => beginSeasonEmoji(row, season.label));
-      row.querySelector('.rename').addEventListener('click', () => beginSeasonRename(row, season.label));
-      row.querySelector('.danger').addEventListener('click', () => deleteSeason(season.label));
+      row.querySelector('.theme-emoji-btn').addEventListener('click', () => beginThemeEmoji(row, theme.label));
+      row.querySelector('.rename').addEventListener('click', () => beginThemeRename(row, theme.label));
+      row.querySelector('.danger').addEventListener('click', () => deleteTheme(theme.label));
       list.appendChild(row);
     });
   }
 
-  function beginSeasonEmoji(row, label) {
-    if (row.querySelector('.season-emoji-palette')) return;
+  function beginThemeEmoji(row, label) {
+    if (row.querySelector('.theme-emoji-palette')) return;
     const palette = document.createElement('div');
-    palette.className = 'season-emoji-palette';
-    palette.innerHTML = SEASON_EMOJI_CHOICES
-      .map((e) => '<button type="button" class="season-emoji-choice" aria-label="Use ' + esc(e) + '">' + esc(e) + '</button>')
+    palette.className = 'theme-emoji-palette';
+    palette.innerHTML = THEME_EMOJI_CHOICES
+      .map((e) => '<button type="button" class="theme-emoji-choice" aria-label="Use ' + esc(e) + '">' + esc(e) + '</button>')
       .join('');
     row.appendChild(palette);
-    palette.querySelectorAll('.season-emoji-choice').forEach((btn) => {
+    palette.querySelectorAll('.theme-emoji-choice').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const next = knownSeasons().map((s) =>
+        const next = knownThemes().map((s) =>
           s.label.toLocaleLowerCase() === label.toLocaleLowerCase() ? { label: s.label, emoji: btn.textContent } : s
         );
-        writeSeasons(next);
+        writeThemes(next);
         markDirty();
-        refreshSeasonUi();
+        refreshThemeUi();
       });
     });
   }
 
-  function beginSeasonRename(row, oldName) {
+  function beginThemeRename(row, oldName) {
     if (row.querySelector('.category-rename')) return;
     const editor = document.createElement('div');
     editor.className = 'category-rename';
-    editor.innerHTML = '<label class="sr-only" for="seasonRenameInput">New name for ' + esc(oldName) + '</label><input id="seasonRenameInput" class="field-input" value="' + esc(oldName) + '" maxlength="60"><button type="button" class="category-action save">Save</button><button type="button" class="category-action cancel">Cancel</button><div class="category-error" aria-live="polite"></div>';
+    editor.innerHTML = '<label class="sr-only" for="themeRenameInput">New name for ' + esc(oldName) + '</label><input id="themeRenameInput" class="field-input" value="' + esc(oldName) + '" maxlength="60"><button type="button" class="category-action save">Save</button><button type="button" class="category-action cancel">Cancel</button><div class="category-error" aria-live="polite"></div>';
     row.appendChild(editor);
     const input = editor.querySelector('input');
     input.select();
     editor.querySelector('.cancel').addEventListener('click', () => editor.remove());
     const save = () => {
       const next = cleanTaxonomyValue(input.value);
-      const duplicate = knownSeasons().some((s) => s.label.toLocaleLowerCase() === next.toLocaleLowerCase() && s.label.toLocaleLowerCase() !== oldName.toLocaleLowerCase());
+      const duplicate = knownThemes().some((s) => s.label.toLocaleLowerCase() === next.toLocaleLowerCase() && s.label.toLocaleLowerCase() !== oldName.toLocaleLowerCase());
       if (!next || duplicate) {
-        editor.querySelector('.category-error').textContent = !next ? 'Enter a season name.' : 'That season already exists.';
+        editor.querySelector('.category-error').textContent = !next ? 'Enter a theme name.' : 'That theme already exists.';
         input.focus();
         return;
       }
-      retagSeason(oldName, next);
-      writeSeasons(knownSeasons().map((s) => s.label.toLocaleLowerCase() === oldName.toLocaleLowerCase() ? { label: next, emoji: s.emoji } : s));
+      retagTheme(oldName, next);
+      writeThemes(knownThemes().map((s) => s.label.toLocaleLowerCase() === oldName.toLocaleLowerCase() ? { label: next, emoji: s.emoji } : s));
       markDirty();
-      refreshSeasonUi();
+      refreshThemeUi();
       toast('Renamed “' + oldName + '” to “' + next + '” everywhere.', 'teal');
     };
     editor.querySelector('.save').addEventListener('click', save);
     input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); save(); } });
   }
 
-  async function deleteSeason(label) {
-    const count = seasonUseCount(label);
+  async function deleteTheme(label) {
+    const count = themeUseCount(label);
     const ok = await confirmCute(
-      'Delete the season “' + label + '”? ' + count + ' ' + (count === 1 ? 'item uses' : 'items use') + ' it. Nothing gets deleted, those pieces simply lose the season tag.',
-      'Remove season',
-      'Keep season'
+      'Delete the theme “' + label + '”? ' + count + ' ' + (count === 1 ? 'item uses' : 'items use') + ' it. Nothing gets deleted, those pieces simply lose the theme tag.',
+      'Remove theme',
+      'Keep theme'
     );
     if (!ok) return;
-    retagSeason(label, '');
-    writeSeasons(knownSeasons().filter((s) => s.label.toLocaleLowerCase() !== label.toLocaleLowerCase()));
+    retagTheme(label, '');
+    writeThemes(knownThemes().filter((s) => s.label.toLocaleLowerCase() !== label.toLocaleLowerCase()));
     markDirty();
-    refreshSeasonUi();
+    refreshThemeUi();
     toast('Season removed.', 'teal');
   }
 
-  function addSeason() {
-    const input = $('seasonAddInput');
+  function addTheme() {
+    const input = $('themeAddInput');
     const label = cleanTaxonomyValue(input.value);
-    const error = $('seasonAddError');
-    if (!label) { error.textContent = 'Enter a season name.'; input.focus(); return; }
-    if (knownSeasons().some((s) => s.label.toLocaleLowerCase() === label.toLocaleLowerCase())) {
-      error.textContent = 'That season already exists.';
+    const error = $('themeAddError');
+    if (!label) { error.textContent = 'Enter a theme name.'; input.focus(); return; }
+    if (knownThemes().some((s) => s.label.toLocaleLowerCase() === label.toLocaleLowerCase())) {
+      error.textContent = 'That theme already exists.';
       input.focus();
       return;
     }
     error.textContent = '';
     input.value = '';
-    writeSeasons(knownSeasons().concat([{ label, emoji: defaultSeasonEmoji(label) }]));
+    writeThemes(knownThemes().concat([{ label, emoji: defaultThemeEmoji(label) }]));
     markDirty();
-    refreshSeasonUi();
+    refreshThemeUi();
     toast('Added “' + label + '”. Tap its symbol to pick an icon! ✨', 'teal');
   }
 
-  function openSeasonManager() {
-    seasonReturnFocus = document.activeElement;
-    $('seasonAddError').textContent = '';
-    $('seasonAddInput').value = '';
-    renderSeasonManager();
-    $('seasonOverlay').hidden = false;
-    $('seasonClose').focus();
+  function openThemeManager() {
+    themeReturnFocus = document.activeElement;
+    $('themeAddError').textContent = '';
+    $('themeAddInput').value = '';
+    renderThemeManager();
+    $('themeOverlay').hidden = false;
+    $('themeClose').focus();
   }
-  function closeSeasonManager() {
-    $('seasonOverlay').hidden = true;
-    if (seasonReturnFocus) seasonReturnFocus.focus();
+  function closeThemeManager() {
+    $('themeOverlay').hidden = true;
+    if (themeReturnFocus) themeReturnFocus.focus();
   }
 
   /* field bindings */
@@ -996,18 +1013,19 @@
     markDirty();
     $('epCategory').focus();
   });
-  $('epSeason').addEventListener('change', function () {
+  $('epTheme').addEventListener('change', function () {
     if (!currentProduct) return;
-    currentProduct.season = canonicalTaxonomyValue(this.value, knownSeasons().map((s) => s.label));
+    currentProduct.theme = canonicalTaxonomyValue(this.value, knownThemes().map((s) => s.label));
     markDirty();
   });
-  $('manageSeasons').addEventListener('click', openSeasonManager);
-  $('seasonClose').addEventListener('click', closeSeasonManager);
-  $('seasonDone').addEventListener('click', closeSeasonManager);
-  $('seasonAddBtn').addEventListener('click', addSeason);
-  $('seasonAddInput').addEventListener('input', function () { $('seasonAddError').textContent = ''; });
-  $('seasonAddInput').addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); addSeason(); } });
-  $('seasonOverlay').addEventListener('click', (event) => { if (event.target === $('seasonOverlay')) closeSeasonManager(); });
+  $('manageThemes').addEventListener('click', openThemeManager);
+  $('manageThemesListings').addEventListener('click', openThemeManager);
+  $('themeClose').addEventListener('click', closeThemeManager);
+  $('themeDone').addEventListener('click', closeThemeManager);
+  $('themeAddBtn').addEventListener('click', addTheme);
+  $('themeAddInput').addEventListener('input', function () { $('themeAddError').textContent = ''; });
+  $('themeAddInput').addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); addTheme(); } });
+  $('themeOverlay').addEventListener('click', (event) => { if (event.target === $('themeOverlay')) closeThemeManager(); });
   $('manageCategories').addEventListener('click', openCategoryManager);
   $('categoryClose').addEventListener('click', closeCategoryManager);
   $('categoryDone').addEventListener('click', closeCategoryManager);
@@ -1369,7 +1387,11 @@
   $('epOneOff').addEventListener('change', function () {
     if (!currentProduct) return;
     currentProduct.oneOfAKind = this.checked;
+    /* a product with listings is a type, not a theme, so drop any tag that
+       would otherwise linger where she can no longer see or edit it */
+    if (!this.checked && currentProduct.theme) currentProduct.theme = '';
     updateOneOffUI();
+    updateThemeScopeHint();
     markDirty();
     if (this.checked && (currentProduct.listings || []).length) {
       toast('Your ' + currentProduct.listings.length + ' listing' + (currentProduct.listings.length > 1 ? 's are' : ' is') + ' tucked away safe ~ flip this off to get them back!');
@@ -1480,12 +1502,12 @@
               (listing.sold ? '<span class="mini-chip sold">Sold</span>' : '<span class="mini-chip">Available</span>') +
               '<span class="mini-chip">📷 ' + (listing.images || []).length + '</span>' +
               (isNewPhoto ? '<span class="mini-chip new">new photo</span>' : '') +
-              (cleanTaxonomyValue(listing.season) ? '<span class="mini-chip season">' + esc((seasonEmojiFor(listing.season) + ' ' + cleanTaxonomyValue(listing.season)).trim()) + '</span>' : '') +
+              (cleanTaxonomyValue(listing.theme) ? '<span class="mini-chip theme">' + esc((themeEmojiFor(listing.theme) + ' ' + cleanTaxonomyValue(listing.theme)).trim()) + '</span>' : '') +
             '</div>' +
-            '<div class="listing-season">' +
-              '<label class="sr-only" for="lseason-' + esc(listing.id) + '">Season for ' + esc(listing.name || 'this piece') + '</label>' +
-              '<div class="select-wrap compact"><select class="field-input themed-select listing-season-select" id="lseason-' + esc(listing.id) + '">' +
-                seasonOptionsHtml(listing.season, 'No season') +
+            '<div class="listing-theme">' +
+              '<label class="sr-only" for="ltheme-' + esc(listing.id) + '">Theme for ' + esc(listing.name || 'this piece') + '</label>' +
+              '<div class="select-wrap compact"><select class="field-input themed-select listing-theme-select" id="ltheme-' + esc(listing.id) + '">' +
+                themeOptionsHtml(listing.theme, 'No theme') +
               '</select></div>' +
             '</div>' +
           '</div>' +
@@ -1503,8 +1525,8 @@
         markDirty();
       });
 
-      row.querySelector('.listing-season-select').addEventListener('change', function () {
-        listing.season = canonicalTaxonomyValue(this.value, knownSeasons().map((s) => s.label));
+      row.querySelector('.listing-theme-select').addEventListener('change', function () {
+        listing.theme = canonicalTaxonomyValue(this.value, knownThemes().map((s) => s.label));
         markDirty();
         renderEditorListings();
       });
@@ -1520,7 +1542,7 @@
         /* "Fall Fun Bookmark" -> "Fall Fun Bookmark 2"; "… 2" -> "… 3" */
         const m = (listing.name || '').match(/^(.*?)(\d+)\s*$/);
         const nextName = m ? m[1] + (parseInt(m[2], 10) + 1) : ((listing.name || 'Untitled') + ' 2');
-        const copy = { id: uid('l'), name: nextName, images: [...(listing.images || [])], sold: false, season: listing.season || '' };
+        const copy = { id: uid('l'), name: nextName, images: [...(listing.images || [])], sold: false, theme: listing.theme || '' };
         const at = currentProduct.listings.indexOf(listing);
         currentProduct.listings.splice(at + 1, 0, copy);
         markDirty();
@@ -1621,7 +1643,7 @@
       none.textContent = 'No ready-to-ship listings yet ~ add one below whenever something is finished and ready for a new home!';
       wrap.appendChild(none);
     }
-    updateSeasonScopeHint();
+    updateThemeScopeHint();
   }
 
   /* ---------- photo library picker (reuse without re-uploading) ---------- */
@@ -1723,7 +1745,7 @@
     }
     $('newListingName').classList.remove('invalid');
 
-    const listing = { id: uid('l'), name, images: [], sold: false, season: '' };
+    const listing = { id: uid('l'), name, images: [], sold: false, theme: '' };
     stagedListingPhotos.forEach(({ path, dataUrl, base64, existing }) => {
       if (!existing) pendingImages[path] = { dataUrl, base64 };
       if (!listing.images.includes(path)) listing.images.push(path);

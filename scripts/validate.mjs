@@ -70,7 +70,7 @@ for (const k of requiredSettings) {
 
 const ids = new Set();
 const imageRefs = new Set();
-let seasonTagCount = 0;
+let themeTagCount = 0;
 const categoryCases = new Map();
 if (!Array.isArray(data.settings?.categories)) fail('Settings categories must be an array');
 else {
@@ -102,7 +102,7 @@ for (const p of data.products || []) {
     if (categoryCases.has(key) && categoryCases.get(key) !== category) fail(`Category casing conflict: ${categoryCases.get(key)} / ${category}`);
     categoryCases.set(key, category);
   }
-  if (p.season != null && (typeof p.season !== 'string' || p.season !== p.season.trim().replace(/\s+/g, ' '))) fail(`Product ${p.id} has an invalid season`);
+  if (p.theme != null && (typeof p.theme !== 'string' || p.theme !== p.theme.trim().replace(/\s+/g, ' '))) fail(`Product ${p.id} has an invalid theme`);
   (p.images || []).forEach((i) => imageRefs.add(i));
   (p.listings || []).forEach((l) => {
     if (!l.id) fail(`Listing under ${p.id} missing id`);
@@ -219,27 +219,30 @@ for (const img of imageRefs) {
   if (img.startsWith('/')) warn(`Root-absolute image path (may break project Pages base): ${img}`);
 }
 
-/* every season tag should resolve to a season in settings, otherwise a rename
+/* every theme tag should resolve to a theme in settings, otherwise a rename
    or delete left an orphan that would never show up in the shop filters */
 {
   const vocab = new Set(
-    (Array.isArray(data.settings?.seasons) ? data.settings.seasons : [])
+    (Array.isArray(data.settings?.themes) ? data.settings.themes : [])
       .map((s) => String(typeof s === 'string' ? s : s?.label || '').trim().toLowerCase())
       .filter(Boolean)
   );
   const seenTags = new Set();
   for (const p of data.products || []) {
-    const tags = [['product', p.name, p.season], ...(p.listings || []).map((l) => ['listing', l.name, l.season])];
+    if (p.theme && !p.oneOfAKind) {
+      warn(`Product "${p.name}" carries a theme but is not one of a kind. Themes belong to individual pieces.`);
+    }
+    const tags = [['product', p.name, p.theme], ...(p.listings || []).map((l) => ['listing', l.name, l.theme])];
     for (const [kind, name, value] of tags) {
       const clean = String(value || '').trim().replace(/\s+/g, ' ');
       if (!clean) continue;
       seenTags.add(clean);
       if (!vocab.has(clean.toLowerCase())) {
-        warn(`Season "${clean}" on ${kind} "${name}" is not in settings.seasons, so shoppers cannot filter by it.`);
+        warn(`Theme "${clean}" on ${kind} "${name}" is not in settings.themes, so shoppers cannot filter by it.`);
       }
     }
   }
-  seasonTagCount = seenTags.size;
+  themeTagCount = seenTags.size;
 }
 
 /* scan HTML for secrets / bad checkout placeholders */
@@ -260,5 +263,5 @@ if (failures.length) {
   failures.forEach((f) => console.log('  ✖ ' + f));
   process.exit(1);
 }
-console.log(`OK: ${ids.size} products, ${imageRefs.size} image refs, ${seasonTagCount} season tag(s) checked.`);
+console.log(`OK: ${ids.size} products, ${imageRefs.size} image refs, ${themeTagCount} theme tag(s) checked.`);
 process.exit(0);

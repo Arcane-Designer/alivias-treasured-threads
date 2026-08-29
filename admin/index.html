@@ -274,31 +274,31 @@
       </div>
 
       <div class="editor-body">
-        <div class="field-group">
-          <label class="field-label" for="epName">Name <span class="req">*</span></label>
-          <input type="text" id="epName" class="field-input" placeholder="What's it called?">
+        <div class="field-row name-category-row">
+          <div class="field-group">
+            <label class="field-label" for="epName">Name <span class="req">*</span></label>
+            <input type="text" id="epName" class="field-input" placeholder="What's it called?">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="epCategory">Category <span class="req">*</span></label>
+            <div class="select-wrap"><select id="epCategory" class="field-input themed-select"></select></div>
+            <div id="epCategoryCustomGroup" class="inline-custom" hidden>
+              <label class="field-label" for="epCategoryCustom">New category name</label>
+              <div class="inline-custom-row">
+                <input type="text" id="epCategoryCustom" class="field-input" placeholder="For example, Baby Items">
+                <button type="button" class="ghost-btn compact" id="epCategoryCustomCancel">Cancel</button>
+              </div>
+            </div>
+            <button type="button" class="taxonomy-manage-btn" id="manageCategories">Manage categories</button>
+          </div>
         </div>
 
-        <div class="taxonomy-panel" aria-label="Product organization">
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="epCategory">Category <span class="req">*</span></label>
-              <div class="select-wrap"><select id="epCategory" class="field-input themed-select"></select></div>
-              <div id="epCategoryCustomGroup" class="inline-custom" hidden>
-                <label class="field-label" for="epCategoryCustom">New category name</label>
-                <div class="inline-custom-row">
-                  <input type="text" id="epCategoryCustom" class="field-input" placeholder="For example, Baby Items">
-                  <button type="button" class="ghost-btn compact" id="epCategoryCustomCancel">Cancel</button>
-                </div>
-              </div>
-              <button type="button" class="taxonomy-manage-btn" id="manageCategories">Manage categories</button>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="epSeason">Season <span class="tiny-note">optional</span></label>
-              <div class="select-wrap"><select id="epSeason" class="field-input themed-select"></select></div>
-              <p class="field-hint" id="epSeasonHint">Tags the whole product.</p>
-              <button type="button" class="taxonomy-manage-btn" id="manageSeasons">Manage seasons</button>
-            </div>
+        <div class="taxonomy-panel" id="themePanel" aria-label="Product theme">
+          <div class="field-group" style="margin-bottom:0">
+            <label class="field-label" for="epTheme">Theme <span class="tiny-note">optional</span></label>
+            <div class="select-wrap"><select id="epTheme" class="field-input themed-select"></select></div>
+            <p class="field-hint" id="epThemeHint">Tags this one-of-a-kind piece.</p>
+            <button type="button" class="taxonomy-manage-btn" id="manageThemes">Manage themes</button>
           </div>
         </div>
 
@@ -405,8 +405,11 @@
 
         <!-- listings -->
         <div class="editor-section" id="listingsSection">
-          <h4>✨ Ready-to-ship listings</h4>
-          <p class="field-hint" style="margin-top:-6px">Each listing is a real, finished item someone can claim ~ give it a name and its own photo!</p>
+          <div class="listings-head">
+            <h4>✨ Ready-to-ship listings</h4>
+            <button type="button" class="taxonomy-manage-btn" id="manageThemesListings">Manage themes</button>
+          </div>
+          <p class="field-hint" style="margin-top:-6px">Each listing is a real, finished item someone can claim ~ give it a name, its own photo, and a theme if it has one.</p>
           <div class="listing-list" id="epListings"></div>
 
           <div class="add-listing-form" id="addListingForm">
@@ -445,23 +448,23 @@
   </div>
 
   <!-- ================= SEASON MANAGER ================= -->
-  <div class="category-overlay" id="seasonOverlay" hidden>
-    <div class="category-card" role="dialog" aria-modal="true" aria-labelledby="seasonManagerTitle">
+  <div class="category-overlay" id="themeOverlay" hidden>
+    <div class="category-card" role="dialog" aria-modal="true" aria-labelledby="themeManagerTitle">
       <div class="picker-head">
-        <h3 id="seasonManagerTitle">Manage seasons</h3>
-        <button class="icon-btn" id="seasonClose" aria-label="Close season manager">×</button>
+        <h3 id="themeManagerTitle">Manage themes</h3>
+        <button class="icon-btn" id="themeClose" aria-label="Close theme manager">×</button>
       </div>
-      <p class="picker-hint">Rename a season everywhere, pick its little symbol, or remove one without deleting any products.</p>
-      <div class="category-list" id="seasonList"></div>
-      <div class="season-add">
-        <label class="field-label" for="seasonAddInput">Add a season</label>
+      <p class="picker-hint">Rename a theme everywhere, pick its little symbol, or remove one without deleting any products.</p>
+      <div class="category-list" id="themeList"></div>
+      <div class="theme-add">
+        <label class="field-label" for="themeAddInput">Add a theme</label>
         <div class="inline-custom-row">
-          <input type="text" id="seasonAddInput" class="field-input" placeholder="For example, Back to School" maxlength="60">
-          <button type="button" class="btn btn-teal btn-small" id="seasonAddBtn">Add</button>
+          <input type="text" id="themeAddInput" class="field-input" placeholder="For example, Back to School" maxlength="60">
+          <button type="button" class="btn btn-teal btn-small" id="themeAddBtn">Add</button>
         </div>
-        <div class="season-error" id="seasonAddError" aria-live="polite"></div>
+        <div class="theme-error" id="themeAddError" aria-live="polite"></div>
       </div>
-      <div class="picker-foot"><button class="btn btn-gradient" id="seasonDone">Done ✓</button></div>
+      <div class="picker-foot"><button class="btn btn-gradient" id="themeDone">Done ✓</button></div>
     </div>
   </div>
 

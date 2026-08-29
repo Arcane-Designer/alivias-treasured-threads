@@ -148,7 +148,7 @@
     document.querySelectorAll('[data-brand]').forEach((el) => {
       text(el, s.brandName || "Alivia's Treasured Threads");
     });
-    const seasonPhoto = document.querySelector('.season-photo');
+    const seasonPhoto = document.querySelector('.theme-photo');
     if (seasonPhoto && s.seasonImageAlt) seasonPhoto.alt = s.seasonImageAlt;
   }
 
@@ -167,57 +167,58 @@
     return String(p.category || '').trim().replace(/\s+/g, ' ') || 'Unspecified';
   }
 
-  /* ---------- seasons ----------
-     A season lives on the individual piece, because one tote can be fall and
-     the next winter. A product is "in" a season when it is tagged itself
+  /* ---------- themes ----------
+     A theme lives on the individual piece, because one tote can be fall and
+     the next winter. A product is "in" a theme when it is tagged itself
      (bundles, made-to-order pieces) or when any unsold listing carries it. */
-  const SEASON_FALLBACK = [
+  const THEME_FALLBACK = [
     { label: 'Spring', emoji: '🌷' }, { label: 'Summer', emoji: '☀️' },
     { label: 'Fall', emoji: '🍂' }, { label: 'Winter', emoji: '❄️' },
     { label: "Valentine's Day", emoji: '💝' }, { label: "St. Patrick's Day", emoji: '🍀' },
     { label: 'Fourth of July', emoji: '🎆' }, { label: 'Halloween', emoji: '🎃' },
     { label: 'Thanksgiving', emoji: '🦃' }, { label: 'Christmas', emoji: '🎄' },
+    { label: 'Faith', emoji: '✝️' }, { label: 'Harry Potter', emoji: '⚡' },
   ];
-  function cleanSeason(value) {
+  function cleanTheme(value) {
     return String(value || '').trim().replace(/\s+/g, ' ');
   }
-  function seasonVocab() {
-    const raw = Array.isArray(DATA.settings?.seasons) && DATA.settings.seasons.length
-      ? DATA.settings.seasons
-      : SEASON_FALLBACK;
+  function themeVocab() {
+    const raw = Array.isArray(DATA.settings?.themes) && DATA.settings.themes.length
+      ? DATA.settings.themes
+      : THEME_FALLBACK;
     return raw
-      .map((entry) => (typeof entry === 'string' ? { label: cleanSeason(entry), emoji: '' } : { label: cleanSeason(entry?.label), emoji: String(entry?.emoji || '').trim() }))
+      .map((entry) => (typeof entry === 'string' ? { label: cleanTheme(entry), emoji: '' } : { label: cleanTheme(entry?.label), emoji: String(entry?.emoji || '').trim() }))
       .filter((s) => s.label);
   }
-  function seasonMeta(label) {
-    const key = cleanSeason(label).toLocaleLowerCase();
-    return seasonVocab().find((s) => s.label.toLocaleLowerCase() === key) || { label: cleanSeason(label), emoji: '🧵' };
+  function themeMeta(label) {
+    const key = cleanTheme(label).toLocaleLowerCase();
+    return themeVocab().find((s) => s.label.toLocaleLowerCase() === key) || { label: cleanTheme(label), emoji: '🧵' };
   }
-  function seasonSlug(label) {
-    return cleanSeason(label).toLocaleLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  function themeSlug(label) {
+    return cleanTheme(label).toLocaleLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   }
-  /* every season label attached to a product, own tag first */
-  function productSeasons(p) {
+  /* every theme label attached to a product, own tag first */
+  function productThemes(p) {
     const out = [];
     const push = (value) => {
-      const clean = cleanSeason(value);
+      const clean = cleanTheme(value);
       if (clean && !out.some((s) => s.toLocaleLowerCase() === clean.toLocaleLowerCase())) out.push(clean);
     };
-    push(p.season);
-    unsoldListings(p).forEach((l) => push(l.season));
+    push(p.theme);
+    unsoldListings(p).forEach((l) => push(l.theme));
     return out;
   }
-  function productInSeason(p, seasonKey) {
-    return productSeasons(p).some((s) => s.toLocaleLowerCase() === seasonKey);
+  function productInTheme(p, themeKey) {
+    return productThemes(p).some((s) => s.toLocaleLowerCase() === themeKey);
   }
-  /* unsold listings matching a season, used to show the right photo and count */
-  function seasonalListings(p, seasonKey) {
-    return unsoldListings(p).filter((l) => cleanSeason(l.season).toLocaleLowerCase() === seasonKey);
+  /* unsold listings matching a theme, used to show the right photo and count */
+  function themedListings(p, themeKey) {
+    return unsoldListings(p).filter((l) => cleanTheme(l.theme).toLocaleLowerCase() === themeKey);
   }
-  function seasonBadgeHtml(label, extraClass) {
-    const meta = seasonMeta(label);
+  function themeBadgeHtml(label, extraClass) {
+    const meta = themeMeta(label);
     if (!meta.label) return '';
-    return '<span class="season-badge season-badge--' + esc(seasonSlug(meta.label) || 'custom') + (extraClass ? ' ' + extraClass : '') +
+    return '<span class="theme-badge theme-badge--' + esc(themeSlug(meta.label) || 'custom') + (extraClass ? ' ' + extraClass : '') +
       '" title="' + esc(meta.label) + '"><span aria-hidden="true">' + esc(meta.emoji || '🧵') + '</span> ' + esc(meta.label) + '</span>';
   }
   function isCustomOnly(p) {
@@ -271,29 +272,29 @@
   }
 
   /* ---------- cards ---------- */
-  function productCardHtml(p, seasonKey) {
+  function productCardHtml(p, themeKey) {
     const stock = unsoldListings(p).length;
     const badges = (p.badges || []).slice(0, 2);
     const badgeHtml = badges
       .map((b) => '<span class="sticker">' + esc(b) + '</span>')
       .join('');
 
-    /* When a season is being browsed, show the piece that actually matches it
+    /* When a theme is being browsed, show the piece that actually matches it
        rather than the product's usual cover photo, so nothing looks misleading. */
-    const matches = seasonKey ? seasonalListings(p, seasonKey) : [];
-    const ownMatch = seasonKey && cleanSeason(p.season).toLocaleLowerCase() === seasonKey;
-    const activeSeason = seasonKey && (matches.length || ownMatch)
-      ? (matches.length ? cleanSeason(matches[0].season) : cleanSeason(p.season))
+    const matches = themeKey ? themedListings(p, themeKey) : [];
+    const ownMatch = themeKey && cleanTheme(p.theme).toLocaleLowerCase() === themeKey;
+    const activeTheme = themeKey && (matches.length || ownMatch)
+      ? (matches.length ? cleanTheme(matches[0].theme) : cleanTheme(p.theme))
       : '';
     const cover = matches.length && matches[0].images && matches[0].images[0]
       ? resolveImg(matches[0].images[0])
       : coverImg(p);
-    const seasonHtml = activeSeason ? seasonBadgeHtml(activeSeason, 'season-badge--card') : '';
+    const themeHtml = activeTheme ? themeBadgeHtml(activeTheme, 'theme-badge--card') : '';
 
     let readyTag;
     if (matches.length) {
-      readyTag = '<div class="product-card-meta">' + matches.length + ' ' + esc(activeSeason.toLocaleLowerCase()) +
-        (matches.length === 1 ? ' one ready' : ' ones ready') + '</div>';
+      readyTag = '<div class="product-card-meta">' + matches.length + ' ' + esc(activeTheme) +
+        (matches.length === 1 ? ' piece ready' : ' pieces ready') + '</div>';
     } else if (stock > 0 || p.oneOfAKind) {
       readyTag = '<div class="product-card-meta">' + (p.oneOfAKind ? 'One of a kind' : stock + ' ready to ship') + '</div>';
     } else {
@@ -302,11 +303,11 @@
 
     return (
       '<a class="product-card" href="' +
-      esc(productHref(p) + (seasonKey && activeSeason ? '?season=' + encodeURIComponent(seasonKey) : '')) +
+      esc(productHref(p) + (themeKey && activeTheme ? '?theme=' + encodeURIComponent(themeKey) : '')) +
       '">' +
       '<div class="product-card-media">' +
       badgeHtml +
-      seasonHtml +
+      themeHtml +
       '<img src="' +
       esc(cover) +
       '" alt="' +
@@ -1054,25 +1055,25 @@
   function setupShopPage() {
     const grid = $('productsGrid');
     if (!grid) return;
-    let currentSeason = 'all';
+    let currentTheme = 'all';
     let currentType = 'all';
     function groupedType(p) {
       return categoryForProduct(p);
     }
 
-    /* Only offer seasons that exist inside whatever type is being viewed, so
-       a category with nothing seasonal never shows an empty row of chips. */
-    function seasonsInData() {
+    /* Only offer themes that exist inside whatever type is being viewed, so
+       a category with nothing themed never shows an empty row of chips. */
+    function themesInData() {
       const pool = currentType === 'all' ? activeProducts : activeProducts.filter((p) => groupedType(p) === currentType);
       const found = new Map();
       pool.forEach((p) => {
-        productSeasons(p).forEach((label) => {
+        productThemes(p).forEach((label) => {
           const key = label.toLocaleLowerCase();
           if (!found.has(key)) found.set(key, label);
         });
       });
-      const order = seasonVocab().map((s) => s.label.toLocaleLowerCase());
-      return Array.from(found, ([key, label]) => ({ key, label, emoji: seasonMeta(label).emoji }))
+      const order = themeVocab().map((s) => s.label.toLocaleLowerCase());
+      return Array.from(found, ([key, label]) => ({ key, label, emoji: themeMeta(label).emoji }))
         .sort((a, b) => {
           const ia = order.indexOf(a.key);
           const ib = order.indexOf(b.key);
@@ -1090,7 +1091,7 @@
 
     function filtered() {
       let list = activeProducts.slice();
-      if (currentSeason !== 'all') list = list.filter((p) => productInSeason(p, currentSeason));
+      if (currentTheme !== 'all') list = list.filter((p) => productInTheme(p, currentTheme));
       if (currentType !== 'all') list = list.filter((p) => groupedType(p) === currentType);
       return list;
     }
@@ -1106,23 +1107,23 @@
         return;
       }
       if (empty) empty.hidden = true;
-      const seasonKey = currentSeason === 'all' ? '' : currentSeason;
-      grid.innerHTML = list.map((p) => productCardHtml(p, seasonKey)).join('');
+      const themeKey = currentTheme === 'all' ? '' : currentTheme;
+      grid.innerHTML = list.map((p) => productCardHtml(p, themeKey)).join('');
     }
 
     function syncUrl() {
       const u = new URL(location.href);
       u.searchParams.delete('filter');
       u.searchParams.delete('sort');
-      if (currentSeason === 'all') u.searchParams.delete('season');
-      else u.searchParams.set('season', currentSeason);
+      if (currentTheme === 'all') u.searchParams.delete('theme');
+      else u.searchParams.set('theme', currentTheme);
       if (currentType === 'all') u.searchParams.delete('type');
       else u.searchParams.set('type', currentType);
       history.replaceState(null, '', u.pathname + u.search + u.hash);
     }
 
     /* init from URL */
-    currentSeason = (params.get('season') || 'all').toLocaleLowerCase();
+    currentTheme = (params.get('theme') || 'all').toLocaleLowerCase();
     const requestedType = params.get('type') || 'all';
     const typeAliases = {
       Bags: 'Bags & Pouches',
@@ -1138,32 +1139,32 @@
     /* Season/type chips are data-driven, so (re)build them once products have
        loaded; building only at setup left permanently empty chip rows. The
        delegated click handlers below are bound once and survive rebuilds. */
-    const seasonWrap = $('seasonChips');
-    function buildSeasonChips() {
-      if (!seasonWrap) return;
-      const seasons = seasonsInData();
-      if (!seasons.length) {
-        seasonWrap.hidden = true;
-        seasonWrap.innerHTML = '';
+    const themeWrap = $('themeChips');
+    function buildThemeChips() {
+      if (!themeWrap) return;
+      const themes = themesInData();
+      if (!themes.length) {
+        themeWrap.hidden = true;
+        themeWrap.innerHTML = '';
         return;
       }
-      seasonWrap.hidden = false;
-      seasonWrap.innerHTML =
-        '<button type="button" class="chip chip-season' +
-        (currentSeason === 'all' ? ' active' : '') +
-        '" data-season="all" aria-pressed="' +
-        (currentSeason === 'all') +
-        '">All seasons</button>' +
-        seasons
+      themeWrap.hidden = false;
+      themeWrap.innerHTML =
+        '<button type="button" class="chip chip-theme' +
+        (currentTheme === 'all' ? ' active' : '') +
+        '" data-theme="all" aria-pressed="' +
+        (currentTheme === 'all') +
+        '">All themes</button>' +
+        themes
           .map(
             (s) =>
-              '<button type="button" class="chip chip-season season-tint--' +
-              esc(seasonSlug(s.label) || 'custom') +
-              (currentSeason === s.key ? ' active' : '') +
-              '" data-season="' +
+              '<button type="button" class="chip chip-theme theme-tint--' +
+              esc(themeSlug(s.label) || 'custom') +
+              (currentTheme === s.key ? ' active' : '') +
+              '" data-theme="' +
               esc(s.key) +
               '" aria-pressed="' +
-              (currentSeason === s.key) +
+              (currentTheme === s.key) +
               '"><span aria-hidden="true">' +
               esc(s.emoji || '🧵') +
               '</span> ' +
@@ -1172,13 +1173,13 @@
           )
           .join('');
     }
-    if (seasonWrap) {
-      seasonWrap.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-season]');
+    if (themeWrap) {
+      themeWrap.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-theme]');
         if (!btn) return;
-        currentSeason = btn.getAttribute('data-season');
-        $$('[data-season]', seasonWrap).forEach((c) => {
-          const on = c.getAttribute('data-season') === currentSeason;
+        currentTheme = btn.getAttribute('data-theme');
+        $$('[data-theme]', themeWrap).forEach((c) => {
+          const on = c.getAttribute('data-theme') === currentTheme;
           c.classList.toggle('active', on);
           c.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
@@ -1222,17 +1223,17 @@
           c.classList.toggle('active', on);
           c.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
-        /* the seasons on offer change with the type, and a season that no
+        /* the themes on offer change with the type, and a theme that no
            longer exists here would otherwise leave an empty grid behind */
-        if (currentSeason !== 'all' && !seasonsInData().some((s) => s.key === currentSeason)) currentSeason = 'all';
-        buildSeasonChips();
+        if (currentTheme !== 'all' && !themesInData().some((s) => s.key === currentTheme)) currentTheme = 'all';
+        buildThemeChips();
         syncUrl();
         render();
       });
     }
 
     function renderAll() {
-      buildSeasonChips();
+      buildThemeChips();
       buildTypeChips();
       render();
     }
@@ -1453,10 +1454,10 @@
       '<div class="gallery-thumbs">' + images.map((src, index) => '<button type="button" data-gallery-idx="' + index + '" aria-current="' + (index === 0) + '" aria-label="Photo ' + (index + 1) + '"><img src="' + esc(resolveImg(src)) + '" alt="" width="64" height="64" loading="lazy"></button>').join('') + '</div></div>';
     let listings = '';
     if (!p.oneOfAKind) {
-      /* arriving from a season filter puts those pieces first, highlighted,
+      /* arriving from a theme filter puts those pieces first, highlighted,
          without ever hiding the rest of her work */
-      const seasonKey = cleanSeason(params.get('season') || '').toLocaleLowerCase();
-      const isMatch = (l) => seasonKey && !l.sold && cleanSeason(l.season).toLocaleLowerCase() === seasonKey;
+      const themeKey = cleanTheme(params.get('theme') || '').toLocaleLowerCase();
+      const isMatch = (l) => themeKey && !l.sold && cleanTheme(l.theme).toLocaleLowerCase() === themeKey;
       const rows = [...(p.listings || [])].sort((a, b) => {
         if (isMatch(a) !== isMatch(b)) return isMatch(a) ? -1 : 1;
         return a.sold === b.sold ? 0 : a.sold ? 1 : -1;
@@ -1465,14 +1466,14 @@
       if (!rows.some((listing) => !listing.sold)) {
         listings = '<div class="availability-empty"><h3>No finished pieces available right now</h3><p>Request a custom one and choose the details with Alivia.</p></div>';
       } else {
-        const seasonNote = matchCount
-          ? '<p class="listings-note">' + esc(seasonMeta(params.get('season')).emoji) + ' Showing ' +
-            esc(cleanSeason(params.get('season')).toLocaleLowerCase()) + ' first. Every finished piece is listed below.</p>'
+        const themeNote = matchCount
+          ? '<p class="listings-note">' + esc(themeMeta(params.get('theme')).emoji) + ' Showing ' +
+            esc(themeMeta(params.get('theme')).label) + ' first. Every finished piece is listed below.</p>'
           : '';
-        listings = '<div class="listings-block"><h3>Available now</h3>' + seasonNote + rows.map((listing) => {
+        listings = '<div class="listings-block"><h3>Available now</h3>' + themeNote + rows.map((listing) => {
           const image = listing.images?.[0] ? resolveImg(listing.images[0]) : resolveImg(PLACEHOLDER);
           const listingName = listing.name || p.name;
-          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + (isMatch(listing) ? ' is-season-match' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + (cleanSeason(listing.season) ? ' ' + seasonBadgeHtml(listing.season, 'season-badge--sm') : '') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
+          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + (isMatch(listing) ? ' is-theme-match' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + (cleanTheme(listing.theme) ? ' ' + themeBadgeHtml(listing.theme, 'theme-badge--sm') : '') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
         }).join('') + '</div>';
       }
     }

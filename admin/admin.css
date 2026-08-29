@@ -506,7 +506,7 @@ textarea.field-input { resize: vertical; }
   text-transform: uppercase;
   margin-bottom: 2px;
 }
-.season-photo-editor {
+.theme-photo-editor {
   display: grid;
   grid-template-columns: minmax(150px, 220px) 1fr;
   gap: 18px;
@@ -517,7 +517,7 @@ textarea.field-input { resize: vertical; }
   background: var(--purple-pale);
   border: 2px dashed var(--purple-light);
 }
-.season-photo-editor img {
+.theme-photo-editor img {
   width: 100%;
   aspect-ratio: 16 / 11;
   object-fit: cover;
@@ -533,6 +533,9 @@ textarea.field-input { resize: vertical; }
   border-radius: 14px;
   background: linear-gradient(135deg, #fff, #fbf9ff);
 }
+.listings-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.listings-head h4 { margin-bottom: 0; }
+.listings-head .taxonomy-manage-btn { margin-top: 0; }
 .inline-custom { margin-top: 10px; }
 .inline-custom-row { display: flex; align-items: center; gap: 8px; }
 .inline-custom-row .field-input { flex: 1; }
@@ -581,9 +584,9 @@ textarea.field-input { resize: vertical; }
 .category-rename .field-input { flex: 1; padding-block: 9px; }
 .category-error { grid-column: 1 / -1; color: #9f276f; font-size: 0.78rem; font-weight: 700; }
 
-/* ---------- seasons ---------- */
-.season-item { grid-template-columns: auto 1fr auto auto; }
-.season-emoji-btn {
+/* ---------- themes ---------- */
+.theme-item { grid-template-columns: auto 1fr auto auto; }
+.theme-emoji-btn {
   width: 40px; height: 40px;
   border-radius: 12px;
   border: 1px dashed var(--purple-light);
@@ -593,8 +596,8 @@ textarea.field-input { resize: vertical; }
   cursor: pointer;
   transition: transform var(--transition), border-color var(--transition);
 }
-.season-emoji-btn:hover { transform: scale(1.08); border-color: var(--purple); }
-.season-emoji-palette {
+.theme-emoji-btn:hover { transform: scale(1.08); border-color: var(--purple); }
+.theme-emoji-palette {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
@@ -602,7 +605,7 @@ textarea.field-input { resize: vertical; }
   padding-top: 8px;
   border-top: 1px dashed var(--neutral-dark);
 }
-.season-emoji-choice {
+.theme-emoji-choice {
   width: 36px; height: 36px;
   border-radius: 10px;
   border: 1px solid var(--neutral-dark);
@@ -612,16 +615,16 @@ textarea.field-input { resize: vertical; }
   cursor: pointer;
   transition: transform var(--transition), border-color var(--transition);
 }
-.season-emoji-choice:hover { transform: scale(1.12); border-color: var(--pink); }
-.season-add { margin-top: 14px; padding-top: 12px; border-top: 2px dashed var(--neutral-dark); }
-.season-error { color: #9f276f; font-size: 0.78rem; font-weight: 700; min-height: 1em; }
-.listing-season { margin-top: 6px; }
-.listing-season .select-wrap.compact select { padding-block: 7px; font-size: 0.85rem; }
-.mini-chip.season { background: var(--purple-pale); color: var(--purple-dark); }
+.theme-emoji-choice:hover { transform: scale(1.12); border-color: var(--pink); }
+.theme-add { margin-top: 14px; padding-top: 12px; border-top: 2px dashed var(--neutral-dark); }
+.theme-error { color: #9f276f; font-size: 0.78rem; font-weight: 700; min-height: 1em; }
+.listing-theme { margin-top: 6px; }
+.listing-theme .select-wrap.compact select { padding-block: 7px; font-size: 0.85rem; }
+.mini-chip.theme { background: var(--purple-pale); color: var(--purple-dark); }
 
 @media (max-width: 600px) {
-  .season-item { grid-template-columns: auto 1fr auto; }
-  .season-item .category-action.danger { grid-column: 3; }
+  .theme-item { grid-template-columns: auto 1fr auto; }
+  .theme-item .category-action.danger { grid-column: 3; }
 }
 
 @media (max-width: 600px) {
@@ -663,8 +666,8 @@ textarea.field-input { resize: vertical; }
   }
   .settings-step { min-width: 0; }
   .settings-footer-nav { flex-wrap: wrap; }
-  .season-photo-editor { grid-template-columns: 1fr; }
-  .season-photo-editor img { max-width: 280px; }
+  .theme-photo-editor { grid-template-columns: 1fr; }
+  .theme-photo-editor img { max-width: 280px; }
 }
 
 /* ============ PUBLISH BAR ============ */
