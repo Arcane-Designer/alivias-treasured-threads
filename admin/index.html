@@ -12,7 +12,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Dancing+Script:wght@400;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="admin.css">
+  <!-- The Studio is a tool for two people, and a stale copy of it after a fix
+       is worse than any caching win, so always load the current code. -->
+  <script>document.write('<link rel="stylesheet" href="admin.css?v=' + Date.now() + '">');</script>
 </head>
 <body>
 
@@ -512,6 +514,10 @@
 
   <div class="toast-zone" id="toastZone" aria-live="polite"></div>
 
-  <script src="admin.js"></script>
+  <script>
+    var s = document.createElement('script');
+    s.src = 'admin.js?v=' + Date.now();
+    document.body.appendChild(s);
+  </script>
 </body>
 </html>
