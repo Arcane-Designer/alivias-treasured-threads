@@ -123,7 +123,7 @@
       },
       {
         "label": "Harry Potter",
-        "emoji": "⚡"
+        "emoji": "🪄"
       }
     ]
   },
@@ -225,7 +225,8 @@
           "images": [
             "images/uploads/polka-dot-pouch-mtdimw7h604.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "l-msaq307gqoud",
@@ -233,7 +234,8 @@
           "images": [
             "images/uploads/mushroom-pouch-msaq2xs1unp.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "badges": [
@@ -264,7 +266,8 @@
           "images": [
             "images/uploads/pink-and-blue-cube-mt6h1qll823.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "theme": ""
@@ -292,7 +295,8 @@
           "images": [
             "images/uploads/listing-mtdck1n3ijt.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "l-mt3s3zpw45zh",
@@ -301,7 +305,8 @@
             "images/uploads/chai-time-tote-mt3s56zwfdu.jpg",
             "images/uploads/chai-time-tote-mt3s571orlf.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "tote-black-halloween",
@@ -309,7 +314,8 @@
           "images": [
             "images/available/anna-s-everyday-tote-bag-black-halloween.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "tote-orange-halloween",
@@ -317,7 +323,8 @@
           "images": [
             "images/available/anna-s-everyday-tote-bag-orange-halloween.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "badges": [],
@@ -341,7 +348,8 @@
           "images": [
             "images/uploads/listing-mtdcpvrcigj.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "l-mtdcpqkwe82h",
@@ -349,7 +357,8 @@
           "images": [
             "images/uploads/listing-mtdcph1s0ix.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "l-mtdcpb34e1m3",
@@ -357,7 +366,8 @@
           "images": [
             "images/uploads/listing-mtdcp1gfpkj.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "l-mtdcoqq1muty",
@@ -365,7 +375,8 @@
           "images": [
             "images/uploads/listing-mtdcocv9fcc.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "l-mtdcotaunjfv",
@@ -373,7 +384,8 @@
           "images": [
             "images/uploads/listing-mtdcocv9fcc.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "zp-fall",
@@ -381,7 +393,8 @@
           "images": [
             "images/available/fall-pattern-zipper-pouch.jpg"
           ],
-          "sold": true
+          "sold": true,
+          "theme": ""
         },
         {
           "id": "zp-mushroom",
@@ -389,7 +402,8 @@
           "images": [
             "images/available/keenes-mushroom-zipper-pouch.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "badges": [
@@ -415,7 +429,8 @@
           "images": [
             "images/available/bookmark-fall-fun.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-fall-fun-2",
@@ -423,7 +438,8 @@
           "images": [
             "images/available/bookmark-fall-fun-2.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-fall-pattern",
@@ -431,7 +447,8 @@
           "images": [
             "images/available/bookmark-fall-pattern.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-black",
@@ -439,7 +456,8 @@
           "images": [
             "images/available/bookmark-black.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-blue-green",
@@ -447,7 +465,8 @@
           "images": [
             "images/available/bookmark-blue-and-green-pattern.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-brown-fb",
@@ -455,7 +474,8 @@
           "images": [
             "images/available/bookmark-brown-front-and-back.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-brown-green",
@@ -463,7 +483,8 @@
           "images": [
             "images/available/bookmark-brown-and-green.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-green-fb",
@@ -471,7 +492,8 @@
           "images": [
             "images/uploads/pink-and-green-mrmdljkcfck.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-greenery-flowers",
@@ -479,7 +501,8 @@
           "images": [
             "images/uploads/greenery-flowers-bookmark-mrmdlw6so8g.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-greenery-pattern",
@@ -487,7 +510,8 @@
           "images": [
             "images/uploads/greenery-pattern-bookmark-mrmdm8vp4f9.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-orange-black",
@@ -495,7 +519,8 @@
           "images": [
             "images/uploads/spider-bookmark-mrmdms0ns2m.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-pink",
@@ -503,7 +528,8 @@
           "images": [
             "images/uploads/pink-bookmark-mrmdnao5f8w.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-space-black",
@@ -511,7 +537,8 @@
           "images": [
             "images/uploads/space-black-bookmark-mrmdnjw934a.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "bk-space-man",
@@ -519,7 +546,8 @@
           "images": [
             "images/uploads/space-man-bookmark-mrmdnubn1q1.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "cbk-fall-fun",
@@ -527,7 +555,8 @@
           "images": [
             "images/uploads/corner-bookmark-fall-fun-mrmdo6gz7ho.jpg"
           ],
-          "sold": true
+          "sold": true,
+          "theme": ""
         },
         {
           "id": "cbk-green",
@@ -535,7 +564,8 @@
           "images": [
             "images/uploads/corner-bookmark-green-mrmdofmmd4a.jpg"
           ],
-          "sold": true
+          "sold": true,
+          "theme": ""
         },
         {
           "id": "l-ms3maccio56j",
@@ -543,7 +573,8 @@
           "images": [
             "images/uploads/hightop-bookmark-ms3maa4ppzf.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "badges": [],
@@ -581,7 +612,8 @@
             "images/available/pretty-in-pink-coaster.jpg",
             "images/uploads/pretty-in-pink-coaster-mrmef0ywfna.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "coaster-papaya-racing",
@@ -590,7 +622,8 @@
             "images/available/papaya-racing-coaster.jpg",
             "images/uploads/papaya-racing-coaster-mrmeenvngc3.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "coaster-lights-out",
@@ -598,7 +631,8 @@
           "images": [
             "images/available/lights-out-coaster.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "coaster-marauders-map",
@@ -606,7 +640,8 @@
           "images": [
             "images/available/marauders-map-coasters.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "coaster-boy-who-lived",
@@ -614,7 +649,8 @@
           "images": [
             "images/available/boy-who-lived-coasters.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "badges": [],
@@ -638,7 +674,8 @@
           "images": [
             "images/uploads/listing-mtdcjig6obp.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "l-mshwiv36uu6e",
@@ -646,7 +683,8 @@
           "images": [
             "images/uploads/off-the-wall-mini-tote-mt3s5xucb1m.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "badges": [
@@ -691,7 +729,8 @@
           "images": [
             "images/available/pot-holder-black-halloween.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         },
         {
           "id": "ph-orange-halloween",
@@ -699,7 +738,8 @@
           "images": [
             "images/available/pot-holder-orange-halloween.jpg"
           ],
-          "sold": false
+          "sold": false,
+          "theme": ""
         }
       ],
       "badges": [],
