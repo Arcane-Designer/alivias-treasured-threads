@@ -150,7 +150,7 @@
       "listings": [],
       "salePrice": 60,
       "saleLabel": "",
-      "theme": ""
+      "theme": "Fall"
     },
     {
       "id": "p-mrsqof4x8ebz",
@@ -174,7 +174,7 @@
       "listings": [],
       "salePrice": 60,
       "saleLabel": "",
-      "theme": ""
+      "theme": "Summer"
     },
     {
       "id": "p-ms3nk6mp2otm",
@@ -198,7 +198,7 @@
       "listings": [],
       "salePrice": 60,
       "saleLabel": "",
-      "theme": ""
+      "theme": "Summer"
     },
     {
       "id": "mini-zipper-pouch",
@@ -296,7 +296,7 @@
             "images/uploads/listing-mtdck1n3ijt.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Summer"
         },
         {
           "id": "l-mt3s3zpw45zh",
@@ -306,7 +306,7 @@
             "images/uploads/chai-time-tote-mt3s571orlf.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Fall"
         },
         {
           "id": "tote-black-halloween",
@@ -315,7 +315,7 @@
             "images/available/anna-s-everyday-tote-bag-black-halloween.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Halloween"
         },
         {
           "id": "tote-orange-halloween",
@@ -324,7 +324,7 @@
             "images/available/anna-s-everyday-tote-bag-orange-halloween.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Halloween"
         }
       ],
       "badges": [],
@@ -349,7 +349,7 @@
             "images/uploads/listing-mtdcpvrcigj.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Summer"
         },
         {
           "id": "l-mtdcpqkwe82h",
@@ -358,7 +358,7 @@
             "images/uploads/listing-mtdcph1s0ix.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Summer"
         },
         {
           "id": "l-mtdcpb34e1m3",
@@ -367,7 +367,7 @@
             "images/uploads/listing-mtdcp1gfpkj.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Summer"
         },
         {
           "id": "l-mtdcoqq1muty",
@@ -376,7 +376,7 @@
             "images/uploads/listing-mtdcocv9fcc.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Summer"
         },
         {
           "id": "l-mtdcotaunjfv",
@@ -385,7 +385,7 @@
             "images/uploads/listing-mtdcocv9fcc.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Summer"
         },
         {
           "id": "zp-fall",
@@ -613,7 +613,7 @@
             "images/uploads/pretty-in-pink-coaster-mrmef0ywfna.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Spring"
         },
         {
           "id": "coaster-papaya-racing",
@@ -641,7 +641,7 @@
             "images/available/marauders-map-coasters.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Wizarding"
         },
         {
           "id": "coaster-boy-who-lived",
@@ -650,7 +650,7 @@
             "images/available/boy-who-lived-coasters.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Wizarding"
         }
       ],
       "badges": [],
@@ -675,7 +675,7 @@
             "images/uploads/listing-mtdcjig6obp.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Summer"
         },
         {
           "id": "l-mshwiv36uu6e",
@@ -730,7 +730,7 @@
             "images/available/pot-holder-black-halloween.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Halloween"
         },
         {
           "id": "ph-orange-halloween",
@@ -739,7 +739,7 @@
             "images/available/pot-holder-orange-halloween.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Halloween"
         }
       ],
       "badges": [],
