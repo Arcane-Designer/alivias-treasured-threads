@@ -745,6 +745,17 @@
       ],
       "listings": [
         {
+          "id": "l-mtnldmoze9e0",
+          "name": "Hot Pad- Gift for haircut",
+          "images": [
+            "images/uploads/archive-mtnld3f2x0k.jpg",
+            "images/uploads/archive-mtnld3gk3pa.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "gift"
+        },
+        {
           "id": "ph-black-halloween",
           "name": "Black Halloween Pot Holder",
           "images": [
@@ -887,6 +898,93 @@
     }
   ],
   "archive": [
+    {
+      "id": "l-mtnlbzsfw92c",
+      "name": "Fall Tote 2025",
+      "images": [
+        "images/uploads/archive-mtnlbit4kxy.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "sold",
+      "kind": "listing",
+      "productId": "annas-everyday-tote",
+      "productName": "Anna's Everyday Tote Bag",
+      "archivedAt": "2025-10-10"
+    },
+    {
+      "id": "l-mtnlaz5gmyre",
+      "name": "Craft Roll- Bonnie",
+      "images": [
+        "images/uploads/archive-mtnlaozbc5z.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "sold",
+      "kind": "listing",
+      "productId": "craft-roll",
+      "productName": "Craft Roll",
+      "archivedAt": "2026-09-04"
+    },
+    {
+      "id": "l-mtnla659y8cz",
+      "name": "Craft Roll- Lexi",
+      "images": [
+        "images/uploads/archive-mtnl9uu451w.jpg",
+        "images/uploads/archive-mtnl9uw5qug.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "sold",
+      "kind": "listing",
+      "productId": "craft-roll",
+      "productName": "Craft Roll",
+      "archivedAt": "2026-09-04"
+    },
+    {
+      "id": "l-mtnl83sfjzkr",
+      "name": "Mel 21st Gift",
+      "images": [
+        "images/uploads/archive-mtnl7o24ds2.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "zipper-pouch",
+      "productName": "Zipper Pouch",
+      "archivedAt": "2025-09-02"
+    },
+    {
+      "id": "l-mtnl730ydb0q",
+      "name": "Fall Tote",
+      "images": [
+        "images/uploads/archive-mtnl6nj8nbs.jpg",
+        "images/uploads/archive-mtnl6nkld07.jpg",
+        "images/uploads/archive-mtnl6nm0e5b.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "sold",
+      "kind": "listing",
+      "productId": "annas-everyday-tote",
+      "productName": "Anna's Everyday Tote Bag",
+      "archivedAt": "2025-10-16"
+    },
+    {
+      "id": "l-mtnl52sb0g3e",
+      "name": "Book Plush For Preston",
+      "images": [
+        "images/uploads/archive-mtnl4tw2jqi.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "",
+      "productName": "",
+      "archivedAt": "2025-12-25"
+    },
     {
       "id": "l-mtnkyzzigca9",
       "name": "Panel Elephant- Gift to Emmet",
