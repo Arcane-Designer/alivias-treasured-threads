@@ -745,17 +745,6 @@
       ],
       "listings": [
         {
-          "id": "l-mtnldmoze9e0",
-          "name": "Hot Pad- Gift for haircut",
-          "images": [
-            "images/uploads/archive-mtnld3f2x0k.jpg",
-            "images/uploads/archive-mtnld3gk3pa.jpg"
-          ],
-          "sold": false,
-          "theme": "",
-          "tag": "gift"
-        },
-        {
           "id": "ph-black-halloween",
           "name": "Black Halloween Pot Holder",
           "images": [
@@ -898,6 +887,21 @@
     }
   ],
   "archive": [
+    {
+      "id": "l-mtnldmoze9e0",
+      "name": "Hot Pad- Gift for haircut",
+      "images": [
+        "images/uploads/archive-mtnld3f2x0k.jpg",
+        "images/uploads/archive-mtnld3gk3pa.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "pot-holders",
+      "productName": "Pot Holders",
+      "archivedAt": "2026-09-04"
+    },
     {
       "id": "l-mtnlbzsfw92c",
       "name": "Fall Tote 2025",
