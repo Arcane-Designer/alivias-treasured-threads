@@ -113,7 +113,8 @@ No credentials are committed. See `worker/.dev.vars.example`, `worker/schema.sql
 | Area | Notes |
 |------|--------|
 | `settings.*` | Brand strings, Instagram, contact email, Web3Forms key, review inbox URL, checkout API URL/flag |
-| `products[]` | `id`, `name`, `price` / `priceLabel`, `description`, `images`, `listings`, `badges`, `archived`, `oneOfAKind`, `salePrice`, `priceTiers`, optional `descriptionLink` |
+| `products[]` | `id`, `name`, `price` / `priceLabel`, `description`, `images`, `listings`, `badges`, `archived` (= hidden from the shop), `oneOfAKind`, `salePrice`, `priceTiers`, optional `descriptionLink`; a `tag` on one-of-a-kind products and on every listing (`""`, `sold`, `custom`, `in-person`, `gift`) is Alivia's private bookkeeping and is never rendered |
+| `archive[]` | Studio-only history of every past piece. Entries are either a listing that left its product (`kind: "listing"`, keeps `id`, `name`, `images`, `sold`, `theme`, `tag`, plus `productId` / `productName` and `archivedAt` `YYYY-MM-DD`; `productId` may be empty for pieces not attached to a product) or a whole one-of-a-kind product (`kind: "product"`, `product: {...}`). The shop, generator, and checkout Worker ignore this key entirely, so nothing archived can be shown or sold. "Bring back" in the Studio moves an entry into `products[]` again, recreating a hidden product if its original is gone |
 | Optional future | `checkoutUrl` / `paymentLink`, `season`, `itemType`, `tags`; filters already read them when present |
 | `reviews[]` | Curated; `show: true` to display |
 

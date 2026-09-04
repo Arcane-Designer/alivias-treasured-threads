@@ -60,6 +60,7 @@
 
       <nav class="tabs" role="tablist">
         <button class="tab active" data-tab="products" role="tab" aria-selected="true">🧺 My Products</button>
+        <button class="tab" data-tab="archive" role="tab" aria-selected="false">📦 Archive</button>
         <button class="tab" data-tab="reviews" role="tab" aria-selected="false">💌 Reviews</button>
         <button class="tab" data-tab="settings" role="tab" aria-selected="false">✏️ Pages &amp; Text</button>
       </nav>
@@ -69,6 +70,16 @@
         <div class="admin-grid" id="adminGrid">
           <!-- product cards injected -->
         </div>
+      </section>
+
+      <!-- ---------- ARCHIVE TAB ---------- -->
+      <section class="tab-panel" id="panel-archive" hidden>
+        <div class="archive-head">
+          <h3 class="archive-title">📦 Archive <span class="archive-count" id="archiveCount"></span></h3>
+          <button type="button" class="btn btn-teal btn-small" id="archiveAddBtn">+ Add to archive</button>
+        </div>
+        <div class="mode-chips archive-chips" id="archiveChips"></div>
+        <div class="archive-groups" id="archiveGroups"></div>
       </section>
 
       <!-- ---------- REVIEWS TAB ---------- -->
@@ -296,11 +307,17 @@
         </div>
 
         <div class="taxonomy-panel" id="themePanel" aria-label="Product theme">
-          <div class="field-group" style="margin-bottom:0">
-            <label class="field-label" for="epTheme">Theme <span class="tiny-note">optional</span></label>
-            <div class="select-wrap"><select id="epTheme" class="field-input themed-select"></select></div>
-            <p class="field-hint" id="epThemeHint">Tags this one-of-a-kind piece.</p>
-            <button type="button" class="taxonomy-manage-btn" id="manageThemes">Manage themes</button>
+          <div class="field-row">
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label" for="epTheme">Theme <span class="tiny-note">optional</span></label>
+              <div class="select-wrap"><select id="epTheme" class="field-input themed-select"></select></div>
+              <p class="field-hint" id="epThemeHint">Tags this one-of-a-kind piece.</p>
+              <button type="button" class="taxonomy-manage-btn" id="manageThemes">Manage themes</button>
+            </div>
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label" for="epTag">Tag <span class="tiny-note">just for you</span></label>
+              <div class="select-wrap tag-wrap"><select id="epTag" class="field-input themed-select tag-select"></select></div>
+            </div>
           </div>
         </div>
 
@@ -422,7 +439,12 @@
                 <span id="newListingPhotoLabel">📷 Pick photo(s)</span>
               </label>
               <button type="button" class="add-photos-btn small" id="newListingPickExisting">📚 Reuse</button>
+              <label class="sr-only" for="newListingTag">Tag for the new listing</label>
+              <div class="select-wrap compact tag-wrap"><select id="newListingTag" class="field-input themed-select tag-select"></select></div>
+            </div>
+            <div class="add-listing-row add-listing-go">
               <button class="btn btn-teal btn-small" id="addListingBtn">+ Add listing</button>
+              <button type="button" class="ghost-btn" id="addListingArchiveBtn">📦 Straight to archive</button>
             </div>
             <div class="photo-strip" id="newListingPreview"></div>
           </div>
@@ -430,7 +452,10 @@
       </div>
 
       <div class="editor-foot">
-        <button class="ghost-btn danger" id="epDelete">🗑 Delete product</button>
+        <div class="editor-foot-left">
+          <button class="ghost-btn danger" id="epDelete">🗑 Delete product</button>
+          <button class="ghost-btn" id="epArchiveProduct" hidden>📦 Archive</button>
+        </div>
         <button class="btn btn-gradient" id="epDone">Done ✓</button>
       </div>
     </div>
@@ -483,6 +508,93 @@
         <button class="ghost-btn" id="pickerCancel">Never mind</button>
         <button class="btn btn-gradient" id="pickerAdd">Add selected ✓</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= ADD TO ARCHIVE ================= -->
+  <div class="category-overlay" id="archiveAddOverlay" hidden>
+    <div class="category-card" role="dialog" aria-modal="true" aria-labelledby="archiveAddTitle">
+      <div class="picker-head">
+        <h3 id="archiveAddTitle">📦 Add to archive</h3>
+        <button class="icon-btn" id="archiveAddClose" aria-label="Close">×</button>
+      </div>
+      <div class="archive-add-form">
+        <div class="field-group">
+          <label class="field-label" for="archiveAddName">Name <span class="req">*</span></label>
+          <input type="text" id="archiveAddName" class="field-input" placeholder="What was it called?">
+        </div>
+        <div class="field-group">
+          <div class="add-listing-row">
+            <label class="add-photos-btn small">
+              <input type="file" id="archiveAddPhotos" accept="image/*" multiple hidden>
+              <span id="archiveAddPhotoLabel">📷 Pick photo(s)</span>
+            </label>
+            <button type="button" class="add-photos-btn small" id="archiveAddPickExisting">📚 Reuse</button>
+          </div>
+          <div class="photo-strip" id="archiveAddPreview"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="archiveAddProduct">Product</label>
+            <div class="select-wrap"><select id="archiveAddProduct" class="field-input themed-select"></select></div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="archiveAddTag">Tag</label>
+            <div class="select-wrap tag-wrap"><select id="archiveAddTag" class="field-input themed-select tag-select"></select></div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Date</label>
+          <button type="button" class="date-chip big" id="archiveAddDateBtn">📅</button>
+        </div>
+      </div>
+      <div class="picker-foot">
+        <button class="ghost-btn" id="archiveAddCancel">Never mind</button>
+        <button class="btn btn-gradient" id="archiveAddGo">Add to archive ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BRING BACK (choose a home) ================= -->
+  <div class="category-overlay" id="restoreOverlay" hidden>
+    <div class="category-card narrow" role="dialog" aria-modal="true" aria-labelledby="restoreTitle">
+      <div class="picker-head">
+        <h3 id="restoreTitle">Bring back</h3>
+        <button class="icon-btn" id="restoreClose" aria-label="Close">×</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="restoreTarget">Where should it live?</label>
+        <div class="select-wrap"><select id="restoreTarget" class="field-input themed-select"></select></div>
+      </div>
+      <div class="picker-foot">
+        <button class="ghost-btn" id="restoreCancel">Never mind</button>
+        <button class="btn btn-gradient" id="restoreGo">Bring it back ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DATE PICKER ================= -->
+  <div class="category-overlay" id="dateOverlay" hidden>
+    <div class="category-card calendar-card" role="dialog" aria-modal="true" aria-label="Pick a date">
+      <div class="picker-head">
+        <div class="calendar-nav">
+          <button type="button" class="icon-btn mini" id="calendarPrev" aria-label="Previous month">‹</button>
+          <h3 id="calendarTitle"></h3>
+          <button type="button" class="icon-btn mini" id="calendarNext" aria-label="Next month">›</button>
+        </div>
+        <button class="icon-btn" id="dateClose" aria-label="Close">×</button>
+      </div>
+      <div class="calendar-weekdays" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+      <div class="picker-foot"><button type="button" class="ghost-btn" id="calendarToday">Today</button></div>
+    </div>
+  </div>
+
+  <!-- ================= CHOICE DIALOG ================= -->
+  <div class="confirm-overlay" id="choiceOverlay" hidden>
+    <div class="confirm-card" role="alertdialog" aria-modal="true">
+      <p id="choiceMsg"></p>
+      <div class="confirm-actions stacked" id="choiceActions"></div>
     </div>
   </div>
 

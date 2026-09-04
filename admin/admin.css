@@ -1213,7 +1213,7 @@ textarea.field-input { resize: vertical; }
 .picker-overlay {
   position: fixed;
   inset: 0;
-  z-index: 700;
+  z-index: 780; /* above the archive dialogs, which reuse .category-overlay at 750 */
   background: rgba(45,35,56,0.5);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -1449,4 +1449,169 @@ textarea.field-input { resize: vertical; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============ ARCHIVE ============ */
+.archive-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.archive-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.archive-count { font-family: var(--font-body); font-size: 0.8rem; font-weight: 800; color: var(--ink-soft); }
+.archive-chips { margin-bottom: 20px; }
+.chip-count {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 6px;
+  margin-left: 2px;
+  border-radius: 12px;
+  background: rgba(45,35,56,0.08);
+  font-size: 0.7rem;
+  text-align: center;
+}
+.mode-chip.active .chip-count { background: rgba(255,255,255,0.25); }
+
+.archive-groups { display: flex; flex-direction: column; gap: 14px; }
+.archive-empty { color: var(--ink-soft); font-weight: 700; padding: 30px 0; text-align: center; }
+
+.archive-group {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 5px solid #fff;
+  outline: var(--stitch);
+  outline-offset: -9px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.archive-group-head {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 10px;
+  text-align: left;
+  transition: background var(--transition);
+}
+.archive-group-head:hover { background: var(--purple-pale); }
+.archive-group-cover {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--purple-pale);
+}
+.archive-group-cover.empty { display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.archive-group-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.archive-group-count {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--purple-pale);
+  color: var(--purple-dark);
+}
+.archive-group-chevron {
+  color: var(--purple);
+  font-size: 1.4rem;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateY(-3px);
+  transition: transform var(--transition);
+}
+.archive-group.is-collapsed .archive-group-chevron { transform: translateY(2px) rotate(-90deg); }
+.archive-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 12px 12px;
+}
+.archive-group.is-collapsed .archive-group-body { display: none; }
+
+.archive-row { border-color: var(--purple-light); }
+.archive-row.is-product { border-color: var(--pink-light); }
+.restore-chip { border-color: var(--teal); color: var(--teal-dark); background: var(--teal-pale); border-style: solid; }
+.restore-chip:hover { background: var(--teal); color: var(--ink); border-color: var(--teal); }
+
+/* tag select: same stitched look as themes, tinted pink so it reads as "mine" */
+.tag-wrap.select-wrap::after { color: var(--pink-dark); }
+.tag-select.themed-select { border-color: var(--pink-light); background: linear-gradient(135deg, #fff 0%, #fff6fc 100%); }
+.listing-theme { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; padding-left: 10px; }
+.listing-theme .select-wrap { flex: 1 1 150px; min-width: 150px; }
+.add-listing-row .tag-wrap { flex: 1 1 150px; min-width: 150px; }
+.add-listing-row .tag-wrap select { margin-bottom: 0; padding-block: 9px; font-size: 0.85rem; }
+.add-listing-go { margin-top: 10px; }
+
+/* the archive date, tappable */
+.date-chip {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 12px;
+  background: var(--pink-pale);
+  color: var(--pink-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1.5px dashed transparent;
+  transition: all var(--transition);
+}
+.date-chip:hover { border-color: var(--pink); background: #fff; }
+.date-chip.big { font-size: 0.85rem; padding: 9px 16px; border-radius: 30px; text-transform: none; letter-spacing: 0; border: 2px dashed var(--pink-light); }
+
+/* editor footer with archive next to delete */
+.editor-foot-left { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* archive add dialog */
+.archive-add-form { margin-top: 12px; }
+.archive-add-form .photo-strip .photo-cell { width: 74px; }
+.category-card.narrow { width: min(440px, 100%); }
+.category-card .picker-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+/* calendar */
+.calendar-card { width: min(380px, 100%); }
+.calendar-nav { display: flex; align-items: center; gap: 8px; }
+.calendar-nav h3 { min-width: 150px; text-align: center; font-size: 1.15rem; }
+.calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.calendar-weekdays { margin: 10px 0 4px; }
+.calendar-weekdays span { text-align: center; font-size: 0.7rem; font-weight: 800; color: var(--ink-soft); text-transform: uppercase; }
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ink);
+  border: 2px dashed transparent;
+  transition: all var(--transition);
+}
+.cal-day:hover { background: var(--purple-pale); border-color: var(--purple-light); }
+.cal-day.is-today { border-color: var(--teal); }
+.cal-day.is-selected { background: linear-gradient(120deg, var(--purple), var(--pink)); color: #fff; border-style: solid; border-color: transparent; box-shadow: 0 3px 12px var(--purple-glow); }
+.calendar-card .picker-foot { justify-content: center; }
+
+/* stacked choices in the confirm card */
+.confirm-actions.stacked { flex-direction: column; align-items: stretch; }
+.confirm-actions.stacked .btn, .confirm-actions.stacked .ghost-btn { justify-content: center; }
+
+@media (max-width: 600px) {
+  .listing-main { grid-template-columns: 56px 1fr; }
+  .listing-actions { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
 }

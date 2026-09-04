@@ -124,6 +124,44 @@ for (const p of data.products || []) {
   }
 }
 
+/* archive: every past piece, kept whole. Shoppers never see these, but a
+   broken entry would be lost history, so it is checked as carefully as a product */
+const PIECE_TAGS = new Set(['', 'sold', 'custom', 'in-person', 'gift']);
+if (data.archive != null && !Array.isArray(data.archive)) fail('archive must be an array when present');
+{
+  const archiveIds = new Set();
+  const listingIds = new Set();
+  for (const p of data.products || []) for (const l of p.listings || []) if (l && l.id) listingIds.add(l.id);
+  for (const p of data.products || []) {
+    if (p.tag != null && (typeof p.tag !== 'string' || !PIECE_TAGS.has(p.tag))) fail(`Product ${p.id} has an unknown tag ${p.tag}`);
+    for (const l of p.listings || []) {
+      if (l.tag != null && (typeof l.tag !== 'string' || !PIECE_TAGS.has(l.tag))) fail(`Listing ${l.id} has an unknown tag ${l.tag}`);
+    }
+  }
+  for (const entry of Array.isArray(data.archive) ? data.archive : []) {
+    if (!entry || typeof entry !== 'object') { fail('Archive has a non-object entry'); continue; }
+    const kind = entry.kind === 'product' ? 'product' : 'listing';
+    const piece = kind === 'product' ? entry.product : entry;
+    if (!piece || typeof piece !== 'object') { fail(`Archive entry ${entry.id || '?'} is a product entry without a product`); continue; }
+    if (!entry.id || typeof entry.id !== 'string') fail('Archive entry missing string id');
+    else {
+      if (archiveIds.has(entry.id)) fail(`Duplicate archive id: ${entry.id}`);
+      archiveIds.add(entry.id);
+      if (kind === 'product' && ids.has(entry.id)) fail(`Archived product ${entry.id} is also a live product`);
+      if (kind === 'listing' && listingIds.has(entry.id)) fail(`Archived listing ${entry.id} is also a live listing`);
+    }
+    if (kind === 'product' && piece.id !== entry.id) fail(`Archived product entry ${entry.id} does not match its product id ${piece.id}`);
+    if (!piece.name) warn(`Archive entry ${entry.id} has no name`);
+    if (!Array.isArray(piece.images)) fail(`Archive entry ${entry.id} images must be an array`);
+    else piece.images.forEach((i) => imageRefs.add(i));
+    for (const l of Array.isArray(piece.listings) ? piece.listings : []) (l?.images || []).forEach((i) => imageRefs.add(i));
+    if (piece.tag != null && (typeof piece.tag !== 'string' || !PIECE_TAGS.has(piece.tag))) fail(`Archive entry ${entry.id} has an unknown tag ${piece.tag}`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(entry.archivedAt || ''))) fail(`Archive entry ${entry.id} needs an archivedAt date (YYYY-MM-DD)`);
+    if (piece.theme != null && (typeof piece.theme !== 'string' || piece.theme !== piece.theme.trim().replace(/\s+/g, ' '))) fail(`Archive entry ${entry.id} has an invalid theme`);
+    if (kind === 'listing' && entry.productId && !ids.has(entry.productId)) warn(`Archive entry ${entry.id} came from product ${entry.productId}, which no longer exists (bringing it back will make a new hidden product)`);
+  }
+}
+
 /* generated active Shop catalog pages */
 const productRoot = join(ROOT, 'shop');
 if (!existsSync(productRoot)) {
@@ -233,6 +271,18 @@ for (const img of imageRefs) {
       warn(`Product "${p.name}" carries a theme but is not one of a kind. Themes belong to individual pieces.`);
     }
     const tags = [['product', p.name, p.theme], ...(p.listings || []).map((l) => ['listing', l.name, l.theme])];
+    for (const [kind, name, value] of tags) {
+      const clean = String(value || '').trim().replace(/\s+/g, ' ');
+      if (!clean) continue;
+      seenTags.add(clean);
+      if (!vocab.has(clean.toLowerCase())) {
+        warn(`Theme "${clean}" on ${kind} "${name}" is not in settings.themes, so shoppers cannot filter by it.`);
+      }
+    }
+  }
+  for (const entry of Array.isArray(data.archive) ? data.archive : []) {
+    const piece = entry && entry.kind === 'product' ? entry.product : entry;
+    const tags = piece ? [['archived piece', piece.name, piece.theme]] : [];
     for (const [kind, name, value] of tags) {
       const clean = String(value || '').trim().replace(/\s+/g, ' ');
       if (!clean) continue;

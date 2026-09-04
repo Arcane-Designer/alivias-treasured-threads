@@ -39,6 +39,16 @@
     { label: 'Wizarding', emoji: '🪄' },
   ];
   const THEME_EMOJI_CHOICES = ['🌷', '🌸', '🌻', '☀️', '🌊', '🍂', '🍁', '🎃', '🦃', '❄️', '⛄', '🎄', '💝', '🍀', '🎆', '🐣', '🎓', '✏️', '🌙', '⭐', '🎀', '🧵', '🍎', '🌈', '🕯️', '🎁', '✝️', '🕊️', '🙏', '⚡', '🪄', '🦄', '🐾', '⚓'];
+  /* Internal tracking tags for every piece, live or archived. Shoppers never
+     see these; they are Alivia's own bookkeeping, so the list is fixed. */
+  const PIECE_TAGS = [
+    { value: '', label: 'No tag' },
+    { value: 'sold', label: 'Sold' },
+    { value: 'custom', label: 'Custom' },
+    { value: 'in-person', label: 'In-person' },
+    { value: 'gift', label: 'Gift' },
+  ];
+  const ARCHIVE_COLLAPSE_KEY = 'att-studio-archive-collapsed';
 
   const $ = (id) => document.getElementById(id);
 
@@ -85,6 +95,41 @@
     return existing || cleaned;
   }
 
+  /* ---------- tags + dates (archive bookkeeping) ---------- */
+  function cleanTag(value) {
+    const v = String(value || '').trim().toLowerCase();
+    return PIECE_TAGS.some((t) => t.value && t.value === v) ? v : '';
+  }
+
+  function tagOptionsHtml(current) {
+    const clean = cleanTag(current);
+    return PIECE_TAGS.map((t) => '<option value="' + esc(t.value) + '"' + (t.value === clean ? ' selected' : '') + '>' + esc(t.label) + '</option>').join('');
+  }
+
+  /* local calendar date as YYYY-MM-DD (never UTC, so a late-night archive
+     still lands on the day she actually did it) */
+  function todayIso() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function cleanIsoDate(value) {
+    const m = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return '';
+    const y = +m[1], mo = +m[2], d = +m[3];
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return '';
+    const probe = new Date(y, mo - 1, d);
+    if (probe.getFullYear() !== y || probe.getMonth() !== mo - 1 || probe.getDate() !== d) return '';
+    return m[1] + '-' + m[2] + '-' + m[3];
+  }
+
+  function formatIsoDate(iso) {
+    const clean = cleanIsoDate(iso);
+    if (!clean) return '';
+    const [y, m, d] = clean.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   function toast(msg, tone) {
     const t = document.createElement('div');
     t.className = 'toast' + (tone ? ' ' + tone : '');
@@ -116,6 +161,41 @@
       };
       $('confirmYes').onclick = () => done(true);
       $('confirmNo').onclick = () => done(false);
+    });
+  }
+
+  /* like confirmCute, but with a stack of named choices; resolves to the
+     chosen value, or null for "Never mind" / Escape */
+  function confirmChoice(msg, options) {
+    return new Promise((resolve) => {
+      const returnFocus = document.activeElement;
+      const wrap = $('choiceActions');
+      $('choiceMsg').textContent = msg;
+      wrap.innerHTML = '';
+      const done = (answer) => {
+        $('choiceOverlay').hidden = true;
+        $('choiceOverlay').onkeydown = null;
+        if (returnFocus && typeof returnFocus.focus === 'function') returnFocus.focus();
+        resolve(answer);
+      };
+      options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = opt.tone === 'gradient' ? 'btn btn-gradient' : opt.tone === 'danger' ? 'ghost-btn danger' : 'ghost-btn';
+        btn.textContent = opt.label;
+        btn.addEventListener('click', () => done(opt.value));
+        wrap.appendChild(btn);
+      });
+      const never = document.createElement('button');
+      never.type = 'button';
+      never.className = 'ghost-btn';
+      never.textContent = 'Never mind';
+      never.addEventListener('click', () => done(null));
+      wrap.appendChild(never);
+      $('choiceOverlay').hidden = false;
+      $('choiceOverlay').onkeydown = (e) => { if (e.key === 'Escape') { e.stopPropagation(); done(null); } };
+      $('choiceOverlay').onclick = (e) => { if (e.target === $('choiceOverlay')) done(null); };
+      never.focus();
     });
   }
 
@@ -223,12 +303,21 @@
          a theme; anything else is a type and its pieces are tagged below */
       if (!p.oneOfAKind) p.theme = '';
       delete p.tags;
-      (p.listings || []).forEach((l) => {
+      /* the tracking tag belongs to a piece: listings always, the product
+         itself only when it is one of a kind */
+      if (p.oneOfAKind) p.tag = cleanTag(p.tag);
+      else delete p.tag;
+      if (!Array.isArray(p.listings)) p.listings = [];
+      p.listings.forEach((l) => {
         if (l.season && !l.theme) l.theme = l.season;
         delete l.season;
         l.theme = cleanTaxonomyValue(l.theme);
+        l.tag = cleanTag(l.tag);
+        delete l.archivedAt;
       });
     });
+    /* the archive: every past piece, kept whole so it can always come back */
+    d.archive = (Array.isArray(d.archive) ? d.archive : []).map(normalizeArchiveEntry).filter(Boolean);
     const categorySource = Array.isArray(d.settings.categories) ? d.settings.categories : CATEGORY_PRESETS;
     d.settings.categories = categorySource.map(cleanTaxonomyValue).filter(Boolean).filter((category, index, all) => all.findIndex((item) => item.toLocaleLowerCase() === category.toLocaleLowerCase()) === index);
     (d.products || []).forEach((product) => {
@@ -255,10 +344,74 @@
         }
       });
     });
+    d.archive.forEach((entry) => {
+      const label = cleanTaxonomyValue(entryTheme(entry));
+      if (label && !seenThemes.has(label.toLocaleLowerCase())) {
+        seenThemes.set(label.toLocaleLowerCase(), { label, emoji: defaultThemeEmoji(label) });
+      }
+    });
     d.settings.themes = Array.from(seenThemes.values());
     if (!Array.isArray(d.reviews)) d.reviews = [];
     return d;
   }
+
+  /* An archive entry is either a piece ({kind:'listing'} ~ a listing that left
+     a product, or one added straight to the archive) or a whole one-of-a-kind
+     product ({kind:'product', product:{...}}). Nothing is ever thrown away
+     here: unknown fields ride along untouched. */
+  function normalizeArchiveEntry(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const entry = raw;
+    entry.kind = entry.kind === 'product' && entry.product && typeof entry.product === 'object' ? 'product' : 'listing';
+    if (entry.kind === 'product') {
+      const p = entry.product;
+      if (!p.id) p.id = uid('p');
+      entry.id = p.id;
+      if (!Array.isArray(p.badges)) p.badges = [];
+      if (!Array.isArray(p.images)) p.images = [];
+      if (!Array.isArray(p.listings)) p.listings = [];
+      p.category = cleanTaxonomyValue(p.category);
+      p.theme = cleanTaxonomyValue(p.theme);
+      p.oneOfAKind = true;
+      p.tag = cleanTag(p.tag);
+      delete entry.tag;
+      delete entry.name;
+      delete entry.images;
+      delete entry.theme;
+    } else {
+      if (!entry.id) entry.id = uid('l');
+      entry.name = String(entry.name || '');
+      if (!Array.isArray(entry.images)) entry.images = [];
+      entry.sold = !!entry.sold;
+      entry.theme = cleanTaxonomyValue(entry.theme);
+      entry.tag = cleanTag(entry.tag);
+      entry.productId = entry.productId ? String(entry.productId) : '';
+      entry.productName = cleanTaxonomyValue(entry.productName);
+      delete entry.product;
+    }
+    entry.archivedAt = cleanIsoDate(entry.archivedAt) || todayIso();
+    return entry;
+  }
+
+  /* accessors so the rest of the Studio never cares which kind an entry is */
+  function entryPiece(entry) { return entry.kind === 'product' ? entry.product : entry; }
+  function entryName(entry) { return entryPiece(entry).name || ''; }
+  function entryImages(entry) {
+    const piece = entryPiece(entry);
+    if (!Array.isArray(piece.images)) piece.images = [];
+    return piece.images;
+  }
+  /* every photo path an entry owns, including listings tucked inside an
+     archived one-of-a-kind product */
+  function allPieceImages(entry) {
+    const piece = entryPiece(entry);
+    const out = (piece.images || []).slice();
+    (piece.listings || []).forEach((l) => (l.images || []).forEach((p) => out.push(p)));
+    return out;
+  }
+  function entryTheme(entry) { return entryPiece(entry).theme || ''; }
+  function entryTag(entry) { return cleanTag(entryPiece(entry).tag); }
+  function setEntryTag(entry, value) { entryPiece(entry).tag = cleanTag(value); }
 
   function defaultThemeEmoji(label) {
     const preset = THEME_PRESETS.find((s) => s.label.toLocaleLowerCase() === String(label || '').toLocaleLowerCase());
@@ -277,6 +430,10 @@
     return map;
   }
 
+  function itemLabel(item) {
+    return item.name || (item.product && item.product.name) || item.id;
+  }
+
   function mergeCollection(baseList, mineList, liveList) {
     const base = indexById(baseList);
     const mine = indexById(mineList);
@@ -290,7 +447,7 @@
         const mineItem = mine.get(item.id);
         if (!mineItem) return item;
         if (same(mineItem, base.get(item.id))) return item; /* she left it alone */
-        if (!same(item, base.get(item.id))) bothChanged.push(item.name || item.id);
+        if (!same(item, base.get(item.id))) bothChanged.push(itemLabel(item));
         return mineItem; /* she edited it, hers is the version in front of her */
       });
 
@@ -324,8 +481,26 @@
     merged.products = products.list;
     const reviews = mergeCollection(base.reviews, mine.reviews, live.reviews);
     merged.reviews = reviews.list;
+    const archive = mergeCollection(base.archive, mine.archive, live.archive);
+    merged.archive = archive.list;
 
-    return { merged, clashes: [...products.bothChanged, ...reviews.bothChanged] };
+    /* a piece is archived on one device while its product is edited on the
+       other: the product merge keeps the whole product blob (listing included)
+       and the archive merge keeps the entry, so the piece would be both live
+       and archived. The archive wins ~ she archived it on purpose. */
+    const archivedListingIds = new Set();
+    const archivedProductIds = new Set();
+    merged.archive.forEach((entry) => {
+      if (!entry || !entry.id) return;
+      if (entry.kind === 'product') archivedProductIds.add(entry.id);
+      else archivedListingIds.add(entry.id);
+    });
+    merged.products = (merged.products || []).filter((p) => !archivedProductIds.has(p.id));
+    merged.products.forEach((p) => {
+      if (Array.isArray(p.listings)) p.listings = p.listings.filter((l) => !archivedListingIds.has(l.id));
+    });
+
+    return { merged, clashes: [...products.bothChanged, ...reviews.bothChanged, ...archive.bothChanged.map((n) => n + ' (archive)')] };
   }
 
   /* one commit containing the JSON + any new photos */
@@ -482,6 +657,11 @@
           p.images = (p.images || []).filter((x) => !pend.has(x));
           (p.listings || []).forEach((l) => { l.images = (l.images || []).filter((x) => !pend.has(x)); });
         });
+        (stripped.archive || []).forEach((entry) => {
+          const piece = entry.kind === 'product' && entry.product ? entry.product : entry;
+          piece.images = (piece.images || []).filter((x) => !pend.has(x));
+          (piece.listings || []).forEach((l) => { l.images = (l.images || []).filter((x) => !pend.has(x)); });
+        });
         if (stripped.settings && pend.has(stripped.settings.seasonImage)) {
           stripped.settings.seasonImage = settingsDefaults.seasonImage || 'images/brand/seasonal-halloween.jpg';
         }
@@ -558,6 +738,7 @@
 
   function renderAll() {
     renderProducts();
+    renderArchive();
     renderReviews();
     renderSettings();
     updatePublishBar();
@@ -672,6 +853,7 @@
     updateSaleMath();
     $('epDelete').style.display = isNew ? 'none' : '';
     $('newListingName').value = '';
+    $('newListingTag').innerHTML = tagOptionsHtml('');
     $('newListingPreview').innerHTML = '';
     $('newListingPhotoLabel').textContent = '📷 Pick photo(s)';
 
@@ -788,6 +970,9 @@
         if (cleanTaxonomyValue(l.theme).toLocaleLowerCase() === target) n++;
       });
     });
+    (draft.archive || []).forEach((entry) => {
+      if (cleanTaxonomyValue(entryTheme(entry)).toLocaleLowerCase() === target) n++;
+    });
     return n;
   }
 
@@ -813,6 +998,7 @@
     $('epCategoryCustom').classList.remove('invalid');
 
     $('epTheme').innerHTML = themeOptionsHtml(currentProduct.theme || '', 'No theme');
+    $('epTag').innerHTML = tagOptionsHtml(currentProduct.tag || '');
     updateThemeScopeHint();
   }
 
@@ -826,6 +1012,7 @@
        editor uncluttered; "Manage themes" then lives with the listings */
     const isOneOff = !!currentProduct.oneOfAKind;
     $('themePanel').hidden = !isOneOff;
+    $('epArchiveProduct').hidden = !isOneOff;
     hint.textContent = 'Tags this one-of-a-kind piece.';
   }
 
@@ -919,6 +1106,10 @@
         if (cleanTaxonomyValue(l.theme).toLocaleLowerCase() === target) l.theme = next;
       });
     });
+    (draft.archive || []).forEach((entry) => {
+      const piece = entryPiece(entry);
+      if (cleanTaxonomyValue(piece.theme).toLocaleLowerCase() === target) piece.theme = next;
+    });
   }
 
   function refreshThemeUi() {
@@ -927,6 +1118,7 @@
       renderEditorListings();
     }
     renderThemeManager();
+    renderArchive();
   }
 
   function renderThemeManager() {
@@ -1088,6 +1280,27 @@
     if (!currentProduct) return;
     currentProduct.theme = canonicalTaxonomyValue(this.value, knownThemes().map((s) => s.label));
     markDirty();
+  });
+  $('epTag').addEventListener('change', function () {
+    if (!currentProduct) return;
+    currentProduct.tag = cleanTag(this.value);
+    markDirty();
+  });
+  /* a one-of-a-kind product IS the piece, so the whole product moves to the archive */
+  $('epArchiveProduct').addEventListener('click', async () => {
+    if (!currentProduct || !currentProduct.oneOfAKind) return;
+    if (!$('epName').value.trim()) {
+      $('epName').classList.add('invalid');
+      $('epName').focus();
+      toast('Give it a name first! 💜', 'pink');
+      return;
+    }
+    const ok = await confirmCute('Move "' + currentProduct.name + '" to the archive? It leaves the shop and My Products, and you can bring it back anytime.', 'Archive it');
+    if (!ok) return;
+    const product = currentProduct;
+    closeEditor(true);
+    archiveProduct(product);
+    toast('Archived 📦 Find it under the Archive tab anytime.', 'teal');
   });
   $('manageThemes').addEventListener('click', openThemeManager);
   $('manageThemesListings').addEventListener('click', openThemeManager);
@@ -1461,6 +1674,8 @@
     /* a product with listings is a type, not a theme, so drop any tag that
        would otherwise linger where she can no longer see or edit it */
     if (!this.checked && currentProduct.theme) currentProduct.theme = '';
+    if (this.checked) { currentProduct.tag = cleanTag(currentProduct.tag); $('epTag').innerHTML = tagOptionsHtml(currentProduct.tag); }
+    else delete currentProduct.tag;
     updateOneOffUI();
     updateThemeScopeHint();
     markDirty();
@@ -1483,9 +1698,55 @@
 
   $('epDelete').addEventListener('click', async () => {
     if (!currentProduct) return;
-    const ok = await confirmCute('Delete "' + (currentProduct.name || 'this product') + '" and all its listings? (Tip: you can hide it instead with the visibility switch!)', 'Delete it');
+    const product = currentProduct;
+    const name = product.name || 'this product';
+    const listings = product.listings || [];
+
+    /* a one-of-a-kind piece is history worth keeping ~ offer the archive first */
+    if (product.oneOfAKind && product.name) {
+      const choice = await confirmChoice('Delete "' + name + '"? You could archive it instead and keep its photos and story.', [
+        { value: 'archive', label: '📦 Archive it instead', tone: 'gradient' },
+        { value: 'delete', label: 'Delete it', tone: 'danger' },
+      ]);
+      if (!choice) return;
+      closeEditor(true);
+      if (choice === 'archive') {
+        archiveProduct(product);
+        toast('Archived 📦 Find it under the Archive tab anytime.', 'teal');
+        return;
+      }
+      draft.products = draft.products.filter((p) => p !== product);
+      markDirty();
+      renderProducts();
+      renderArchive();
+      toast('Product deleted 🗑');
+      return;
+    }
+
+    /* a product with listings: the listings are real pieces, so keep them by default */
+    if (listings.length) {
+      const count = listings.length;
+      const choice = await confirmChoice('Delete "' + name + '"? It has ' + count + ' listing' + (count > 1 ? 's' : '') + '.', [
+        { value: 'keep', label: '📦 Delete it, keep the listings in the archive', tone: 'gradient' },
+        { value: 'all', label: 'Delete everything', tone: 'danger' },
+      ]);
+      if (!choice) return;
+      closeEditor(true);
+      if (choice === 'keep') {
+        /* archiveListing puts each piece at the top, so walk backwards to keep her order */
+        listings.slice().reverse().forEach((listing) => archiveListing(product, listing, { quiet: true }));
+      }
+      draft.products = draft.products.filter((p) => p !== product);
+      markDirty();
+      renderProducts();
+      renderArchive();
+      toast(choice === 'keep' ? 'Product deleted ~ its ' + count + ' listing' + (count > 1 ? 's are' : ' is') + ' safe in the archive 📦' : 'Product deleted 🗑');
+      return;
+    }
+
+    const ok = await confirmCute('Delete "' + name + '"? (Tip: you can hide it instead with the visibility switch!)', 'Delete it');
     if (!ok) return;
-    draft.products = draft.products.filter((p) => p !== currentProduct);
+    draft.products = draft.products.filter((p) => p !== product);
     markDirty();
     closeEditor(true);
     toast('Product deleted 🗑');
@@ -1580,12 +1841,17 @@
               '<div class="select-wrap compact"><select class="field-input themed-select listing-theme-select" id="ltheme-' + esc(listing.id) + '">' +
                 themeOptionsHtml(listing.theme, 'No theme') +
               '</select></div>' +
+              '<label class="sr-only" for="ltag-' + esc(listing.id) + '">Tag for ' + esc(listing.name || 'this piece') + '</label>' +
+              '<div class="select-wrap compact tag-wrap"><select class="field-input themed-select tag-select listing-tag-select" id="ltag-' + esc(listing.id) + '">' +
+                tagOptionsHtml(listing.tag) +
+              '</select></div>' +
             '</div>' +
           '</div>' +
           '<div class="listing-actions">' +
             '<button type="button" class="sold-chip' + (listing.sold ? ' active' : '') + '">' + (listing.sold ? 'Sold ✓' : 'Mark sold') + '</button>' +
             '<button type="button" class="icon-btn mini l-photos" aria-label="Manage photos">📷</button>' +
             '<button type="button" class="icon-btn mini l-dup" aria-label="Duplicate listing" title="Duplicate">📑</button>' +
+            '<button type="button" class="icon-btn mini l-archive" aria-label="Move to archive" title="Archive">📦</button>' +
             '<button type="button" class="icon-btn mini l-del" aria-label="Delete listing">🗑</button>' +
           '</div>' +
         '</div>' +
@@ -1600,6 +1866,17 @@
         listing.theme = canonicalTaxonomyValue(this.value, knownThemes().map((s) => s.label));
         markDirty();
         renderEditorListings();
+      });
+
+      row.querySelector('.listing-tag-select').addEventListener('change', function () {
+        listing.tag = cleanTag(this.value);
+        markDirty();
+      });
+
+      row.querySelector('.l-archive').addEventListener('click', () => {
+        archiveListing(currentProduct, listing);
+        renderEditorListings();
+        toast('Archived 📦 Find it under the Archive tab anytime.', 'teal');
       });
 
       row.querySelector('.sold-chip').addEventListener('click', () => {
@@ -1627,11 +1904,12 @@
       row.querySelector('.l-del').addEventListener('click', async () => {
         const ok = await confirmCute('Delete the listing "' + (listing.name || 'untitled') + '"?', 'Delete it');
         if (!ok) return;
-        (listing.images || []).forEach((p) => {
-          if (pendingImages[p]) delete pendingImages[p];
-        });
         currentProduct.listings = currentProduct.listings.filter((l) => l !== listing);
-        /* re-check: keep bytes if some other spot still uses the path */
+        /* drop never-published bytes only if no other spot (another listing,
+           an archived piece) still uses the path */
+        (listing.images || []).forEach((p) => {
+          if (pendingImages[p] && !JSON.stringify(draft).includes(p)) delete pendingImages[p];
+        });
         markDirty();
         renderEditorListings();
       });
@@ -1649,60 +1927,7 @@
 
       /* expanded photo strip */
       if (expandedListingId === listing.id) {
-        const strip = row.querySelector('.photo-strip');
-        const imgs = listing.images || (listing.images = []);
-        imgs.forEach((path, i) => {
-          const cell = document.createElement('div');
-          cell.className = 'photo-cell';
-          cell.innerHTML =
-            '<img src="' + esc(imgSrc(path)) + '" alt="">' +
-            (i === 0 ? '<span class="cover-tag">main</span>' : '') +
-            '<div class="photo-cell-actions">' +
-              '<button type="button" class="pc-btn mv-l" ' + (i === 0 ? 'disabled style="opacity:.3"' : '') + ' aria-label="Move left">←</button>' +
-              '<button type="button" class="pc-btn del" aria-label="Remove">🗑</button>' +
-            '</div>';
-          cell.querySelector('.mv-l').addEventListener('click', () => {
-            if (i === 0) return;
-            const [x] = imgs.splice(i, 1);
-            imgs.splice(i - 1, 0, x);
-            markDirty();
-            renderEditorListings();
-          });
-          cell.querySelector('.del').addEventListener('click', () => {
-            removeImageRef(imgs, i);
-            markDirty();
-            renderEditorListings();
-          });
-          strip.appendChild(cell);
-        });
-
-        const addLbl = document.createElement('label');
-        addLbl.className = 'add-photos-btn small';
-        addLbl.innerHTML = '<input type="file" accept="image/*" multiple hidden><span>+ Add</span>';
-        addLbl.querySelector('input').addEventListener('change', async function () {
-          if (!this.files.length) return;
-          const shots = await ingestFiles(this.files, listing.name || 'listing');
-          shots.forEach(({ path, dataUrl, base64 }) => {
-            pendingImages[path] = { dataUrl, base64 };
-            imgs.push(path);
-          });
-          markDirty();
-          renderEditorListings();
-        });
-        strip.appendChild(addLbl);
-
-        const reuseBtn = document.createElement('button');
-        reuseBtn.type = 'button';
-        reuseBtn.className = 'add-photos-btn small';
-        reuseBtn.textContent = '📚 Reuse';
-        reuseBtn.addEventListener('click', async () => {
-          const picks = await openPhotoPicker(imgs);
-          if (!picks.length) return;
-          picks.forEach((path) => { if (!imgs.includes(path)) imgs.push(path); });
-          markDirty();
-          renderEditorListings();
-        });
-        strip.appendChild(reuseBtn);
+        buildPhotoStrip(row.querySelector('.photo-strip'), listing.images || (listing.images = []), listing.name || 'listing', renderEditorListings);
       }
 
       wrap.appendChild(row);
@@ -1717,6 +1942,64 @@
     updateThemeScopeHint();
   }
 
+  /* the little photo strip under a listing or archive row: reorder, remove,
+     add fresh photos, or reuse ones already in the library */
+  function buildPhotoStrip(strip, imgs, label, rerender) {
+    imgs.forEach((path, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'photo-cell';
+      cell.innerHTML =
+        '<img src="' + esc(imgSrc(path)) + '" alt="">' +
+        (i === 0 ? '<span class="cover-tag">main</span>' : '') +
+        (pendingImages[path] ? '<span class="new-tag">new</span>' : '') +
+        '<div class="photo-cell-actions">' +
+          '<button type="button" class="pc-btn mv-l" ' + (i === 0 ? 'disabled style="opacity:.3"' : '') + ' aria-label="Move left">←</button>' +
+          '<button type="button" class="pc-btn del" aria-label="Remove">🗑</button>' +
+        '</div>';
+      cell.querySelector('.mv-l').addEventListener('click', () => {
+        if (i === 0) return;
+        const [x] = imgs.splice(i, 1);
+        imgs.splice(i - 1, 0, x);
+        markDirty();
+        rerender();
+      });
+      cell.querySelector('.del').addEventListener('click', () => {
+        removeImageRef(imgs, i);
+        markDirty();
+        rerender();
+      });
+      strip.appendChild(cell);
+    });
+
+    const addLbl = document.createElement('label');
+    addLbl.className = 'add-photos-btn small';
+    addLbl.innerHTML = '<input type="file" accept="image/*" multiple hidden><span>+ Add</span>';
+    addLbl.querySelector('input').addEventListener('change', async function () {
+      if (!this.files.length) return;
+      const shots = await ingestFiles(this.files, label);
+      shots.forEach(({ path, dataUrl, base64 }) => {
+        pendingImages[path] = { dataUrl, base64 };
+        imgs.push(path);
+      });
+      markDirty();
+      rerender();
+    });
+    strip.appendChild(addLbl);
+
+    const reuseBtn = document.createElement('button');
+    reuseBtn.type = 'button';
+    reuseBtn.className = 'add-photos-btn small';
+    reuseBtn.textContent = '📚 Reuse';
+    reuseBtn.addEventListener('click', async () => {
+      const picks = await openPhotoPicker(imgs);
+      if (!picks.length) return;
+      picks.forEach((path) => { if (!imgs.includes(path)) imgs.push(path); });
+      markDirty();
+      rerender();
+    });
+    strip.appendChild(reuseBtn);
+  }
+
   /* ---------- photo library picker (reuse without re-uploading) ---------- */
   let pickerResolve = null;
 
@@ -1727,6 +2010,9 @@
       (p.listings || []).forEach((l) => (l.images || []).forEach((path) => {
         if (!seen.has(path)) seen.set(path, l.name || p.name || '');
       }));
+    });
+    (draft.archive || []).forEach((entry) => {
+      allPieceImages(entry).forEach((path) => { if (!seen.has(path)) seen.set(path, entryName(entry)); });
     });
     return [...seen.entries()];
   }
@@ -1806,33 +2092,518 @@
     this.value = '';
   });
 
-  $('addListingBtn').addEventListener('click', () => {
-    if (!currentProduct) return;
+  /* turn the add-listing form into a listing object, or null if it has no name */
+  function buildNewListing() {
     const name = $('newListingName').value.trim();
     if (!name) {
       $('newListingName').classList.add('invalid');
       $('newListingName').focus();
-      return;
+      return null;
     }
     $('newListingName').classList.remove('invalid');
 
-    const listing = { id: uid('l'), name, images: [], sold: false, theme: '' };
+    const listing = { id: uid('l'), name, images: [], sold: false, theme: '', tag: cleanTag($('newListingTag').value) };
     stagedListingPhotos.forEach(({ path, dataUrl, base64, existing }) => {
       if (!existing) pendingImages[path] = { dataUrl, base64 };
       if (!listing.images.includes(path)) listing.images.push(path);
     });
-    /* newest listing goes first */
-    currentProduct.listings.unshift(listing);
-
     stagedListingPhotos = [];
     $('newListingName').value = '';
+    $('newListingTag').value = '';
     renderStagedPreview();
+    return listing;
+  }
+
+  $('addListingBtn').addEventListener('click', () => {
+    if (!currentProduct) return;
+    const listing = buildNewListing();
+    if (!listing) return;
+    /* newest listing goes first */
+    currentProduct.listings.unshift(listing);
     markDirty();
     renderEditorListings();
     toast('Listing added! ✨', 'teal');
   });
 
+  /* name it, tag it, and tuck it straight into the archive ~ it never has to
+     appear on the shop, and one publish saves everything */
+  $('addListingArchiveBtn').addEventListener('click', () => {
+    if (!currentProduct) return;
+    const listing = buildNewListing();
+    if (!listing) return;
+    currentProduct.listings.unshift(listing);
+    archiveListing(currentProduct, listing);
+    renderEditorListings();
+    toast('Added straight to the archive 📦', 'teal');
+  });
+
   $('newListingName').addEventListener('input', function () { this.classList.remove('invalid'); });
+
+  /* ================================================
+     archive ~ every past piece, whole and restorable
+     ================================================ */
+  let archiveFilter = 'all';          /* 'all' | 'none' | a tag value */
+  let expandedArchiveId = null;       /* entry whose photo strip is open */
+  let archiveAddPhotos = [];          /* staged photos for the add dialog */
+  let archiveAddDate = '';
+  let restoreResolve = null;
+
+  function archiveArr() {
+    if (!Array.isArray(draft.archive)) draft.archive = [];
+    return draft.archive;
+  }
+
+  function collapsedGroups() {
+    try { return new Set(JSON.parse(localStorage.getItem(ARCHIVE_COLLAPSE_KEY) || '[]')); } catch (e) { return new Set(); }
+  }
+  function setGroupCollapsed(key, collapsed) {
+    const set = collapsedGroups();
+    if (collapsed) set.add(key); else set.delete(key);
+    try { localStorage.setItem(ARCHIVE_COLLAPSE_KEY, JSON.stringify([...set])); } catch (e) { /* ignore */ }
+  }
+
+  /* a listing leaves its product and lands at the top of the archive, keeping
+     every field it had (photos, theme, tag, the public sold state) */
+  function archiveListing(product, listing, opts) {
+    product.listings = (product.listings || []).filter((l) => l !== listing);
+    const entry = { ...listing, kind: 'listing', productId: product.id, productName: cleanTaxonomyValue(product.name), archivedAt: todayIso() };
+    entry.tag = cleanTag(entry.tag);
+    archiveArr().unshift(entry);
+    if (!(opts && opts.quiet)) {
+      markDirty();
+      renderProducts();
+      renderArchive();
+    }
+  }
+
+  /* a one-of-a-kind product IS the piece, so the whole product moves over */
+  function archiveProduct(product) {
+    draft.products = draft.products.filter((p) => p !== product);
+    product.oneOfAKind = true;
+    product.tag = cleanTag(product.tag);
+    archiveArr().unshift({ id: product.id, kind: 'product', archivedAt: todayIso(), product });
+    markDirty();
+    renderProducts();
+    renderArchive();
+  }
+
+  /* the product a piece came from, if that product is gone, otherwise the piece itself */
+  function newProductNameFor(entry) {
+    return (entry.kind !== 'product' && entry.productName) || entryName(entry) || 'Untitled';
+  }
+
+  function newHiddenProductFor(entry) {
+    return {
+      id: uid('p'),
+      name: newProductNameFor(entry),
+      price: null,
+      priceLabel: 'Custom Order',
+      description: '',
+      category: '',
+      theme: '',
+      badges: [],
+      archived: true,
+      oneOfAKind: false,
+      images: entryImages(entry).slice(),
+      listings: [],
+    };
+  }
+
+  /* target: a product object, '__new__' for a fresh hidden product, or null
+     to use the product the piece came from */
+  function restoreEntry(entry, target) {
+    const list = archiveArr();
+    if (!list.includes(entry)) return null;
+
+    if (entry.kind === 'product') {
+      const p = entry.product;
+      if (draft.products.some((x) => x.id === p.id)) p.id = uid('p');
+      draft.products.unshift(p);
+      draft.archive = list.filter((e) => e !== entry);
+      markDirty();
+      renderProducts();
+      renderArchive();
+      return p;
+    }
+
+    let product = target && target !== '__new__' ? target : null;
+    if (!product && !target) product = draft.products.find((p) => p.id === entry.productId) || null;
+    if (!product) {
+      product = newHiddenProductFor(entry);
+      draft.products.unshift(product);
+      /* siblings from the same gone product now have a home again, so the
+         next Bring back goes straight there instead of making another product */
+      if (entry.productId) {
+        list.forEach((e) => {
+          if (e !== entry && e.kind !== 'product' && e.productId === entry.productId) {
+            e.productId = product.id;
+            e.productName = cleanTaxonomyValue(product.name);
+          }
+        });
+      }
+    }
+    const listing = { ...entry };
+    delete listing.kind;
+    delete listing.productId;
+    delete listing.productName;
+    delete listing.archivedAt;
+    if (!Array.isArray(product.listings)) product.listings = [];
+    if (product.listings.some((l) => l.id === listing.id)) listing.id = uid('l');
+    product.listings.unshift(listing);
+    draft.archive = list.filter((e) => e !== entry);
+    markDirty();
+    renderProducts();
+    renderArchive();
+    return product;
+  }
+
+  async function bringBack(entry) {
+    if (entry.kind === 'product') {
+      const p = restoreEntry(entry);
+      toast('"' + (p.name || 'Untitled') + '" is back in My Products' + (p.archived ? ' (still hidden from the shop)' : '') + ' ✨', 'teal');
+      return;
+    }
+    /* a one-of-a-kind product hides its listings, so it is no home for a piece */
+    const home = draft.products.find((p) => p.id === entry.productId && !p.oneOfAKind);
+    if (home) {
+      restoreEntry(entry, home);
+      toast('"' + entryName(entry) + '" is back under ' + (home.name || 'its product') + (home.archived ? ' (that product is hidden from the shop)' : '') + ' ✨', 'teal');
+      return;
+    }
+    const choice = await openRestoreChooser(entry);
+    if (choice === null) return;
+    const product = restoreEntry(entry, choice);
+    toast(choice === '__new__'
+      ? 'Made a hidden product called "' + product.name + '" with it inside ~ fill in the details whenever you like!'
+      : '"' + entryName(entry) + '" is back under ' + (product.name || 'its product') + ' ✨', 'teal');
+  }
+
+  /* ---------- pick where a loose piece goes ---------- */
+  function openRestoreChooser(entry) {
+    return new Promise((resolve) => {
+      restoreResolve = resolve;
+      const select = $('restoreTarget');
+      const name = entryName(entry) || 'Untitled';
+      $('restoreTitle').textContent = 'Bring back "' + name + '"';
+      select.innerHTML = '<option value="__new__">✨ New hidden product: ' + esc(newProductNameFor(entry)) + '</option>' +
+        draft.products.filter((p) => !p.oneOfAKind).map((p) => '<option value="' + esc(p.id) + '">' + esc(p.name || 'Untitled') + (p.archived ? ' (hidden)' : '') + '</option>').join('');
+      $('restoreOverlay').hidden = false;
+      select.focus();
+    });
+  }
+  function closeRestoreChooser(answer) {
+    $('restoreOverlay').hidden = true;
+    if (restoreResolve) { restoreResolve(answer); restoreResolve = null; }
+  }
+  $('restoreClose').addEventListener('click', () => closeRestoreChooser(null));
+  $('restoreCancel').addEventListener('click', () => closeRestoreChooser(null));
+  $('restoreOverlay').addEventListener('click', (e) => { if (e.target === $('restoreOverlay')) closeRestoreChooser(null); });
+  $('restoreGo').addEventListener('click', () => {
+    const v = $('restoreTarget').value;
+    if (v === '__new__') { closeRestoreChooser('__new__'); return; }
+    const product = draft.products.find((p) => p.id === v);
+    closeRestoreChooser(product || '__new__');
+  });
+
+  /* ---------- rendering ---------- */
+  function archiveGroupsFor(entries) {
+    const groups = new Map();
+    const add = (key, title, entry, rank) => {
+      if (!groups.has(key)) groups.set(key, { key, title, entries: [], rank });
+      groups.get(key).entries.push(entry);
+    };
+    const productRank = new Map(draft.products.map((p, i) => [p.id, i]));
+    entries.forEach((entry) => {
+      if (entry.kind === 'product') add('oneoff', 'One-of-a-kind pieces', entry, 1e6 + 1);
+      else if (entry.productId) {
+        const live = draft.products.find((p) => p.id === entry.productId);
+        const title = live ? (live.name || 'Untitled') : (entry.productName || 'Untitled');
+        add('p:' + entry.productId, title, entry, productRank.has(entry.productId) ? productRank.get(entry.productId) : 5e5);
+      } else add('loose', 'Not attached to a product', entry, 1e6 + 2);
+    });
+    return [...groups.values()].sort((a, b) => a.rank - b.rank);
+  }
+
+  function entryMatchesFilter(entry) {
+    if (archiveFilter === 'all') return true;
+    if (archiveFilter === 'none') return !entryTag(entry);
+    return entryTag(entry) === archiveFilter;
+  }
+
+  function renderArchiveChips() {
+    const all = archiveArr();
+    const count = (fn) => all.filter(fn).length;
+    const chips = [{ value: 'all', label: 'All', n: all.length }, { value: 'none', label: 'No tag', n: count((e) => !entryTag(e)) }]
+      .concat(PIECE_TAGS.filter((t) => t.value).map((t) => ({ value: t.value, label: t.label, n: count((e) => entryTag(e) === t.value) })));
+    $('archiveChips').innerHTML = chips.map((c) =>
+      '<button type="button" class="mode-chip' + (archiveFilter === c.value ? ' active' : '') + '" data-filter="' + esc(c.value) + '">' + esc(c.label) + ' <span class="chip-count">' + c.n + '</span></button>'
+    ).join('');
+    $('archiveChips').querySelectorAll('.mode-chip').forEach((chip) => {
+      chip.addEventListener('click', () => { archiveFilter = chip.dataset.filter; renderArchive(); });
+    });
+  }
+
+  function renderArchive() {
+    if (!draft) return;
+    const wrap = $('archiveGroups');
+    if (!wrap) return;
+    renderArchiveChips();
+    wrap.innerHTML = '';
+    const all = archiveArr();
+    $('archiveCount').textContent = all.length ? all.length + (all.length === 1 ? ' piece' : ' pieces') : '';
+
+    const entries = all.filter(entryMatchesFilter);
+    if (!entries.length) {
+      const empty = document.createElement('p');
+      empty.className = 'archive-empty';
+      empty.textContent = all.length ? 'Nothing with that tag yet.' : 'Nothing archived yet.';
+      wrap.appendChild(empty);
+      return;
+    }
+
+    const collapsed = collapsedGroups();
+    archiveGroupsFor(entries).forEach((group) => {
+      const section = document.createElement('section');
+      const isCollapsed = collapsed.has(group.key);
+      section.className = 'archive-group' + (isCollapsed ? ' is-collapsed' : '');
+      const liveProduct = group.key.startsWith('p:') ? draft.products.find((p) => 'p:' + p.id === group.key) : null;
+      const withPhoto = group.entries.find((e) => entryImages(e).length);
+      const cover = (liveProduct && liveProduct.images && liveProduct.images[0]) || (withPhoto ? entryImages(withPhoto)[0] : '');
+      section.innerHTML =
+        '<button type="button" class="archive-group-head" aria-expanded="' + (isCollapsed ? 'false' : 'true') + '">' +
+          (cover ? '<img class="archive-group-cover" src="' + esc(imgSrc(cover)) + '" alt="">' : '<span class="archive-group-cover empty">🧵</span>') +
+          '<span class="archive-group-title">' + esc(group.title) + '</span>' +
+          '<span class="archive-group-count">' + group.entries.length + '</span>' +
+          '<span class="archive-group-chevron" aria-hidden="true">⌄</span>' +
+        '</button>' +
+        '<div class="archive-group-body"></div>';
+      section.querySelector('.archive-group-head').addEventListener('click', () => {
+        setGroupCollapsed(group.key, !section.classList.contains('is-collapsed'));
+        renderArchive();
+      });
+      const body = section.querySelector('.archive-group-body');
+      group.entries
+        .slice()
+        .sort((a, b) => (b.archivedAt || '').localeCompare(a.archivedAt || ''))
+        .forEach((entry) => body.appendChild(renderArchiveRow(entry)));
+      wrap.appendChild(section);
+    });
+  }
+
+  function renderArchiveRow(entry) {
+    const piece = entryPiece(entry);
+    const imgs = entryImages(entry);
+    const name = entryName(entry);
+    const row = document.createElement('div');
+    row.className = 'listing-row archive-row' + (entry.kind === 'product' ? ' is-product' : '');
+    const thumb = imgs[0]
+      ? '<img class="listing-thumb" src="' + esc(imgSrc(imgs[0])) + '" alt="">'
+      : '<div class="listing-thumb-empty">🧵</div>';
+    const isNewPhoto = imgs.some((p) => pendingImages[p]);
+    row.innerHTML =
+      '<div class="listing-main">' +
+        thumb +
+        '<div>' +
+          '<input type="text" class="listing-name-input" value="' + esc(name) + '" placeholder="Name this treasure…">' +
+          '<div class="listing-badges">' +
+            '<button type="button" class="date-chip" aria-label="Change the archive date">📅 ' + esc(formatIsoDate(entry.archivedAt)) + '</button>' +
+            '<span class="mini-chip">📷 ' + imgs.length + '</span>' +
+            (isNewPhoto ? '<span class="mini-chip new">new photo</span>' : '') +
+            (cleanTaxonomyValue(piece.theme) ? '<span class="mini-chip theme">' + esc((themeEmojiFor(piece.theme) + ' ' + cleanTaxonomyValue(piece.theme)).trim()) + '</span>' : '') +
+          '</div>' +
+          '<div class="listing-theme">' +
+            '<label class="sr-only" for="atheme-' + esc(entry.id) + '">Theme for ' + esc(name || 'this piece') + '</label>' +
+            '<div class="select-wrap compact"><select class="field-input themed-select a-theme" id="atheme-' + esc(entry.id) + '">' + themeOptionsHtml(piece.theme, 'No theme') + '</select></div>' +
+            '<label class="sr-only" for="atag-' + esc(entry.id) + '">Tag for ' + esc(name || 'this piece') + '</label>' +
+            '<div class="select-wrap compact tag-wrap"><select class="field-input themed-select tag-select a-tag" id="atag-' + esc(entry.id) + '">' + tagOptionsHtml(entryTag(entry)) + '</select></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="listing-actions">' +
+          '<button type="button" class="sold-chip restore-chip">↩︎ Bring back</button>' +
+          '<button type="button" class="icon-btn mini a-photos" aria-label="Manage photos">📷</button>' +
+          '<button type="button" class="icon-btn mini a-del" aria-label="Delete forever">🗑</button>' +
+        '</div>' +
+      '</div>' +
+      (expandedArchiveId === entry.id ? '<div class="listing-photos"><div class="photo-strip"></div></div>' : '');
+
+    row.querySelector('.listing-name-input').addEventListener('input', function () {
+      piece.name = this.value;
+      markDirty();
+    });
+    row.querySelector('.a-theme').addEventListener('change', function () {
+      piece.theme = canonicalTaxonomyValue(this.value, knownThemes().map((s) => s.label));
+      markDirty();
+      renderArchive();
+    });
+    row.querySelector('.a-tag').addEventListener('change', function () {
+      setEntryTag(entry, this.value);
+      markDirty();
+      if (archiveFilter !== 'all') renderArchive(); else renderArchiveChips();
+    });
+    row.querySelector('.date-chip').addEventListener('click', async () => {
+      const picked = await openDatePicker(entry.archivedAt);
+      if (!picked) return;
+      entry.archivedAt = picked;
+      markDirty();
+      renderArchive();
+    });
+    row.querySelector('.restore-chip').addEventListener('click', () => bringBack(entry));
+    const togglePhotos = () => {
+      expandedArchiveId = expandedArchiveId === entry.id ? null : entry.id;
+      renderArchive();
+    };
+    row.querySelector('.a-photos').addEventListener('click', togglePhotos);
+    const thumbEl = row.querySelector('.listing-thumb');
+    if (thumbEl) thumbEl.addEventListener('click', togglePhotos);
+    row.querySelector('.a-del').addEventListener('click', async () => {
+      const ok = await confirmCute('Delete "' + (name || 'this piece') + '" from the archive forever? This is the one thing that can\'t be undone.', 'Delete forever');
+      if (!ok) return;
+      draft.archive = archiveArr().filter((e) => e !== entry);
+      allPieceImages(entry).forEach((p) => { if (pendingImages[p] && !JSON.stringify(draft).includes(p)) delete pendingImages[p]; });
+      markDirty();
+      renderArchive();
+      toast('Deleted from the archive 🗑');
+    });
+    if (expandedArchiveId === entry.id) {
+      buildPhotoStrip(row.querySelector('.photo-strip'), imgs, name || 'archive', renderArchive);
+    }
+    return row;
+  }
+
+  /* ---------- add straight to the archive ---------- */
+  function renderArchiveAddPreview() {
+    $('archiveAddPhotoLabel').textContent = archiveAddPhotos.length ? '📷 ' + archiveAddPhotos.length + ' picked' : '📷 Pick photo(s)';
+    $('archiveAddPreview').innerHTML = archiveAddPhotos
+      .map((s, i) => '<div class="photo-cell" style="width:74px"><img src="' + esc(s.dataUrl || imgSrc(s.path)) + '" alt="Photo ' + (i + 1) + '"></div>')
+      .join('');
+    $('archiveAddDateBtn').textContent = '📅 ' + formatIsoDate(archiveAddDate);
+  }
+
+  function openArchiveAdd() {
+    archiveAddPhotos = [];
+    archiveAddDate = todayIso();
+    $('archiveAddName').value = '';
+    $('archiveAddName').classList.remove('invalid');
+    $('archiveAddTag').innerHTML = tagOptionsHtml('');
+    $('archiveAddProduct').innerHTML = '<option value="">Not attached to a product</option>' +
+      draft.products.filter((p) => !p.oneOfAKind).map((p) => '<option value="' + esc(p.id) + '">' + esc(p.name || 'Untitled') + (p.archived ? ' (hidden)' : '') + '</option>').join('');
+    renderArchiveAddPreview();
+    $('archiveAddOverlay').hidden = false;
+    setTimeout(() => $('archiveAddName').focus(), 50);
+  }
+  function closeArchiveAdd() {
+    $('archiveAddOverlay').hidden = true;
+    archiveAddPhotos = [];
+  }
+
+  $('archiveAddBtn').addEventListener('click', openArchiveAdd);
+  $('archiveAddClose').addEventListener('click', closeArchiveAdd);
+  $('archiveAddCancel').addEventListener('click', closeArchiveAdd);
+  $('archiveAddOverlay').addEventListener('click', (e) => { if (e.target === $('archiveAddOverlay')) closeArchiveAdd(); });
+  $('archiveAddName').addEventListener('input', function () { this.classList.remove('invalid'); });
+  $('archiveAddPhotos').addEventListener('change', async function () {
+    if (!this.files.length) return;
+    const shots = await ingestFiles(this.files, $('archiveAddName').value || 'archive');
+    archiveAddPhotos.push(...shots);
+    renderArchiveAddPreview();
+    this.value = '';
+  });
+  $('archiveAddPickExisting').addEventListener('click', async () => {
+    const picks = await openPhotoPicker(archiveAddPhotos.map((s) => s.path));
+    if (!picks.length) return;
+    picks.forEach((path) => archiveAddPhotos.push({ path, existing: true }));
+    renderArchiveAddPreview();
+  });
+  $('archiveAddDateBtn').addEventListener('click', async () => {
+    const picked = await openDatePicker(archiveAddDate);
+    if (!picked) return;
+    archiveAddDate = picked;
+    renderArchiveAddPreview();
+  });
+  $('archiveAddGo').addEventListener('click', () => {
+    const name = $('archiveAddName').value.trim();
+    if (!name) {
+      $('archiveAddName').classList.add('invalid');
+      $('archiveAddName').focus();
+      return;
+    }
+    const product = draft.products.find((p) => p.id === $('archiveAddProduct').value) || null;
+    const entry = {
+      id: uid('l'), name, images: [], sold: false, theme: '', tag: cleanTag($('archiveAddTag').value),
+      kind: 'listing', productId: product ? product.id : '', productName: product ? cleanTaxonomyValue(product.name) : '',
+      archivedAt: cleanIsoDate(archiveAddDate) || todayIso(),
+    };
+    archiveAddPhotos.forEach(({ path, dataUrl, base64, existing }) => {
+      if (!existing) pendingImages[path] = { dataUrl, base64 };
+      if (!entry.images.includes(path)) entry.images.push(path);
+    });
+    archiveArr().unshift(entry);
+    closeArchiveAdd();
+    markDirty();
+    renderArchive();
+    toast('"' + name + '" is in the archive 📦', 'teal');
+  });
+
+  /* ---------- date picker (site-themed calendar) ---------- */
+  let dateResolve = null;
+  let dateView = { y: 0, m: 0 };
+  let dateSelected = '';
+
+  function openDatePicker(current) {
+    return new Promise((resolve) => {
+      dateResolve = resolve;
+      dateSelected = cleanIsoDate(current) || todayIso();
+      const [y, m] = dateSelected.split('-').map(Number);
+      dateView = { y, m: m - 1 };
+      renderCalendar();
+      $('dateOverlay').hidden = false;
+      const sel = $('calendarGrid').querySelector('.cal-day.is-selected');
+      if (sel) sel.focus();
+    });
+  }
+  function closeDatePicker(answer) {
+    $('dateOverlay').hidden = true;
+    if (dateResolve) { dateResolve(answer); dateResolve = null; }
+  }
+
+  function renderCalendar() {
+    const { y, m } = dateView;
+    $('calendarTitle').textContent = new Date(y, m, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const grid = $('calendarGrid');
+    grid.innerHTML = '';
+    const today = todayIso();
+    const first = new Date(y, m, 1).getDay();
+    const days = new Date(y, m + 1, 0).getDate();
+    for (let i = 0; i < first; i++) {
+      const pad = document.createElement('span');
+      pad.className = 'cal-pad';
+      grid.appendChild(pad);
+    }
+    for (let d = 1; d <= days; d++) {
+      const iso = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cal-day' + (iso === dateSelected ? ' is-selected' : '') + (iso === today ? ' is-today' : '');
+      btn.textContent = d;
+      btn.setAttribute('aria-label', formatIsoDate(iso));
+      btn.addEventListener('click', () => closeDatePicker(iso));
+      grid.appendChild(btn);
+    }
+  }
+
+  $('calendarPrev').addEventListener('click', () => {
+    dateView.m--;
+    if (dateView.m < 0) { dateView.m = 11; dateView.y--; }
+    renderCalendar();
+  });
+  $('calendarNext').addEventListener('click', () => {
+    dateView.m++;
+    if (dateView.m > 11) { dateView.m = 0; dateView.y++; }
+    renderCalendar();
+  });
+  $('calendarToday').addEventListener('click', () => closeDatePicker(todayIso()));
+  $('dateClose').addEventListener('click', () => closeDatePicker(null));
+  $('dateOverlay').addEventListener('click', (e) => { if (e.target === $('dateOverlay')) closeDatePicker(null); });
 
   /* ================================================
      reviews tab
@@ -2112,6 +2883,7 @@
         p.hidden = p.id !== 'panel-' + tab.dataset.tab;
       });
       if (tab.dataset.tab === 'reviews') loadInbox(); /* fresh peek each visit */
+      if (tab.dataset.tab === 'archive') renderArchive();
     });
   });
 
@@ -2121,7 +2893,8 @@
   $('previewBtn').addEventListener('click', () => {
     const previewImages = {};
     Object.entries(pendingImages).forEach(([path, v]) => { previewImages[path] = v.dataUrl; });
-    const payload = { ...clone(draft), _previewImages: previewImages };
+    /* the shop never reads the archive, so leave it out of the preview payload */
+    const payload = { ...clone(draft), archive: [], _previewImages: previewImages };
     try {
       localStorage.setItem(PREVIEW_KEY, JSON.stringify(payload));
     } catch (e) {
@@ -2174,6 +2947,18 @@
       });
       if (hit) touched.push(p.name || 'a product');
     });
+    (draft.archive || []).forEach((entry) => {
+      const piece = entryPiece(entry);
+      const before = (piece.images || []).length;
+      piece.images = (piece.images || []).filter((x) => !bad.has(x));
+      let hit = before !== piece.images.length;
+      (piece.listings || []).forEach((l) => {
+        const b2 = (l.images || []).length;
+        l.images = (l.images || []).filter((x) => !bad.has(x));
+        if (b2 !== l.images.length) hit = true;
+      });
+      if (hit) touched.push((entryName(entry) || 'a piece') + ' (archive)');
+    });
     if (draft.settings && bad.has(draft.settings.seasonImage)) {
       draft.settings.seasonImage = settingsDefaults.seasonImage || 'images/brand/seasonal-halloween.jpg';
       touched.push('the seasonal feature');
@@ -2207,6 +2992,7 @@
         const { merged, clashes } = mergeSiteData(JSON.parse(publishedSnapshot), draft, live);
         draft = merged;
         renderProducts();
+        renderArchive();
         renderReviews();
         renderSettings();
         renderSeasonPhoto();
@@ -2251,6 +3037,7 @@
       localStorage.removeItem(DRAFT_KEY);
       updatePublishBar();
       renderProducts();
+      renderArchive();
       confettiBurst();
       toast(mergedIn
         ? 'Published!! 🎉 Your other device\'s update was folded in too, nothing lost.'
@@ -2308,8 +3095,14 @@
     }
     if (e.key !== 'Escape') return;
     if (!$('confirmOverlay').hidden) return; /* let the buttons decide */
-    if (!$('categoryOverlay').hidden) { closeCategoryManager(); return; }
+    if (!$('choiceOverlay').hidden) return;
+    /* the photo picker can sit on top of the archive dialogs, so it goes first */
     if (!$('pickerOverlay').hidden) { closePicker([]); return; }
+    if (!$('dateOverlay').hidden) { closeDatePicker(null); return; }
+    if (!$('restoreOverlay').hidden) { closeRestoreChooser(null); return; }
+    if (!$('archiveAddOverlay').hidden) { closeArchiveAdd(); return; }
+    if (!$('categoryOverlay').hidden) { closeCategoryManager(); return; }
+    if (!$('themeOverlay').hidden) { closeThemeManager(); return; }
     if (!$('editorOverlay').hidden) closeEditor();
   });
 
