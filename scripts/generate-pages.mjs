@@ -65,7 +65,7 @@ function isOnSale(p) {
 }
 
 function isReady(p) {
-  return !!(!p.archived && (p.oneOfAKind || (p.listings || []).some((l) => !l.sold)));
+  return !!(!p.archived && ((p.oneOfAKind && !p.sold) || (p.listings || []).some((l) => !l.sold)));
 }
 
 function priceBlock(p) {
@@ -146,7 +146,7 @@ function themeBadge(label, extraClass) {
 function listingsHtml(p) {
   const listings = p.listings || [];
   if (p.oneOfAKind) return '';
-  if (!listings.length || !listings.some((listing) => !listing.sold)) {
+  if (!listings.length) {
     return '<div class="availability-empty"><h3>No finished pieces available right now</h3><p>Request a custom one and choose the details with Alivia.</p></div>';
   }
   const sorted = [...listings].sort((a, b) => (a.sold === b.sold ? 0 : a.sold ? 1 : -1));
@@ -169,13 +169,14 @@ function listingsHtml(p) {
       </div>`;
     })
     .join('\n');
-  return `<div class="listings-block"><h3>Available now</h3>${rows}</div>`;
+  return `<div class="listings-block"><h3>${listings.some(l => !l.sold) ? 'Available now' : 'Finished pieces'}</h3>${rows}</div>`;
 }
 
 function actionsHtml(p) {
   const parts = [];
   const hasReady = (p.listings || []).some((l) => !l.sold);
-  if (p.oneOfAKind) {
+  if (p.oneOfAKind && p.sold) parts.push('<span class="listing-status">Sold</span>');
+  else if (p.oneOfAKind) {
     parts.push(`<button type="button" class="btn btn-primary" id="addOneOffBtn">Add to basket</button>`);
   }
   if (!p.oneOfAKind) parts.push(`<a class="btn btn-secondary" href="../../custom/?design=${encodeURIComponent(p.id)}#customRequest">${hasReady ? 'Request a custom version' : 'Request a Custom One'}</a>`);
@@ -206,7 +207,7 @@ function productPage(p, settings) {
   const title = `${p.name} | ${settings.brandName || "Alivia's Treasured Threads"}`;
   const desc = (p.description || `${p.name}, handmade with care.`).replace(/\s+/g, ' ').trim().slice(0, 160);
   const ogImg = `${BASE}/${coverPath(p).replace(/^\//, '')}`;
-  const badges = (p.badges || [])
+  const badges = (p.badges || []).filter(b => isReady(p) || !/in stock|almost gone/i.test(b))
     .map((b) => `<span class="sticker sticker-inline">${esc(b)}</span>`)
     .join('') + themeBadge(p.theme, 'theme-badge--sm');
   const archivedNote = p.archived

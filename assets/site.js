@@ -101,7 +101,12 @@
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
-      .then(boot)
+      .then(async data => {
+        const inventory = await import(new URL(ROOT + 'assets/inventory.mjs', location.href).href);
+        try { inventory.applySales(data, await inventory.fetchSales(data)); }
+        catch (error) { console.warn('Could not refresh sold status', error); }
+        boot(data);
+      })
       .catch((err) => {
         console.error('Could not load shop data', err);
         document.dispatchEvent(new CustomEvent('att:error', { detail: err }));
@@ -161,7 +166,7 @@
     return (p.listings || []).filter((l) => !l.sold);
   }
   function isReady(p) {
-    return !!(p.oneOfAKind || unsoldListings(p).length > 0);
+    return !!((p.oneOfAKind && !p.sold) || (!p.oneOfAKind && unsoldListings(p).length > 0));
   }
   function categoryForProduct(p) {
     return String(p.category || '').trim().replace(/\s+/g, ' ') || 'Unspecified';
@@ -272,9 +277,12 @@
   }
 
   /* ---------- cards ---------- */
+  function visibleBadges(p) {
+    return (p.badges || []).filter(b => isReady(p) || !/in stock|almost gone/i.test(b));
+  }
   function productCardHtml(p, themeKey) {
     const stock = unsoldListings(p).length;
-    const badges = (p.badges || []).slice(0, 2);
+    const badges = visibleBadges(p).slice(0, 2);
     const badgeHtml = badges
       .map((b) => '<span class="sticker">' + esc(b) + '</span>')
       .join('');
@@ -292,7 +300,9 @@
     const themeHtml = activeTheme ? themeBadgeHtml(activeTheme, 'theme-badge--card') : '';
 
     let readyTag;
-    if (matches.length) {
+    if (p.oneOfAKind && p.sold) {
+      readyTag = '<div class="product-card-meta">Sold</div>';
+    } else if (matches.length) {
       readyTag = '<div class="product-card-meta">' + matches.length + ' ' + esc(activeTheme) +
         (matches.length === 1 ? ' piece ready' : ' pieces ready') + '</div>';
     } else if (stock > 0 || p.oneOfAKind) {
@@ -351,7 +361,7 @@
             return false;
           }
         }
-        if (item.type === 'oneoff' && !p.oneOfAKind) {
+        if (item.type === 'oneoff' && (!p.oneOfAKind || p.sold)) {
           dropped++;
           return false;
         }
@@ -483,6 +493,8 @@
     return basket.length;
   }
   function addListing(productId, listingId) {
+    const listing = productById(productId)?.listings?.find(item => item.id === listingId);
+    if (!listing || listing.sold) return false;
     const exists = basket.find(
       (b) => b.type === 'listing' && b.productId === productId && b.listingId === listingId
     );
@@ -493,6 +505,8 @@
     return true;
   }
   function addOneOff(productId) {
+    const product = productById(productId);
+    if (!product?.oneOfAKind || product.sold) return false;
     const exists = basket.find((b) => b.type === 'oneoff' && b.productId === productId);
     if (exists) return false;
     basket.push({ type: 'oneoff', productId });
@@ -1463,25 +1477,25 @@
         return a.sold === b.sold ? 0 : a.sold ? 1 : -1;
       });
       const matchCount = rows.filter(isMatch).length;
-      if (!rows.some((listing) => !listing.sold)) {
+      if (!rows.length) {
         listings = '<div class="availability-empty"><h3>No finished pieces available right now</h3><p>Request a custom one and choose the details with Alivia.</p></div>';
       } else {
         const themeNote = matchCount
           ? '<p class="listings-note">' + esc(themeMeta(params.get('theme')).emoji) + ' Showing ' +
             esc(themeMeta(params.get('theme')).label) + ' first. Every finished piece is listed below.</p>'
           : '';
-        listings = '<div class="listings-block"><h3>Available now</h3>' + themeNote + rows.map((listing) => {
+        listings = '<div class="listings-block"><h3>' + (rows.some(l => !l.sold) ? 'Available now' : 'Finished pieces') + '</h3>' + themeNote + rows.map((listing) => {
           const image = listing.images?.[0] ? resolveImg(listing.images[0]) : resolveImg(PLACEHOLDER);
           const listingName = listing.name || p.name;
           return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + (isMatch(listing) ? ' is-theme-match' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + (cleanTheme(listing.theme) ? ' ' + themeBadgeHtml(listing.theme, 'theme-badge--sm') : '') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
         }).join('') + '</div>';
       }
     }
-    const actions = (p.oneOfAKind ? '<button type="button" class="btn btn-primary" id="addOneOffBtn">Add to basket</button>' : '') +
+    const actions = (p.oneOfAKind && p.sold ? '<span class="listing-status">Sold</span>' : p.oneOfAKind ? '<button type="button" class="btn btn-primary" id="addOneOffBtn">Add to basket</button>' : '') +
       (!p.oneOfAKind ? '<a class="btn btn-secondary" href="' + esc(ROOT + 'custom/?design=' + encodeURIComponent(p.id) + '#customRequest') + '">' + (unsoldListings(p).length ? 'Request a custom version' : 'Request a Custom One') + '</a>' : '');
     root.innerHTML = '<nav class="breadcrumb" aria-label="Breadcrumb"><a href="' + esc(ROOT) + '">Home</a> <span aria-hidden="true">/</span> <a href="' + esc(ROOT + 'shop/') + '">Shop</a> <span aria-hidden="true">/</span> <span>' + esc(p.name) + '</span></nav>' +
       '<div class="product-detail">' + gallery + '<div class="product-detail-info"><h1>' + esc(p.name) + '</h1>' +
-      (p.badges || []).map((badge) => '<span class="sticker sticker-inline">' + esc(badge) + '</span>').join('') +
+      visibleBadges(p).map((badge) => '<span class="sticker sticker-inline">' + esc(badge) + '</span>').join('') +
       '<div class="price-block' + (typeof p.price !== 'number' ? ' custom' : '') + '">' + priceHtml(p) + '</div><div class="product-desc">' + esc(p.description || '') + '</div>' +
       (p.descriptionLink?.url ? '<p><a href="' + esc(p.descriptionLink.url) + '" target="_blank" rel="noopener noreferrer">' + esc(p.descriptionLink.text || 'Learn more') + '</a></p>' : '') +
       listings + '<div class="product-actions">' + actions + '</div></div></div>';
@@ -1538,7 +1552,7 @@
       /* Buy Now only when valid checkout URL */
       const buyWrap = $('buyNowWrap');
       const url = checkoutUrl(p);
-      if (buyWrap && url && (p.oneOfAKind || unsoldListings(p).length > 0) && typeof p.price === 'number') {
+      if (buyWrap && url && isReady(p) && typeof p.price === 'number') {
         buyWrap.hidden = false;
         const link = $('buyNowLink');
         if (link) {

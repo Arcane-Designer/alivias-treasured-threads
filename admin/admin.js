@@ -15,6 +15,8 @@
   const GH_BRANCH = localStorage.getItem('att-studio-branch') || 'main';
   const DATA_PATH = 'data/site.json';
   const UPLOAD_DIR = 'images/uploads';
+  const inventoryModule = import('../assets/inventory.mjs');
+  let latestSales = [];
   const TOKEN_KEY = 'att-studio-token';
   const DRAFT_KEY = 'att-studio-draft-v1';
   const PREVIEW_KEY = 'att-preview-data';
@@ -283,7 +285,11 @@
       headers: { 'Accept': 'application/vnd.github.raw+json' },
     });
     const text = await res.text();
-    return normalizeData(JSON.parse(text));
+    const data = normalizeData(JSON.parse(text));
+    const inventory = await inventoryModule;
+    latestSales = await inventory.fetchSales(data);
+    inventory.applySales(data, latestSales);
+    return data;
   }
 
   /* older data used a single `badge` string; the shop now supports up to two badges */
@@ -607,6 +613,7 @@
         const keep = await confirmCute('You have unpublished changes from last time ~ keep working on them?', 'Yes, keep them!');
         if (keep) {
           draft = normalizeData(stored.draft);
+          (await inventoryModule).applySales(draft, latestSales);
           pendingImages = stored.pendingImages || {};
         } else {
           localStorage.removeItem(DRAFT_KEY);
@@ -763,7 +770,7 @@
               ? '<span class="was">' + esc(p.priceLabel || ('$' + p.price)) + '</span>' + esc(p.saleLabel || ('$' + p.salePrice)) + ' 💸'
               : esc(p.priceLabel || '~')) +
           '</div>' +
-          '<div class="admin-card-meta">📷 ' + (p.images || []).length + (p.oneOfAKind ? ' · 🌟 one of a kind' : ' · ✨ ' + unsold + ' ready to ship') + '</div>' +
+          '<div class="admin-card-meta">📷 ' + (p.images || []).length + (p.oneOfAKind ? (p.sold ? ' · Sold' : ' · 🌟 one of a kind') : ' · ✨ ' + unsold + ' ready to ship') + '</div>' +
         '</div>' +
         '<div class="admin-card-actions">' +
           '<button type="button" class="edit-btn">✏️ Edit</button>' +
@@ -1677,6 +1684,7 @@
     if (this.checked) { currentProduct.tag = cleanTag(currentProduct.tag); $('epTag').innerHTML = tagOptionsHtml(currentProduct.tag); }
     else delete currentProduct.tag;
     updateOneOffUI();
+    renderEditorListings();
     updateThemeScopeHint();
     markDirty();
     if (this.checked && (currentProduct.listings || []).length) {
@@ -1815,6 +1823,21 @@
   function renderEditorListings() {
     const wrap = $('epListings');
     wrap.innerHTML = '';
+    let soldButton = $('epOneOffSold');
+    if (!soldButton) {
+      soldButton = document.createElement('button');
+      soldButton.id = 'epOneOffSold';
+      soldButton.type = 'button';
+      $('epOneOff').closest('.field-group').appendChild(soldButton);
+      soldButton.addEventListener('click', async () => {
+        (await inventoryModule).setSold(currentProduct, !currentProduct.sold);
+        markDirty();
+        renderEditorListings();
+      });
+    }
+    soldButton.hidden = !currentProduct.oneOfAKind;
+    soldButton.className = 'sold-chip' + (currentProduct.sold ? ' active' : '');
+    soldButton.textContent = currentProduct.sold ? 'Sold ✓' : 'Mark sold';
     const listings = currentProduct.listings || (currentProduct.listings = []);
 
     listings.forEach((listing) => {
@@ -1879,8 +1902,8 @@
         toast('Archived 📦 Find it under the Archive tab anytime.', 'teal');
       });
 
-      row.querySelector('.sold-chip').addEventListener('click', () => {
-        listing.sold = !listing.sold;
+      row.querySelector('.sold-chip').addEventListener('click', async () => {
+        (await inventoryModule).setSold(listing, !listing.sold);
         markDirty();
         renderEditorListings();
         toast(listing.sold ? 'Marked sold ~ congrats!! 🎉' : 'Back on the shelf!', 'teal');
@@ -2991,6 +3014,7 @@
       if (liveJson !== publishedSnapshot) {
         const { merged, clashes } = mergeSiteData(JSON.parse(publishedSnapshot), draft, live);
         draft = merged;
+        (await inventoryModule).applySales(draft, latestSales);
         renderProducts();
         renderArchive();
         renderReviews();
@@ -3004,8 +3028,12 @@
         }
       }
     } catch (e) {
-      /* if the check itself fails we still publish; the git step stays safe */
+      progress(null);
+      toast('Could not check the latest shop and sold status. Please try publishing again.', 'pink');
+      return;
     }
+
+    (await inventoryModule).applySales(draft, latestSales);
 
     /* best-effort safety net: never publish photo paths that would 404 */
     try {

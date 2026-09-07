@@ -32,6 +32,7 @@ export default {
         if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: 'origin not allowed' }, 403, cors);
         return await checkoutStatus(url, env, cors);
       }
+      if (request.method === 'GET' && url.pathname === '/inventory/sold') return await soldInventory(env, cors);
       if (request.method === 'POST' && url.pathname === '/stripe/webhook') return await stripeWebhook(request, env);
       return json({ error: 'not found' }, 404, cors);
     } catch (error) {
@@ -112,6 +113,21 @@ async function removeReview(request, env, cors, id) {
   return json({ ok: true }, 200, cors);
 }
 
+// Current paid reservations only. Never expose order references or customer data.
+async function paidInventory(env) {
+  const rows = await env.ORDERS.prepare("SELECT r.inventory_key, r.order_ref FROM inventory_reservations r JOIN orders o ON o.order_ref = r.order_ref WHERE r.status = 'paid' AND o.status = 'paid'").all();
+  return await Promise.all((rows.results || []).map(async row => ({
+    inventoryKey: row.inventory_key, orderRef: row.order_ref,
+    saleVersion: await sha256(`${row.inventory_key}:${row.order_ref}`),
+  })));
+}
+async function soldInventory(env, cors) {
+  const [sales, catalog] = await Promise.all([paidInventory(env), fetchCatalog(env)]);
+  const visible = new Set((catalog.products || []).filter(p => !p.archived).flatMap(p =>
+    p.oneOfAKind ? [`oneoff:${p.id}`] : (p.listings || []).map(l => `listing:${p.id}:${l.id}`)));
+  return json({ sales: sales.filter(sale => visible.has(sale.inventoryKey)).map(({ inventoryKey, saleVersion }) => ({ inventoryKey, saleVersion })) }, 200, cors);
+}
+
 /* Canonical inventory and pricing. Client names and prices are ignored. */
 export function validateCart(catalog, rawItems) {
   if (!catalog || !Array.isArray(catalog.products)) throw new CheckoutError('catalog unavailable', 503, 'catalog_unavailable');
@@ -126,13 +142,17 @@ export function validateCart(catalog, rawItems) {
     let listingId = null;
     let inventoryKey;
     let name;
+    let availableAfterSale;
     if (raw.type === 'listing') {
       listingId = String(raw.listingId || '');
       const listing = (product.listings || []).find((entry) => entry.id === listingId && !entry.sold);
       if (!listing) throw new CheckoutError('a selected piece is no longer available', 409, 'inventory_changed');
       inventoryKey = `listing:${productId}:${listingId}`;
+      availableAfterSale = listing.availableAfterSale;
       name = String(listing.name || product.name).trim();
     } else {
+      if (product.sold) throw new CheckoutError('a selected piece is no longer available', 409, 'inventory_changed');
+      availableAfterSale = product.availableAfterSale;
       if (!product.oneOfAKind) throw new CheckoutError('product is not available as a finished piece', 409, 'inventory_changed');
       inventoryKey = `oneoff:${productId}`;
       name = String(product.name).trim();
@@ -141,7 +161,7 @@ export function validateCart(catalog, rawItems) {
     seen.add(inventoryKey);
     const price = typeof product.salePrice === 'number' ? product.salePrice : product.price;
     if (typeof price !== 'number' || !Number.isFinite(price) || price < 0) throw new CheckoutError('item has no checkout price', 409, 'inventory_changed');
-    return { type: raw.type, productId, listingId, inventoryKey, name, productName: String(product.name).trim(), unitAmount: Math.round(price * 100), tiers: product.priceTiers || [] };
+    return { type: raw.type, productId, listingId, inventoryKey, availableAfterSale, name, productName: String(product.name).trim(), unitAmount: Math.round(price * 100), tiers: product.priceTiers || [] };
   });
   const lineItems = pricedLineItems(items);
   return { items, lineItems, subtotal: lineItems.reduce((sum, line) => sum + line.amount, 0) };
@@ -195,6 +215,7 @@ async function createCheckoutSession(request, env, cors) {
   }
   let cart;
   try { cart = validateCart(await fetchCatalog(env), body?.items); } catch (error) { return checkoutError(error, cors); }
+  const paid = new Map((await paidInventory(env)).map(sale => [sale.inventoryKey, sale]));
   const shippingCents = parseShippingCents(env.SHIPPING_RATE_CENTS);
   const orderRef = createOrderRef();
   const expiresAt = now + RESERVATION_SECONDS;
@@ -202,6 +223,12 @@ async function createCheckoutSession(request, env, cors) {
   await env.ORDERS.prepare('DELETE FROM inventory_reservations WHERE status = ? AND expires_at < ?').bind('pending', now).run();
   const statements = [env.ORDERS.prepare('INSERT INTO orders (order_ref, checkout_attempt_id, status, currency, subtotal_cents, shipping_cents, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').bind(orderRef, attemptId, 'creating', 'usd', cart.subtotal, shippingCents, expiresAt, now)];
   for (const item of cart.items) {
+    const previous = paid.get(item.inventoryKey);
+    if (previous && item.availableAfterSale === previous.saleVersion) {
+      // Only the canonical Studio document can authorize releasing this sale.
+      // Exact order matching plus the unique reservation key protect concurrent buyers.
+      statements.push(env.ORDERS.prepare('DELETE FROM inventory_reservations WHERE inventory_key = ? AND order_ref = ? AND status = ?').bind(item.inventoryKey, previous.orderRef, 'paid'));
+    }
     statements.push(env.ORDERS.prepare('INSERT INTO inventory_reservations (inventory_key, order_ref, status, expires_at) VALUES (?, ?, ?, ?)').bind(item.inventoryKey, orderRef, 'pending', reservationExpiresAt));
     statements.push(env.ORDERS.prepare('INSERT INTO order_items (order_ref, inventory_key, product_id, listing_id, display_name, unit_amount_cents) VALUES (?, ?, ?, ?, ?, ?)').bind(orderRef, item.inventoryKey, item.productId, item.listingId, item.name, item.unitAmount));
   }

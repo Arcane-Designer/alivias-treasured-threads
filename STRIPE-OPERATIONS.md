@@ -18,9 +18,13 @@ The staging integration ran in Stripe sandbox mode with isolated encrypted crede
 3. Stripe collects the customer's name, email, payment, and US shipping address. Shipping is currently free; the configured rate is zero.
 4. A signed `checkout.session.completed` or `checkout.session.async_payment_succeeded` webhook records payment idempotently. A paid D1 reservation keeps the item from being sold through another Checkout Session.
 5. The success page independently retrieves the Session through the Worker. It clears the browser basket only after Stripe reports the environment-matched Session `complete` and `paid` and the Session matches the D1 order.
-6. Alivia checks the paid order in Stripe and D1, marks each exact listing sold in Studio, publishes that content change through the normal workflow, packs it, and ships it.
+6. The storefront and Studio read confirmed paid inventory automatically. The exact purchased listing or one-of-a-kind product stays visible as Sold with no purchase button. Alivia can change it back to available with the Sold button and publish normally.
 
-Automatic `site.json` mutation is intentionally not implemented. The static Studio/GitHub publishing flow has no safe atomic transaction with Stripe and D1. A paid reservation is the server-side source that prevents a second sale until the manual Studio update lands.
+The paid D1 reservation is authoritative. `GET /inventory/sold` supplies only visible inventory keys and opaque sale versions, never customer data, payment IDs, order references, tags, or archive entries. Storefront page loads and Studio reads project these records onto the existing `sold` field. Studio publishes retain those fields in `site.json`; payments do not need a GitHub rebuild or a repository credential in the Worker.
+
+The shared `assets/inventory.mjs` records `stripeSaleVersion`. Switching a piece back to available stores `availableAfterSale` for that exact sale. Checkout trusts this marker only from the canonical catalog and atomically replaces only that sale's paid reservation. A subsequent purchase has a different version and becomes sold again. Duplicate or delayed webhooks for older orders cannot reclaim a relisted reservation. Refunds do not automatically restock physical inventory.
+
+Studio rechecks sales before publishing and stops if that check fails. Product fields, photos, archive entries, and internal tags stay intact. If the public status fetch is temporarily unavailable, the storefront falls back to saved catalog status; checkout still prevents buying paid inventory. Existing open pages pick up the latest status on reload/navigation.
 
 ## Payment, shipping, and records
 
@@ -80,7 +84,7 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 - [ ] Review CSP/headers on the actual hosting layer; redirects need no Stripe JavaScript allowance
 - [x] Explicitly authorize production deployment and live payments
 - [ ] Run one small live canary purchase to Nathan-controlled details
-- [ ] Confirm paid record, notification, manual Studio sold update, and customer receipt
+- [ ] Confirm paid record, notification, automatic sold status, and customer receipt
 - [ ] Refund the canary in Stripe and verify the refund/manual inventory workflow
 
 ## Exact launch runbook
@@ -94,7 +98,7 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 7. Confirm GitHub Pages serves the exact merged commit and verify home, Shop, zero-inventory Custom links, basket, checkout, Custom, reviews, About, Studio, sitemap, canonicals, SSL, console, and network state. Keep checkout disabled or the production Worker undeployed until live credentials are ready.
 8. At the action-time handoff, Nathan or Alivia switches Stripe to live mode, completes any remaining account activation, creates the live webhook endpoint for the production Worker, and securely stores the live `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Change the reviewed Worker gate from test to live only in that launch revision; keep `SHIPPING_RATE_CENTS=0`, US-only shipping, and Tax off.
 9. Deploy the production Worker with `att-orders-production`, then verify the deployed version and secret names without revealing values. Merge/publish the static site only when its checkout endpoint and production Worker are both ready.
-10. Run one explicitly confirmed low-value canary purchase using Nathan-controlled customer/address details. Confirm Stripe payment, receipt/notification, signed webhook, D1 paid order, exact reservation, verified success, and manual Studio sold-state update. Refund it from Stripe, verify the refund record, and deliberately decide whether to restore the physical item before changing Studio or D1.
+10. Run one explicitly confirmed low-value canary purchase using Nathan-controlled customer/address details. Confirm Stripe payment, receipt/notification, signed webhook, D1 paid order, exact reservation, verified success, and automatic storefront and Studio sold state. Refund it from Stripe, verify the refund record, and deliberately decide whether to restore the physical item before changing Studio or D1.
 
 ## Current sandbox proof
 
