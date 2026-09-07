@@ -661,7 +661,7 @@
           const shipping = Number.isInteger(shippingCents) && shippingCents >= 0 ? shippingCents / 100 : null;
           if (priced > 0 && shipping != null) {
             html += '<span class="checkout-cost-row"><span>Finished pieces</span><strong>$' + total.toFixed(2) + '</strong></span>';
-            html += '<span class="checkout-cost-row"><span>Standard shipping</span><strong>$' + shipping.toFixed(2) + '</strong></span>';
+            html += '<span class="checkout-cost-row"><span>Free shipping anywhere in the US</span><strong>$' + shipping.toFixed(2) + '</strong></span>';
             html += '<span class="checkout-cost-row checkout-cost-total"><span>Order total</span><strong>$' + (total + shipping).toFixed(2) + '</strong></span>';
           } else if (priced > 0) html += 'Estimated total: $' + total;
           if (unpriced > 0) {
