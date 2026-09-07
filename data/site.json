@@ -312,9 +312,10 @@
             "images/uploads/chai-time-tote-mt3s56zwfdu.jpg",
             "images/uploads/chai-time-tote-mt3s571orlf.jpg"
           ],
-          "sold": false,
+          "sold": true,
           "theme": "Fall",
-          "tag": ""
+          "tag": "",
+          "stripeSaleVersion": "59d00cb5e011fff9ec90a40030b86b558ae456fc0224e81c5b08d23f96417061"
         },
         {
           "id": "tote-black-halloween",
@@ -368,9 +369,11 @@
           "images": [
             "images/uploads/listing-mtdcph1s0ix.jpg"
           ],
-          "sold": false,
+          "sold": true,
           "theme": "Summer",
-          "tag": ""
+          "tag": "",
+          "stripeSaleVersion": "9b4fa931a2d0bad85989cd7ca9538067f05dc9360903bfd09b395440fc40935a",
+          "availableAfterSale": "9b4fa931a2d0bad85989cd7ca9538067f05dc9360903bfd09b395440fc40935a"
         },
         {
           "id": "l-mtdcpb34e1m3",
@@ -388,9 +391,10 @@
           "images": [
             "images/uploads/listing-mtdcocv9fcc.jpg"
           ],
-          "sold": false,
+          "sold": true,
           "theme": "Summer",
-          "tag": ""
+          "tag": "",
+          "stripeSaleVersion": "17959e34af74a9464cfcdd74caccc25695fd2e277ac7111e4a4b6f337a8332ab"
         },
         {
           "id": "l-mtdcotaunjfv",
