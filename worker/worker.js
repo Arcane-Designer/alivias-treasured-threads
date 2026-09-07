@@ -1,3 +1,4 @@
+import {customerEmailEnabled,enqueueCustomerEmail,flushCustomerEmails,sendCustomerReview} from './customer-email.mjs';
 import { emailEnabled, enqueuePaidEmail, flushOrderEmails, sendTestEmail, sendOrderCopy } from './order-email.mjs';
 /* Alivia's Treasured Threads API: reviews plus test-mode Stripe Checkout. */
 const REPO = 'Arcane-Designer/alivias-treasured-threads';
@@ -22,6 +23,12 @@ export default {
     const cors = corsHeaders(origin);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     try {
+      if (request.method === 'POST' && url.pathname === '/customer-email/review') {
+        if (!(await isAlivia(request))) return json({error:'unauthorized'},401,cors);
+        const body=await request.json().catch(()=>({}));
+        if (!['shipping','missing-address'].includes(body.variant)) return json({error:'invalid variant'},400,cors);
+        return json(await sendCustomerReview(env,body.variant),200,cors);
+      }
       if (request.method === 'POST' && url.pathname === '/order-email/copy') {
         if (!(await isAlivia(request))) return json({ error: 'unauthorized' }, 401, cors);
         const body = await request.json();
@@ -41,13 +48,13 @@ export default {
       if (request.method === 'GET' && url.pathname === '/checkout/status') {
         if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: 'origin not allowed' }, 403, cors);
         const response = await checkoutStatus(url, env, cors);
-        if (ctx && emailEnabled(env)) ctx.waitUntil(flushOrderEmails(env).catch(() => console.error("order email flush failed")));
+        if (ctx) ctx.waitUntil(flushNotifications(env).catch(() => console.error("order email flush failed")));
         return response;
       }
       if (request.method === 'GET' && url.pathname === '/inventory/sold') return await soldInventory(env, cors);
       if (request.method === 'POST' && url.pathname === '/stripe/webhook') {
         const response = await stripeWebhook(request, env);
-        if (response.ok && ctx && emailEnabled(env)) ctx.waitUntil(flushOrderEmails(env).catch(() => console.error("order email flush failed")));
+        if (response.ok && ctx) ctx.waitUntil(flushNotifications(env).catch(() => console.error("order email flush failed")));
         return response;
       }
       return json({ error: 'not found' }, 404, cors);
@@ -56,8 +63,13 @@ export default {
       return json({ error: 'server hiccup' }, 500, cors);
     }
   },
-  async scheduled(event, env) { await flushOrderEmails(env); },
+  async scheduled(event, env) { await flushNotifications(env); },
 };
+
+async function flushNotifications(env) {
+  const results=await Promise.allSettled([flushOrderEmails(env),flushCustomerEmails(env)]);
+  if (results.some(result=>result.status==='rejected')) console.error('Notification queue processing failed');
+}
 
 function safeError(error) { return error instanceof Error ? error.message : String(error); }
 function corsHeaders(origin) {
@@ -361,6 +373,7 @@ async function markPaid(env, session, eventId) {
   const now = Math.floor(Date.now() / 1000);
   await env.ORDERS.batch([
     ...(emailEnabled(env) ? [enqueuePaidEmail(env, order.order_ref, now)] : []),
+    ...(customerEmailEnabled(env) ? [enqueueCustomerEmail(env, order.order_ref, now)] : []),
     env.ORDERS.prepare('INSERT INTO stripe_events (event_id, event_type, processed_at) VALUES (?, ?, ?)').bind(eventId, 'checkout.session.paid', now),
     env.ORDERS.prepare('UPDATE orders SET status = ?, total_cents = ?, customer_email = ?, customer_name = ?, shipping_json = ?, paid_at = ?, stripe_event_id = ? WHERE order_ref = ? AND status != ?').bind('paid', session.amount_total || null, session.customer_details?.email || null, session.customer_details?.name || null, JSON.stringify(session.collected_information?.shipping_details || session.shipping_details || null), now, eventId, order.order_ref, 'paid'),
     env.ORDERS.prepare('UPDATE inventory_reservations SET status = ?, expires_at = ? WHERE order_ref = ?').bind('paid', 2147483647, order.order_ref),
