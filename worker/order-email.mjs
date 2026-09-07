@@ -8,23 +8,48 @@ export function enqueuePaidEmail(env, orderRef, now) {
     SELECT order_ref, 'pending', ?, ? FROM orders WHERE order_ref = ? AND status != 'paid'`)
     .bind(now, now, orderRef);
 }
-export function orderMessage(order, items, from) {
+export function orderMessage(order, items, from, { existing = false } = {}) {
   const clean = value => String(value || '').replace(/[\r\n]+/g, ' ').replace(/\u2014/g, ' - ');
+  const esc = value => clean(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const money = cents => new Intl.NumberFormat('en-US', {style:'currency',currency:order.currency.toUpperCase()}).format(cents / 100);
-  return {
-    from, to: [RECIPIENT],
-    subject: `New paid order ${clean(order.order_ref)} | Alivia's Treasured Threads`,
-    text: ["You have a paid order from Alivia's Treasured Threads.", '',
-      `Order: ${clean(order.order_ref)}`, `Customer: ${clean(order.customer_name) || 'See Stripe'}`,
-      `Customer email: ${clean(order.customer_email) || 'See Stripe'}`, '', 'Purchased pieces:',
-      ...items.map(item => `- ${clean(item.display_name)}`), '',
-      `Total paid: ${money(order.total_cents ?? order.subtotal_cents + order.shipping_cents)}`,
-      `Shipping charged: ${money(order.shipping_cents)}`, '',
-      'Check the shipping address and fulfillment details in Stripe before sending the order.',
-      'https://dashboard.stripe.com/payments', '',
-      'This is the website order alert. Stripe may send a separate payment notification.'
-    ].join('\n'),
-  };
+  const total = money(order.total_cents ?? order.subtotal_cents + order.shipping_cents);
+  const date = order.paid_at ? new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeStyle:'short',timeZone:'America/Los_Angeles'}).format(new Date(order.paid_at*1000)) + ' Pacific' : 'See Stripe';
+  const title = existing ? 'Your order details are here.' : 'A new treasure has a home.';
+  const notice = existing ? 'Existing order copy: this purchase was already placed. This email tests the new alert format; it is not a new order or charge.' : 'Payment confirmed. Here is everything you need to get this order ready.';
+  const text = [title, notice, '', `Order: ${clean(order.order_ref)}`, `Paid: ${date}`,
+    `Customer: ${clean(order.customer_name) || 'See Stripe'}`, `Customer email: ${clean(order.customer_email) || 'See Stripe'}`,
+    '', 'Purchased pieces:', ...items.map(item => `- ${clean(item.display_name)}`), '',
+    `Total paid: ${total}`, `Shipping charged: ${money(order.shipping_cents)}`, '',
+    'Check the shipping address and fulfillment details in Stripe before sending the order.',
+    'https://dashboard.stripe.com/payments', '', 'Alivia’s Treasured Threads | Handmade with love, one stitch at a time.',
+    'Website order alert. Stripe may send a separate payment notification.'].join('\n');
+  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f6f2f8;color:#35283e;font-family:Arial,Helvetica,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">${esc(existing?'Existing order copy':'Payment confirmed')} · ${esc(order.order_ref)} · ${esc(total)}</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6f2f8;"><tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e6deec;border-radius:18px;overflow:hidden;">
+<tr><td style="padding:30px 28px;background:#4e365e;color:#ffffff;text-align:center;">
+<p style="margin:0 0 10px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#e8d6ef;">A little handmade happiness</p>
+<p style="margin:0;font-family:Georgia,serif;font-size:28px;line-height:1.25;">Alivia’s Treasured Threads</p>
+<p style="margin:12px 0 0;font-size:12px;color:#e8d6ef;">Handmade with love, one stitch at a time.</p></td></tr>
+<tr><td style="padding:30px 28px 20px;">
+<p style="margin:0 0 14px;font-size:11px;letter-spacing:2px;font-weight:bold;color:#497658;">PAYMENT CONFIRMED</p>
+<h1 style="margin:0 0 14px;font-family:Georgia,serif;font-size:29px;line-height:1.25;font-weight:normal;">${title}</h1>
+<p style="margin:0;font-size:14px;line-height:1.7;color:#6c5c76;">${notice}</p>
+</td></tr><tr><td style="padding:0 28px 24px;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f3f9;border-radius:10px;"><tr><td style="padding:18px;font-size:13px;line-height:1.8;">
+<strong>Order ${esc(order.order_ref)}</strong><br><span style="color:#6c5c76;">${esc(date)}</span><br>
+<strong>${esc(order.customer_name) || 'Customer details in Stripe'}</strong><br>${esc(order.customer_email) || 'Email available in Stripe'}
+</td></tr></table></td></tr>
+<tr><td style="padding:0 28px;"><h2 style="margin:0 0 12px;font-size:13px;letter-spacing:1px;text-transform:uppercase;">The treasures they chose</h2>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">${items.map(item=>`<tr><td style="padding:15px 0;border-bottom:1px solid #eee6f1;font-size:15px;line-height:1.5;">${esc(item.display_name)}</td><td width="45" align="right" style="padding:15px 0;border-bottom:1px solid #eee6f1;font-size:12px;color:#6c5c76;">Qty 1</td></tr>`).join('')}
+<tr><td style="padding:18px 0 8px;font-size:13px;color:#6c5c76;">Shipping charged</td><td align="right" style="padding:18px 0 8px;font-size:13px;">${esc(money(order.shipping_cents))}</td></tr>
+<tr><td style="padding:8px 0 22px;font-size:17px;font-weight:bold;">Total paid</td><td align="right" style="padding:8px 0 22px;font-size:22px;font-weight:bold;color:#4e365e;">${esc(total)}</td></tr></table></td></tr>
+<tr><td style="padding:0 28px 30px;"><table role="presentation" cellspacing="0" cellpadding="0"><tr><td bgcolor="#4e365e" style="border-radius:8px;"><a href="https://dashboard.stripe.com/payments" style="display:inline-block;padding:15px 24px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:bold;">Open Stripe payments</a></td></tr></table>
+<p style="margin:16px 0 0;font-size:12px;line-height:1.7;color:#6c5c76;">Check the shipping address and fulfillment details in Stripe before sending the order.</p></td></tr>
+<tr><td style="padding:20px 28px;border-top:1px dashed #d8c8e1;text-align:center;font-size:11px;line-height:1.7;color:#82728b;">Sent by your website to keep every little treasure on its way.<br>Stripe may send a separate payment notification.</td></tr>
+</table></td></tr></table></body></html>`;
+  return { from, to:[RECIPIENT], subject:`${existing?'Existing paid order':'New paid order'} ${clean(order.order_ref)} | Alivia's Treasured Threads`, text, html };
 }
 export async function flushOrderEmails(env, now = Math.floor(Date.now()/1000)) {
   if (!emailEnabled(env) || !env.RESEND_API_KEY || !env.ORDER_EMAIL_FROM) return;
