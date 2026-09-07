@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import { readFile } from 'node:fs/promises';
+import {enqueuePaidEmail,flushOrderEmails,RECIPIENT} from './order-email.mjs';
+const db = new DatabaseSync(':memory:');
+for (const file of ['schema.sql','order-email-schema.sql']) db.exec(await readFile(new URL(file,import.meta.url),'utf8'));
+const ORDERS={prepare(sql){let args=[];const q={bind(...a){args=a;return q},async first(){return db.prepare(sql).get(...args)||null},async all(){return {results:db.prepare(sql).all(...args)}},async run(){return db.prepare(sql).run(...args)}};return q}};
+const env={ORDERS,ORDER_EMAIL_ENABLED:'true',RESEND_API_KEY:'test',ORDER_EMAIL_FROM:'Test <orders@example.com>'};
+const add=(id,status='pending')=>db.prepare('INSERT INTO orders (order_ref,checkout_attempt_id,status,currency,subtotal_cents,shipping_cents,expires_at,created_at) VALUES (?,?,?,\'usd\',2800,600,99999,1)').run(id,id,status);
+const queue=async id=>{await enqueuePaidEmail(env,id,100).run();db.prepare("UPDATE orders SET status='paid' WHERE order_ref=?").run(id)};
+const state=id=>db.prepare('SELECT * FROM order_email_outbox WHERE order_ref=?').get(id);
+let calls=[];let response=200;const original=globalThis.fetch;
+globalThis.fetch=async(url,opts)=>{calls.push({url,...opts});if(response==='throw')throw Error('network');return Response.json(response===200?{id:'email1'}:{error:'failure'},{status:response})};
+try {
+add('historical','paid');await enqueuePaidEmail(env,'historical',100).run();assert.equal(state('historical'),undefined);
+add('a');await queue('a');await enqueuePaidEmail(env,'a',100).run();
+await Promise.all([flushOrderEmails(env,100),flushOrderEmails(env,100)]);
+assert.equal(calls.length,1);assert.equal(state('a').state,'accepted');
+assert.deepEqual(JSON.parse(calls[0].body).to,[RECIPIENT]);assert.match(JSON.parse(calls[0].body).text,/Shipping charged: \$6.00/);
+await flushOrderEmails(env,200);assert.equal(calls.length,1);
+add('b');await queue('b');response=500;await flushOrderEmails(env,100);assert.equal(state('b').state,'pending');
+const first=calls.at(-1);response=200;await flushOrderEmails(env,400);assert.equal(state('b').state,'accepted');
+assert.equal(first.headers['Idempotency-Key'],calls.at(-1).headers['Idempotency-Key']);assert.equal(first.body,calls.at(-1).body);
+add('c');await queue('c');response='throw';await flushOrderEmails(env,100);assert.equal(state('c').state,'pending');
+assert.equal(db.prepare('SELECT status FROM orders WHERE order_ref=?').get('c').status,'paid');
+await flushOrderEmails(env,100+24*3600);assert.equal(state('c').state,'review');
+add('d');await queue('d');response=403;await flushOrderEmails(env,100);assert.equal(state('d').state,'review');
+add('e');await queue('e');const count=calls.length;await flushOrderEmails({...env,ORDER_EMAIL_ENABLED:'false'},100);assert.equal(calls.length,count);
+console.log('Order email tests passed: one send, concurrent claims, stable retry, failure isolation, historical exclusion, disabled gate.');
+}finally{globalThis.fetch=original;db.close()}

@@ -6,6 +6,7 @@ import { applySales, setSold } from '../assets/inventory.mjs';
 
 const db = new DatabaseSync(':memory:');
 db.exec(await readFile(new URL('./schema.sql', import.meta.url), 'utf8'));
+db.exec(await readFile(new URL('./order-email-schema.sql', import.meta.url), 'utf8'));
 const ORDERS = {
   prepare(sql) {
     let args = [];
@@ -23,7 +24,7 @@ const ORDERS = {
     catch (error) { db.exec('ROLLBACK'); throw error; }
   },
 };
-const env = { ORDERS, PAYMENTS_MODE: 'test', STRIPE_SECRET_KEY: 'sk_test_fixture', STRIPE_WEBHOOK_SECRET: 'whsec_fixture', SHIPPING_RATE_CENTS: '0', CATALOG_URL: 'https://catalog.test/site.json' };
+const env = { ORDERS, ORDER_EMAIL_ENABLED: 'true', PAYMENTS_MODE: 'test', STRIPE_SECRET_KEY: 'sk_test_fixture', STRIPE_WEBHOOK_SECRET: 'whsec_fixture', SHIPPING_RATE_CENTS: '0', CATALOG_URL: 'https://catalog.test/site.json' };
 const canonical = { products: [
   { id: 'p', name: 'Pouches', price: 7, listings: [{ id: 'a', name: 'A', sold: false }, { id: 'b', name: 'B', sold: false }] },
   { id: 'bundle', name: 'Bundle', price: 25, oneOfAKind: true },
@@ -57,9 +58,11 @@ try {
   assert.deepEqual(await sales(), [], 'pending checkout never marks an item sold');
   assert.equal((await pay('cs_test_fixture1', 'evt_unpaid', 'unpaid')).status, 200);
   assert.deepEqual(await sales(), [], 'unpaid completion never marks an item sold');
+  assert.equal(db.prepare('SELECT count(*) AS n FROM order_email_outbox').get().n, 0, 'unpaid events do not queue an email');
   const bad = await call('/stripe/webhook', {method:'POST',body:'{}',headers:{'Stripe-Signature':'bad'}});
   assert.equal(bad.status, 400);
   assert.equal((await pay('cs_test_fixture1', 'evt_paid1')).status, 200);
+  assert.equal(db.prepare('SELECT count(*) AS n FROM order_email_outbox').get().n, 1, 'signed paid event queues one email');
   const paid = await sales();
   assert.equal(paid.length, 2);
   assert.deepEqual(Object.keys(paid[0]).sort(), ['inventoryKey','saleVersion'], 'public response excludes order and customer details');
@@ -78,6 +81,7 @@ try {
   assert.equal((await checkout([listing])).status, 409, 'a second buyer cannot reserve the relisted piece concurrently');
   assert.equal((await pay('cs_test_fixture1', 'evt_paid1')).status, 200, 'webhook retry stays idempotent');
   assert.equal((await pay('cs_test_fixture1', 'evt_delayed_old')).status, 200);
+  assert.equal(db.prepare('SELECT count(*) AS n FROM order_email_outbox').get().n, 1, 'duplicate and delayed callbacks do not duplicate alerts');
   assert.equal((await sales()).some(s => s.inventoryKey === 'listing:p:a'), false, 'old event cannot re-sell a relisted piece');
   assert.equal((await pay('cs_test_fixture2', 'evt_paid2')).status, 200);
   const secondSales = await sales();

@@ -2,7 +2,9 @@
   "name": "att-review-inbox",
   "main": "worker.js",
   "compatibility_date": "2026-08-21",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "kv_namespaces": [
     {
       "binding": "REVIEWS",
@@ -17,7 +19,11 @@
     }
   ],
   "secrets": {
-    "required": ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"]
+    "required": [
+      "STRIPE_SECRET_KEY",
+      "STRIPE_WEBHOOK_SECRET",
+      "RESEND_API_KEY"
+    ]
   },
   "observability": {
     "enabled": true
@@ -26,6 +32,13 @@
     "PAYMENTS_MODE": "live",
     "SHIPPING_RATE_CENTS": "0",
     "SITE_URL": "https://aliviastreasuredthreads.com",
-    "CATALOG_URL": "https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json"
+    "CATALOG_URL": "https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json",
+    "ORDER_EMAIL_ENABLED": "true",
+    "ORDER_EMAIL_FROM": "Alivia's Treasured Threads <orders@orders.aliviastreasuredthreads.com>"
+  },
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
   }
 }

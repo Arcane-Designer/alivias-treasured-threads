@@ -1,3 +1,4 @@
+import { emailEnabled, enqueuePaidEmail, flushOrderEmails, sendTestEmail } from './order-email.mjs';
 /* Alivia's Treasured Threads API: reviews plus test-mode Stripe Checkout. */
 const REPO = 'Arcane-Designer/alivias-treasured-threads';
 const DEFAULT_CATALOG_URL = 'https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json';
@@ -15,12 +16,16 @@ const MAX_CART_ITEMS = 40;
 const RESERVATION_SECONDS = 30 * 60;
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     try {
+      if (request.method === 'POST' && url.pathname === '/order-email/test') {
+        if (!(await isAlivia(request))) return json({ error: 'unauthorized' }, 401, cors);
+        return json(await sendTestEmail(env), 200, cors);
+      }
       if (request.method === 'POST' && url.pathname === '/submit') return await submitReview(request, env, cors);
       if (request.method === 'GET' && url.pathname === '/inbox') return await inbox(request, env, cors);
       if (request.method === 'DELETE' && url.pathname.startsWith('/inbox/')) return await removeReview(request, env, cors, decodeURIComponent(url.pathname.slice(7)));
@@ -30,16 +35,23 @@ export default {
       }
       if (request.method === 'GET' && url.pathname === '/checkout/status') {
         if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: 'origin not allowed' }, 403, cors);
-        return await checkoutStatus(url, env, cors);
+        const response = await checkoutStatus(url, env, cors);
+        if (ctx && emailEnabled(env)) ctx.waitUntil(flushOrderEmails(env).catch(() => console.error("order email flush failed")));
+        return response;
       }
       if (request.method === 'GET' && url.pathname === '/inventory/sold') return await soldInventory(env, cors);
-      if (request.method === 'POST' && url.pathname === '/stripe/webhook') return await stripeWebhook(request, env);
+      if (request.method === 'POST' && url.pathname === '/stripe/webhook') {
+        const response = await stripeWebhook(request, env);
+        if (response.ok && ctx && emailEnabled(env)) ctx.waitUntil(flushOrderEmails(env).catch(() => console.error("order email flush failed")));
+        return response;
+      }
       return json({ error: 'not found' }, 404, cors);
     } catch (error) {
       console.error(JSON.stringify({ message: 'request failed', path: url.pathname, error: safeError(error) }));
       return json({ error: 'server hiccup' }, 500, cors);
     }
   },
+  async scheduled(event, env) { await flushOrderEmails(env); },
 };
 
 function safeError(error) { return error instanceof Error ? error.message : String(error); }
@@ -343,6 +355,7 @@ async function markPaid(env, session, eventId) {
   if (!order || session.client_reference_id !== order.order_ref) throw new Error('paid session has no matching order');
   const now = Math.floor(Date.now() / 1000);
   await env.ORDERS.batch([
+    ...(emailEnabled(env) ? [enqueuePaidEmail(env, order.order_ref, now)] : []),
     env.ORDERS.prepare('INSERT INTO stripe_events (event_id, event_type, processed_at) VALUES (?, ?, ?)').bind(eventId, 'checkout.session.paid', now),
     env.ORDERS.prepare('UPDATE orders SET status = ?, total_cents = ?, customer_email = ?, customer_name = ?, shipping_json = ?, paid_at = ?, stripe_event_id = ? WHERE order_ref = ? AND status != ?').bind('paid', session.amount_total || null, session.customer_details?.email || null, session.customer_details?.name || null, JSON.stringify(session.collected_information?.shipping_details || session.shipping_details || null), now, eventId, order.order_ref, 'paid'),
     env.ORDERS.prepare('UPDATE inventory_reservations SET status = ?, expires_at = ? WHERE order_ref = ?').bind('paid', 2147483647, order.order_ref),
