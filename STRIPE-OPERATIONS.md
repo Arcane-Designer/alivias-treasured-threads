@@ -15,7 +15,7 @@ The staging integration ran in Stripe sandbox mode with isolated encrypted crede
 
 1. The basket sends only product, listing, and one-of-a-kind IDs to the Worker.
 2. The Worker reloads canonical `data/site.json`, validates availability, recalculates prices, reserves each exact inventory key in D1, and creates a Stripe-hosted Checkout Session.
-3. Stripe collects the customer's name, email, payment, and US shipping address. Standard shipping is a single configured flat rate with a configurable business-day estimate.
+3. Stripe collects the customer's name, email, payment, and US shipping address. Shipping is currently free; the configured rate is zero.
 4. A signed `checkout.session.completed` or `checkout.session.async_payment_succeeded` webhook records payment idempotently. A paid D1 reservation keeps the item from being sold through another Checkout Session.
 5. The success page independently retrieves the Session through the Worker. It clears the browser basket only after Stripe reports the environment-matched Session `complete` and `paid` and the Session matches the D1 order.
 6. Alivia checks the paid order in Stripe and D1, marks each exact listing sold in Studio, publishes that content change through the normal workflow, packs it, and ships it.
@@ -26,7 +26,7 @@ Automatic `site.json` mutation is intentionally not implemented. The static Stud
 
 - Cards and supported card wallets stay entirely on Stripe-hosted Checkout. Link is disabled per Session so its bank and pay-later options do not appear.
 - Currency is USD. Shipping country is restricted to US.
-- `SHIPPING_RATE_CENTS` is fixed at `600`, the approved $6.00 flat standard-shipping charge per US order. The same value is mirrored in `data/site.json` solely for the customer-facing order review; the Worker remains authoritative when creating the Stripe Session and D1 order.
+- `SHIPPING_RATE_CENTS` is `0`: no shipping charge applies to new orders. The same value is mirrored in `data/site.json` solely for the customer-facing order review; the Worker remains authoritative when creating the Stripe Session and D1 order.
 - `SHIPPING_MIN_DAYS` and `SHIPPING_MAX_DAYS` optionally describe an approved standard-shipping estimate in business days. If either is unset, Checkout makes no delivery estimate.
 - Stripe Tax is not enabled. The Session deliberately omits `automatic_tax`.
 - Stripe holds payment/refund records. D1 stores the Alivia order reference, exact inventory IDs, customer contact/shipping details needed for fulfillment, payment state, and processed webhook IDs.
@@ -56,7 +56,7 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 
 ### Nathan/account decisions and actions
 
-- [x] Nathan chose one $6.00 flat standard-shipping charge per US order
+- [x] Nathan chose no shipping charge for new orders
 - [ ] Choose an honest business-day shipping estimate or leave it unset
 - [ ] Confirm whether/when to enable Stripe Tax; it is off now
 - [x] Verify Stripe shows no active account requirements and a linked payout destination, without exposing private account data
@@ -68,7 +68,7 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 - [x] Configure staging for the local preview return URL and the staged branch catalog; production uses the canonical live URLs
 - [x] Add the `ORDERS` D1 binding IDs to the appropriate Wrangler environments
 - [x] Store the restricted sandbox `STRIPE_SECRET_KEY` and sandbox `STRIPE_WEBHOOK_SECRET` as encrypted staging environment secrets, never vars/source
-- [x] Store the approved `SHIPPING_RATE_CENTS=600` as a non-secret environment variable
+- [x] Store the approved `SHIPPING_RATE_CENTS=0` as a non-secret environment variable
 - [x] Register `/stripe/webhook` for Checkout Session completed/async-success events in Stripe sandbox mode
 - [x] Pin the Worker to Stripe API version `2026-07-29.dahlia`, matching the sandbox webhook endpoint
 - [x] Keep staging at `PAYMENTS_MODE=test` and set production to `PAYMENTS_MODE=live` with strict mode matching
@@ -88,11 +88,11 @@ The current Web3Forms path is a browser-side custom/review notification mechanis
 1. Push the reconciled `mara/alivia-storefront-2` branch so the staging Worker can load the exact canonical catalog revision. Do not merge it yet.
 2. Nathan or Alivia completes Stripe account identity, legal, payout-bank, business-profile, support, statement-descriptor, receipt, and allowed-payment-method settings. Stripe Tax stays off.
 3. In Stripe test mode, obtain a restricted test secret suitable for creating and retrieving Checkout Sessions. Register the staging endpoint `https://att-checkout-staging.nathanagellatly.workers.dev/stripe/webhook` for `checkout.session.completed` and `checkout.session.async_payment_succeeded`, then store both test values as the staging Worker's `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` secrets. Never paste their values into source, Git, or this document.
-4. Deploy `worker/wrangler.jsonc` with `--env staging`. Confirm the deployment binds `att-orders-staging`, `PAYMENTS_MODE=test`, `SHIPPING_RATE_CENTS=600`, the staged branch catalog, and the local preview return URL.
-5. From the local preview, complete Stripe's official test-mode payment flow. Verify one $6 shipping option, US-only address collection, Tax off, signed webhook processing, one paid D1 order, exact item reservations, verified success, basket clearing only after verification, cancel preservation, bad signature rejection, duplicate-event idempotency, stale inventory rejection, and test refund handling. Use only controlled test details.
+4. Deploy `worker/wrangler.jsonc` with `--env staging`. Confirm the deployment binds `att-orders-staging`, `PAYMENTS_MODE=test`, `SHIPPING_RATE_CENTS=0`, the staged branch catalog, and the local preview return URL.
+5. From the local preview, complete Stripe's official test-mode payment flow. Verify $0 shipping, US-only address collection, Tax off, signed webhook processing, one paid D1 order, exact item reservations, verified success, basket clearing only after verification, cancel preservation, bad signature rejection, duplicate-event idempotency, stale inventory rejection, and test refund handling. Use only controlled test details.
 6. Review the final branch diff against `origin/main`, regenerate pages, run validation/Worker fixtures/Studio QA, and render desktop plus 390px flows. Merge only the verified revision to `main`; GitHub Pages serves `main` from `/` with enforced HTTPS.
 7. Confirm GitHub Pages serves the exact merged commit and verify home, Shop, zero-inventory Custom links, basket, checkout, Custom, reviews, About, Studio, sitemap, canonicals, SSL, console, and network state. Keep checkout disabled or the production Worker undeployed until live credentials are ready.
-8. At the action-time handoff, Nathan or Alivia switches Stripe to live mode, completes any remaining account activation, creates the live webhook endpoint for the production Worker, and securely stores the live `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Change the reviewed Worker gate from test to live only in that launch revision; keep `SHIPPING_RATE_CENTS=600`, US-only shipping, and Tax off.
+8. At the action-time handoff, Nathan or Alivia switches Stripe to live mode, completes any remaining account activation, creates the live webhook endpoint for the production Worker, and securely stores the live `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Change the reviewed Worker gate from test to live only in that launch revision; keep `SHIPPING_RATE_CENTS=0`, US-only shipping, and Tax off.
 9. Deploy the production Worker with `att-orders-production`, then verify the deployed version and secret names without revealing values. Merge/publish the static site only when its checkout endpoint and production Worker are both ready.
 10. Run one explicitly confirmed low-value canary purchase using Nathan-controlled customer/address details. Confirm Stripe payment, receipt/notification, signed webhook, D1 paid order, exact reservation, verified success, and manual Studio sold-state update. Refund it from Stripe, verify the refund record, and deliberately decide whether to restore the physical item before changing Studio or D1.
 
