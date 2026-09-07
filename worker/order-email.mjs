@@ -12,15 +12,22 @@ export function orderMessage(order, items, from, { existing = false } = {}) {
   const clean = value => String(value || '').replace(/[\r\n]+/g, ' ').replace(/\u2014/g, ' - ');
   const esc = value => clean(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const money = cents => new Intl.NumberFormat('en-US', {style:'currency',currency:order.currency.toUpperCase()}).format(cents / 100);
+  let shipping;
+  try { shipping = typeof order.shipping_json === 'string' ? JSON.parse(order.shipping_json) : order.shipping_json; } catch { shipping = null; }
+  const address = shipping?.address;
+  const shippingLines = address ? [shipping.name, address.line1, address.line2,
+    [address.city, address.state, address.postal_code].filter(Boolean).join(', '), address.country].filter(Boolean).map(clean) : [];
+  const shippingText = shippingLines.length ? shippingLines.join('\n') : 'Shipping address was not provided. Check Stripe and confirm fulfillment with the customer.';
+  const shippingHtml = shippingLines.length ? shippingLines.map(esc).join('<br>') : esc(shippingText);
   const total = money(order.total_cents ?? order.subtotal_cents + order.shipping_cents);
   const date = order.paid_at ? new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeStyle:'short',timeZone:'America/Los_Angeles'}).format(new Date(order.paid_at*1000)) + ' Pacific' : 'See Stripe';
   const title = existing ? 'Your order details are here.' : 'A new treasure has a home.';
   const notice = existing ? 'Existing order copy: this purchase was already placed. This email tests the new alert format; it is not a new order or charge.' : 'Payment confirmed. Here is everything you need to get this order ready.';
   const text = [title, notice, '', `Order: ${clean(order.order_ref)}`, `Paid: ${date}`,
     `Customer: ${clean(order.customer_name) || 'See Stripe'}`, `Customer email: ${clean(order.customer_email) || 'See Stripe'}`,
-    '', 'Purchased pieces:', ...items.map(item => `- ${clean(item.display_name)}`), '',
+    '', 'Ship to:', shippingText, '', 'Purchased pieces:', ...items.map(item => `- ${clean(item.display_name)}`), '',
     `Total paid: ${total}`, `Shipping charged: ${money(order.shipping_cents)}`, '',
-    'Check the shipping address and fulfillment details in Stripe before sending the order.',
+    'Confirm fulfillment arrangements before shipping. Open Stripe for the original payment details.',
     'https://dashboard.stripe.com/payments', '', 'Alivia’s Treasured Threads | Handmade with love, one stitch at a time.',
     'Website order alert. Stripe may send a separate payment notification.'].join('\n');
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -41,12 +48,13 @@ export function orderMessage(order, items, from, { existing = false } = {}) {
 <strong>Order ${esc(order.order_ref)}</strong><br><span style="color:#6c5c76;">${esc(date)}</span><br>
 <strong>${esc(order.customer_name) || 'Customer details in Stripe'}</strong><br>${esc(order.customer_email) || 'Email available in Stripe'}
 </td></tr></table></td></tr>
+<tr><td style="padding:0 28px 24px;"><h2 style="margin:0 0 12px;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Ship to</h2><p style="margin:0;font-size:14px;line-height:1.7;">${shippingHtml}</p></td></tr>
 <tr><td style="padding:0 28px;"><h2 style="margin:0 0 12px;font-size:13px;letter-spacing:1px;text-transform:uppercase;">The treasures they chose</h2>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">${items.map(item=>`<tr><td style="padding:15px 0;border-bottom:1px solid #eee6f1;font-size:15px;line-height:1.5;">${esc(item.display_name)}</td><td width="45" align="right" style="padding:15px 0;border-bottom:1px solid #eee6f1;font-size:12px;color:#6c5c76;">Qty 1</td></tr>`).join('')}
 <tr><td style="padding:18px 0 8px;font-size:13px;color:#6c5c76;">Shipping charged</td><td align="right" style="padding:18px 0 8px;font-size:13px;">${esc(money(order.shipping_cents))}</td></tr>
 <tr><td style="padding:8px 0 22px;font-size:17px;font-weight:bold;">Total paid</td><td align="right" style="padding:8px 0 22px;font-size:22px;font-weight:bold;color:#4e365e;">${esc(total)}</td></tr></table></td></tr>
 <tr><td style="padding:0 28px 30px;"><table role="presentation" cellspacing="0" cellpadding="0"><tr><td bgcolor="#4e365e" style="border-radius:8px;"><a href="https://dashboard.stripe.com/payments" style="display:inline-block;padding:15px 24px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:bold;">Open Stripe payments</a></td></tr></table>
-<p style="margin:16px 0 0;font-size:12px;line-height:1.7;color:#6c5c76;">Check the shipping address and fulfillment details in Stripe before sending the order.</p></td></tr>
+<p style="margin:16px 0 0;font-size:12px;line-height:1.7;color:#6c5c76;">Confirm fulfillment arrangements before shipping. Open Stripe for the original payment details.</p></td></tr>
 <tr><td style="padding:20px 28px;border-top:1px dashed #d8c8e1;text-align:center;font-size:11px;line-height:1.7;color:#82728b;">Sent by your website to keep every little treasure on its way.<br>Stripe may send a separate payment notification.</td></tr>
 </table></td></tr></table></body></html>`;
   return { from, to:[RECIPIENT], subject:`${existing?'Existing paid order':'New paid order'} ${clean(order.order_ref)} | Alivia's Treasured Threads`, text, html };
@@ -109,4 +117,16 @@ export async function sendTestEmail(env) {
   });
   const data = await response.json().catch(() => null);
   return response.ok && data?.id ? { accepted: true, id: data.id } : { accepted: false, status: response.status, reason: data?.message || 'Email provider rejected test' };
+}
+
+export async function sendOrderCopy(env, orderRef) {
+  if (!/^ATT-[A-F0-9]{10}$/.test(orderRef || '')) return {accepted:false,reason:'Invalid order reference'};
+  const order = await env.ORDERS.prepare("SELECT * FROM orders WHERE order_ref=? AND status='paid'").bind(orderRef).first();
+  if (!order) return {accepted:false,reason:'Paid order not found'};
+  const items = await env.ORDERS.prepare('SELECT display_name FROM order_items WHERE order_ref=? ORDER BY rowid').bind(orderRef).all();
+  const message = orderMessage(order,items.results || [],env.ORDER_EMAIL_FROM,{existing:true});
+  message.subject = `Updated order details ${orderRef} | Alivia's Treasured Threads`;
+  const response = await fetch('https://api.resend.com/emails', {method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':`att-shipping-copy-v1/${orderRef}`},body:JSON.stringify(message),signal:AbortSignal.timeout(15000)});
+  const data = await response.json().catch(()=>null);
+  return response.ok && data?.id ? {accepted:true,id:data.id} : {accepted:false,status:response.status};
 }

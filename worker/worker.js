@@ -1,4 +1,4 @@
-import { emailEnabled, enqueuePaidEmail, flushOrderEmails, sendTestEmail } from './order-email.mjs';
+import { emailEnabled, enqueuePaidEmail, flushOrderEmails, sendTestEmail, sendOrderCopy } from './order-email.mjs';
 /* Alivia's Treasured Threads API: reviews plus test-mode Stripe Checkout. */
 const REPO = 'Arcane-Designer/alivias-treasured-threads';
 const DEFAULT_CATALOG_URL = 'https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json';
@@ -22,6 +22,11 @@ export default {
     const cors = corsHeaders(origin);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     try {
+      if (request.method === 'POST' && url.pathname === '/order-email/copy') {
+        if (!(await isAlivia(request))) return json({ error: 'unauthorized' }, 401, cors);
+        const body = await request.json();
+        return json(await sendOrderCopy(env, body.orderRef), 200, cors);
+      }
       if (request.method === 'POST' && url.pathname === '/order-email/test') {
         if (!(await isAlivia(request))) return json({ error: 'unauthorized' }, 401, cors);
         return json(await sendTestEmail(env), 200, cors);
