@@ -29,6 +29,14 @@ assert.equal(params.get('automatic_tax[enabled]'), null, 'Stripe Tax must stay d
 assert.match(params.get('success_url'), /\{CHECKOUT_SESSION_ID\}/);
 assert.equal(params.get('line_items[0][price_data][unit_amount]'), '600');
 
+// Verify the deployed configuration and basket agree on free shipping.
+const deploymentConfig = JSON.parse(await readFile(new URL('./wrangler.jsonc', import.meta.url), 'utf8'));
+assert.equal(catalog.settings.standardShippingCents, 0);
+assert.equal(deploymentConfig.vars.SHIPPING_RATE_CENTS, '0');
+const freeShippingParams = buildStripeSessionParams(cart, deploymentConfig.vars, 'ATT-FREE-SHIPPING', 2000000000);
+assert.equal(freeShippingParams.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '0');
+assert.equal(freeShippingParams.get('line_items[0][price_data][unit_amount]'), String(cart.subtotal));
+
 const webhookSecret = 'whsec_fixture_only';
 const timestamp = 1900000000;
 const payload = JSON.stringify({ id: 'evt_fixture', type: 'checkout.session.completed', data: { object: { id: 'cs_test_fixture', livemode: false, payment_status: 'paid', client_reference_id: 'ATT-TESTORDER', amount_total: 1200, customer_details: { email: 'safe@example.invalid', name: 'Fixture' }, shipping_details: { address: { country: 'US' } } } } });
