@@ -23,19 +23,21 @@ export async function flushCustomerEmails(env, now = Math.floor(Date.now()/1000)
   }});
 }
 export function customerReviewMessage(from, variant='shipping') {
-  if (!['shipping','missing-address'].includes(variant)) throw new Error('Invalid review variant');
+  if (!['shipping','missing-address','seller'].includes(variant)) throw new Error('Invalid review variant');
   const order={order_ref:'ATT-REVIEW-ONLY',currency:'usd',customer_name:'Nathan (review sample)',customer_email:REVIEW_RECIPIENT,
     subtotal_cents:2800,shipping_cents:0,total_cents:2800,paid_at:1788800400,
-    shipping_json:variant==='shipping'?JSON.stringify({name:'Nathan (review sample)',address:{line1:'123 Example Lane',line2:'Unit 2',city:'Sample City',state:'WA',postal_code:'00000',country:'US'}}):null};
-  const message=customerMessage(order,[{display_name:'Strawberry Zipper Pouch'},{display_name:'Lemon Blueberry Zipper Pouch'}],from);
-  message.subject=`[REVIEW TEST: ${variant}] Your order is confirmed | Alivia's Treasured Threads`;
+    shipping_json:variant!=='missing-address'?JSON.stringify({name:'Nathan (review sample)',address:{line1:'123 Example Lane',line2:'Unit 2',city:'Sample City',state:'WA',postal_code:'00000',country:'US'}}):null};
+  const items=[{display_name:'Strawberry Zipper Pouch'},{display_name:'Lemon Blueberry Zipper Pouch'}];
+  const message=variant==='seller'?orderMessage(order,items,from):customerMessage(order,items,from);
+  message.to=[REVIEW_RECIPIENT];
+  message.subject=`[REVIEW TEST: ${variant}] ${variant==='seller'?'New paid order':'Your order is confirmed'} | Alivia's Treasured Threads`;
   message.text='REVIEW SAMPLE ONLY. Fictional order and address. No purchase or charge occurred.\n\n'+message.text;
   message.html=message.html.replace('<table role="presentation" width="100%"', '<div style="padding:16px;background:#fff4ce;text-align:center;font:13px Arial;color:#594700;">REVIEW SAMPLE ONLY. Fictional order and address. No purchase or charge occurred.</div><table role="presentation" width="100%"');
   return message;
 }
 export async function sendCustomerReview(env,variant) {
   const message=customerReviewMessage(env.ORDER_EMAIL_FROM,variant);
-  const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':`att-customer-review-v1/${variant}`},body:JSON.stringify(message),signal:AbortSignal.timeout(15000)});
+  const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':`att-logo-review-v2/${variant}`},body:JSON.stringify(message),signal:AbortSignal.timeout(15000)});
   const data=await response.json().catch(()=>null);
   return response.ok && data?.id ? {accepted:true,id:data.id,to:REVIEW_RECIPIENT} : {accepted:false,status:response.status};
 }

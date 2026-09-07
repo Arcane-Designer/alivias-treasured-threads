@@ -26,7 +26,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/customer-email/review') {
         if (!(await isAlivia(request))) return json({error:'unauthorized'},401,cors);
         const body=await request.json().catch(()=>({}));
-        if (!['shipping','missing-address'].includes(body.variant)) return json({error:'invalid variant'},400,cors);
+        if (!['shipping','missing-address','seller'].includes(body.variant)) return json({error:'invalid variant'},400,cors);
         return json(await sendCustomerReview(env,body.variant),200,cors);
       }
       if (request.method === 'POST' && url.pathname === '/order-email/copy') {

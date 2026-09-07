@@ -35,8 +35,8 @@
     "CATALOG_URL": "https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json",
     "ORDER_EMAIL_ENABLED": "true",
     "ORDER_EMAIL_FROM": "Alivia's Treasured Threads <orders@orders.aliviastreasuredthreads.com>",
-    "CUSTOMER_EMAIL_ENABLED": "false",
-    "CUSTOMER_EMAIL_START_AT": "0"
+    "CUSTOMER_EMAIL_ENABLED": "true",
+    "CUSTOMER_EMAIL_START_AT": "1788797516"
   },
   "triggers": {
     "crons": [

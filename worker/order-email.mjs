@@ -38,6 +38,7 @@ export function orderMessage(order, items, from, { existing = false, customer = 
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6f2f8;"><tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e6deec;border-radius:18px;overflow:hidden;">
 <tr><td style="padding:30px 28px;background:#4e365e;color:#ffffff;text-align:center;">
+<img src="https://aliviastreasuredthreads.com/images/brand/logo.jpg" width="132" height="132" alt="Alivia’s Treasured Threads logo" style="display:block;margin:0 auto 20px;border:0;border-radius:14px;">
 <p style="margin:0 0 10px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#e8d6ef;">A little handmade happiness</p>
 <p style="margin:0;font-family:Georgia,serif;font-size:28px;line-height:1.25;">Alivia’s Treasured Threads</p>
 <p style="margin:12px 0 0;font-size:12px;color:#e8d6ef;">Handmade with love, one stitch at a time.</p></td></tr>

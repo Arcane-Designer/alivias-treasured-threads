@@ -1,6 +1,6 @@
 # Customer order confirmation
 
-Status: implemented and deployed for review on 2026-09-07. CUSTOMER_EMAIL_ENABLED=false and CUSTOMER_EMAIL_START_AT=0. No automatic customer delivery is active. Seller order alerts remain enabled.
+Status: enabled on 2026-09-07 after Nathan and Alivia approved the emails with the logo addition. CUSTOMER_EMAIL_ENABLED=true, CUSTOMER_EMAIL_START_AT=1788797516. Seller alerts and customer confirmations include the existing public brand logo. Worker version fef8bc3a-a2dc-4b64-8cca-3fc0f94f642b. Only orders created on or after this cutoff can qualify. Production customer queue verified empty after activation; no historical order was queued.
 
 Nathan requested review emails only to nathanagellatly@gmail.com and no messages to past customers. Two fictional samples were accepted by Resend:
 - Shipping-address sample: 3ae594d8-8047-4f44-956e-ac93bf2c16cd
@@ -10,7 +10,7 @@ Worker version: 69517c5f-0749-4d9c-8464-89ae2563055f. Customer queue schema appl
 
 ## Review and activation
 
-After Nathan approves the customer email, set CUSTOMER_EMAIL_START_AT to the current Unix timestamp at activation (never backdate), and CUSTOMER_EMAIL_ENABLED=true. Deploy and verify the resulting config and customer queue. Do not backfill any orders. Do not change seller notification settings.
+Activation is complete. Preserve the cutoff 1788797516 in future deploys; never backdate it or backfill past orders. Seller settings remain enabled.
 
 A customer notification is queued only in the verified paid transition transaction, while the prior status is not paid, and only if the order was created on or after the cutoff. This excludes historical paid records and older checkouts whose callbacks arrive late. The sender also checks the activation flag. No customer resend/copy endpoint is provided.
 
@@ -26,4 +26,4 @@ node worker/inventory.test.mjs
 node worker/worker.test.mjs
 node scripts/validate.mjs
 
-Tests cover cutoff exclusion, historical paid and pending orders, signed paid/unpaid callbacks, duplicate callbacks, disabled delivery, stable retry payloads, concurrent claims, HTML escaping, customer reply-to, merchant-link exclusion and fixed review recipients. Browser preview verified the shipping layout. Inbox appearance and approval remain with Nathan.
+Tests cover cutoff exclusion, historical paid and pending orders, signed paid/unpaid callbacks, duplicate callbacks, disabled delivery, stable retry payloads, concurrent claims, HTML escaping, customer reply-to, merchant-link exclusion and fixed review recipients. Browser preview verified the shipping layout. Nathan and Alivia approved the first review emails. Updated customer and seller logo samples were accepted by Resend for Nathan only: 600c4193-df04-41fc-ab8c-dd5080551e45 and 5cc163cf-1baa-4833-b8b2-f1d6c6240457. Logo rendering was visually checked in the browser.
