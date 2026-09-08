@@ -129,6 +129,24 @@
   },
   "products": [
     {
+      "id": "p-mts1elx2rrs3",
+      "name": "Coin Pouch",
+      "price": 10,
+      "priceLabel": "$10",
+      "description": "The perfect size for change or cards, these little pouches have a zipper closure and a loop for attaching to your bag or keychain!",
+      "category": "Bags & Pouches",
+      "theme": "",
+      "badges": [
+        "NEW!"
+      ],
+      "archived": false,
+      "oneOfAKind": false,
+      "images": [
+        "images/uploads/coin-pouch-mts1g1ekptv.jpg"
+      ],
+      "listings": []
+    },
+    {
       "id": "p-msur1234kr0k",
       "name": "Apple Cider Bundle",
       "category": "Bundles",
@@ -152,6 +170,63 @@
       "saleLabel": "",
       "theme": "Fall",
       "tag": ""
+    },
+    {
+      "id": "p-mts18jjgzx8o",
+      "name": "Fall Bundles",
+      "price": 49,
+      "priceLabel": "$49",
+      "description": "Fall Bundles include one Jackie’s Mini Tote, one zipper pouch, and one coin pouch! Buy it all together for a discount",
+      "category": "Bundles",
+      "theme": "",
+      "badges": [
+        "Sale!"
+      ],
+      "archived": false,
+      "oneOfAKind": false,
+      "images": [
+        "images/uploads/fall-bundles-mts1e0nwdo6.jpg",
+        "images/uploads/fall-bundles-mts1e0pe4ic.jpg",
+        "images/uploads/fall-bundles-mts1e0qtuew.jpg",
+        "images/uploads/fall-bundles-mts1e0s8p81.jpg"
+      ],
+      "listings": [
+        {
+          "id": "l-mts1d3rbml78",
+          "name": "Yellow Fall Bundle",
+          "images": [
+            "images/uploads/listing-mts1cw60wqu.jpg",
+            "images/uploads/listing-mts1cw7iwsh.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
+          "id": "l-mts1cl6ejv0p",
+          "name": "Blue Fall Bundle",
+          "images": [
+            "images/uploads/blue-fall-bundle-mts1cixeosk.jpg",
+            "images/uploads/blue-fall-bundle-mts1ciyzy1n.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
+          "id": "l-mts1c80ym2ra",
+          "name": "Orange Fall Bundle",
+          "images": [
+            "images/uploads/orange-fall-bundle-mts1c1gexrp.jpg",
+            "images/uploads/orange-fall-bundle-mts1c1hx3z4.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        }
+      ],
+      "salePrice": 44,
+      "saleLabel": ""
     },
     {
       "id": "p-mrsqof4x8ebz",
