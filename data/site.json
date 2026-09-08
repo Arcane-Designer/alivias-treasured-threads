@@ -144,7 +144,68 @@
       "images": [
         "images/uploads/coin-pouch-mts1g1ekptv.jpg"
       ],
-      "listings": []
+      "listings": [
+        {
+          "id": "l-mts1q14wf5ms",
+          "name": "Autumn Foliage Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1pu6rkq1.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
+          "id": "l-mts1pqfy89rx",
+          "name": "Cozy Pumpkin Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1pjms9v3.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
+          "id": "l-mts1pflj47yi",
+          "name": "Apple Spice Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1pahq5b4.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
+          "id": "l-mts1p4tlwo92",
+          "name": "Dark Harvest Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1ot5ewfu.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
+          "id": "l-mts1oov1ejf7",
+          "name": "Great Pumpkin Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1nujjc7k.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
+          "id": "l-mts1nq1561rp",
+          "name": "Yellow Pumpkin Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1nh8c073.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        }
+      ]
     },
     {
       "id": "p-msur1234kr0k",
@@ -429,6 +490,16 @@
       ],
       "listings": [
         {
+          "id": "l-mts1lt03yqqm",
+          "name": "Autumn Plaid Zipper Pouch",
+          "images": [
+            "images/uploads/listing-mts1lfyk07l.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": ""
+        },
+        {
           "id": "l-mtdcq37d2jg6",
           "name": "Yellow Strawberry Zipper Pouch",
           "images": [
@@ -479,16 +550,6 @@
           ],
           "sold": false,
           "theme": "Summer",
-          "tag": ""
-        },
-        {
-          "id": "zp-fall",
-          "name": "Fall Pattern Zipper Pouch",
-          "images": [
-            "images/available/fall-pattern-zipper-pouch.jpg"
-          ],
-          "sold": true,
-          "theme": "",
           "tag": ""
         },
         {
@@ -966,6 +1027,20 @@
     }
   ],
   "archive": [
+    {
+      "id": "zp-fall",
+      "name": "Fall Pattern Zipper Pouch",
+      "images": [
+        "images/available/fall-pattern-zipper-pouch.jpg"
+      ],
+      "sold": true,
+      "theme": "",
+      "tag": "",
+      "kind": "listing",
+      "productId": "zipper-pouch",
+      "productName": "Zipper Pouch",
+      "archivedAt": "2026-09-07"
+    },
     {
       "id": "l-mtq6bialk586",
       "name": "Meddy",
