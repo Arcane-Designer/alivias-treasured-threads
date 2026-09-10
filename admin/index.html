@@ -47,6 +47,7 @@
           </div>
         </div>
         <div class="studio-actions">
+          <button class="ghost-btn" id="ordersBtn">🧾 <span class="hide-sm">Orders</span></button>
           <a class="ghost-btn" id="viewSiteBtn" href="../" target="_blank" rel="noopener">🛍️ <span class="hide-sm">See my shop</span></a>
           <button class="ghost-btn" id="logoutBtn">👋 <span class="hide-sm">Log out</span></button>
         </div>
@@ -462,6 +463,49 @@
   </div>
 
   <!-- ================= CATEGORY MANAGER ================= -->
+  <div class="orders-overlay" id="ordersOverlay" hidden>
+    <aside class="orders-drawer" role="dialog" aria-modal="true" aria-labelledby="ordersTitle">
+      <div class="orders-head">
+        <div><span class="settings-kicker">Customers and follow-ups</span><h2 id="ordersTitle">Orders</h2></div>
+        <button class="icon-btn" id="ordersClose" aria-label="Close orders">×</button>
+      </div>
+      <div class="orders-toolbar">
+        <button type="button" class="btn btn-teal btn-small" id="manualOrderAdd">+ Add a sale</button>
+        <button type="button" class="ghost-btn" id="ordersRefresh">↻ Refresh</button>
+      </div>
+      <p class="orders-note">Website purchases appear here automatically. Add in-person or Instagram sales yourself.</p>
+      <div class="orders-status" id="ordersStatus" aria-live="polite"></div>
+      <div class="orders-list" id="ordersList"></div>
+    </aside>
+  </div>
+
+  <div class="confirm-overlay" id="manualOrderOverlay" hidden>
+    <div class="order-modal" role="dialog" aria-modal="true" aria-labelledby="manualOrderTitle">
+      <div class="picker-head"><h3 id="manualOrderTitle">Add a sale</h3><button class="icon-btn" id="manualOrderClose" aria-label="Close">×</button></div>
+      <input type="hidden" id="manualOrderId">
+      <div class="field-row"><div class="field-group"><label class="field-label" for="manualOrderName">Customer name</label><input class="field-input" id="manualOrderName" type="text" maxlength="80" placeholder="Optional"></div><div class="field-group"><label class="field-label" for="manualOrderEmail">Email <span class="req">*</span></label><input class="field-input" id="manualOrderEmail" type="email" maxlength="254"></div></div>
+      <div class="field-group"><label class="field-label" for="manualOrderItems">Item or items</label><input class="field-input" id="manualOrderItems" type="text" maxlength="500" placeholder="For example, fall tote and coin pouch"></div>
+      <div class="field-row"><div class="field-group"><label class="field-label" for="manualOrderDate">Sale date</label><input class="field-input" id="manualOrderDate" type="date"></div><div class="field-group"><label class="field-label" for="manualOrderShipping">Shipping or pickup details</label><input class="field-input" id="manualOrderShipping" type="text" maxlength="500" placeholder="Optional"></div></div>
+      <div class="field-group"><label class="field-label" for="manualOrderNotes">Private notes</label><textarea class="field-input" id="manualOrderNotes" rows="3" maxlength="800"></textarea></div>
+      <p class="form-error" id="manualOrderError" aria-live="polite"></p>
+      <div class="picker-foot"><button class="ghost-btn" id="manualOrderCancel">Never mind</button><button class="btn btn-gradient" id="manualOrderSave">Save sale ✓</button></div>
+    </div>
+  </div>
+
+  <div class="confirm-overlay" id="thankYouOverlay" hidden>
+    <div class="thank-you-modal" role="dialog" aria-modal="true" aria-labelledby="thankYouTitle">
+      <div class="picker-head"><div><span class="settings-kicker">Review before sending</span><h3 id="thankYouTitle">Thank-you email</h3></div><button class="icon-btn" id="thankYouClose" aria-label="Close">×</button></div>
+      <p class="thank-you-recipient" id="thankYouRecipient"></p>
+      <div class="field-group"><label class="field-label" for="thankYouSubject">Subject</label><input class="field-input" id="thankYouSubject" maxlength="140"></div>
+      <div class="field-group"><label class="field-label" for="thankYouMessage">Message</label><textarea class="field-input" id="thankYouMessage" rows="5" maxlength="1200"></textarea></div>
+      <div class="email-preview-wrap"><iframe id="thankYouPreview" title="Thank-you email preview"></iframe></div>
+      <label class="received-check"><input type="checkbox" id="receivedConfirmed"><span>I know this customer has received their item.</span></label>
+      <p class="form-error" id="thankYouError" aria-live="polite"></p>
+      <div class="picker-foot"><button class="ghost-btn" id="thankYouCancel">Never mind</button><button class="btn btn-pink" id="thankYouSend" disabled>Send thank-you 💌</button></div>
+    </div>
+  </div>
+
+  <!-- ================= CATEGORY MANAGER ================= -->
   <div class="category-overlay" id="categoryOverlay" hidden>
     <div class="category-card" role="dialog" aria-modal="true" aria-labelledby="categoryManagerTitle">
       <div class="picker-head">
@@ -629,6 +673,11 @@
   <script>
     var s = document.createElement('script');
     s.src = 'admin.js?v=' + Date.now();
+    s.onload = function () {
+      var orders = document.createElement('script');
+      orders.src = 'orders.js?v=' + Date.now();
+      document.body.appendChild(orders);
+    };
     document.body.appendChild(s);
   </script>
 </body>

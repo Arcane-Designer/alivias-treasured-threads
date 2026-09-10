@@ -1,5 +1,6 @@
 import {customerEmailEnabled,enqueueCustomerEmail,flushCustomerEmails,sendCustomerReview} from './customer-email.mjs';
 import { emailEnabled, enqueuePaidEmail, flushOrderEmails, sendTestEmail, sendOrderCopy } from './order-email.mjs';
+import {listStudioOrders,saveManualOrder,deleteManualOrder,previewThankYou,queueThankYou,flushThankYous} from './thank-you-email.mjs';
 /* Alivia's Treasured Threads API: reviews plus test-mode Stripe Checkout. */
 const REPO = 'Arcane-Designer/alivias-treasured-threads';
 const DEFAULT_CATALOG_URL = 'https://raw.githubusercontent.com/Arcane-Designer/alivias-treasured-threads/main/data/site.json';
@@ -23,6 +24,27 @@ export default {
     const cors = corsHeaders(origin);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     try {
+      if (url.pathname === '/studio/orders' || url.pathname === '/studio/manual-orders' || url.pathname.startsWith('/studio/manual-orders/') || url.pathname === '/thank-you/preview' || url.pathname === '/thank-you/send') {
+        if (!(await isAlivia(request))) return json({error:'unauthorized'},401,cors);
+        try {
+          if (request.method === 'GET' && url.pathname === '/studio/orders') return json({orders:await listStudioOrders(env)},200,cors);
+          if (request.method === 'POST' && url.pathname === '/studio/manual-orders') return json(await saveManualOrder(env,await request.json()),200,cors);
+          if (request.method === 'PUT' && url.pathname.startsWith('/studio/manual-orders/')) {
+            const body=await request.json();
+            return json(await saveManualOrder(env,{...body,id:decodeURIComponent(url.pathname.slice('/studio/manual-orders/'.length))}),200,cors);
+          }
+          if (request.method === 'DELETE' && url.pathname.startsWith('/studio/manual-orders/')) return json(await deleteManualOrder(env,decodeURIComponent(url.pathname.slice('/studio/manual-orders/'.length))),200,cors);
+          if (request.method === 'POST' && url.pathname === '/thank-you/preview') return json(await previewThankYou(env,await request.json()),200,cors);
+          if (request.method === 'POST' && url.pathname === '/thank-you/send') {
+            const result=await queueThankYou(env,await request.json());
+            await flushThankYous(env);
+            return json(result,200,cors);
+          }
+          return json({error:'not found'},404,cors);
+        } catch (error) {
+          return json({error:safeError(error)},400,cors);
+        }
+      }
       if (request.method === 'POST' && url.pathname === '/customer-email/review') {
         if (!(await isAlivia(request))) return json({error:'unauthorized'},401,cors);
         const body=await request.json().catch(()=>({}));
@@ -67,7 +89,7 @@ export default {
 };
 
 async function flushNotifications(env) {
-  const results=await Promise.allSettled([flushOrderEmails(env),flushCustomerEmails(env)]);
+  const results=await Promise.allSettled([flushOrderEmails(env),flushCustomerEmails(env),flushThankYous(env)]);
   if (results.some(result=>result.status==='rejected')) console.error('Notification queue processing failed');
 }
 
@@ -75,7 +97,7 @@ function safeError(error) { return error instanceof Error ? error.message : Stri
 function corsHeaders(origin) {
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Max-Age': '86400', Vary: 'Origin',
   };
