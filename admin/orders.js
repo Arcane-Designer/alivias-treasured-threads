@@ -3,7 +3,7 @@
   const TOKEN_KEY='att-studio-token';
   const defaults={
     subject:"A little thank-you from Alivia's Treasured Threads",
-    message:"Thank you so much for your purchase. I hope you love your handmade treasure! If you have a moment, I'd be so grateful if you left a review. Your note helps my little shop more than you know."
+    message:"Thank you so much for your purchase. I hope you love your homemade treasure! If you have a moment, I'd be so grateful if you left a review. Your note helps my little shop more than you know."
   };
   const $=id=>document.getElementById(id);
   const esc=value=>String(value==null?'':value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -60,7 +60,7 @@
           ${order.shippingText?`<div class="order-detail"><span class="order-detail-label">Shipping or pickup</span>${esc(order.shippingText).replaceAll('\n','<br>')}</div>`:''}
           ${order.notes?`<div class="order-detail"><span class="order-detail-label">Private notes</span>${esc(order.notes)}</div>`:''}
           <div class="order-detail"><span class="order-detail-label">Order</span>${esc(order.id)}</div>
-        </div><div class="order-actions"><button type="button" class="btn btn-pink btn-small order-thank-you" data-key="${esc(order.sourceType+':'+order.id)}">Send thank-you 💌</button>
+        </div><div class="order-actions"><button type="button" class="btn btn-pink btn-small order-thank-you" data-key="${esc(order.sourceType+':'+order.id)}" ${order.customer_email?'':'disabled title="Add an email address before sending"'}>${order.customer_email?'Send thank-you 💌':'Add email to send'}</button>
           ${order.sourceType==='manual'?`<button type="button" class="ghost-btn manual-edit" data-key="${esc(order.sourceType+':'+order.id)}">Edit</button><button type="button" class="ghost-btn danger manual-delete" data-key="${esc(order.sourceType+':'+order.id)}">Delete</button>`:''}${sentLabel(order.thankYou)}</div></div>
       </details>`;
     }).join('');
@@ -90,6 +90,7 @@
   function closeOrders() { $('ordersOverlay').hidden=true; document.body.style.overflow=''; $('ordersBtn').focus(); }
 
   function openManual(order=null) {
+    $('ordersOverlay').hidden=true;
     $('manualOrderTitle').textContent=order?'Edit sale':'Add a sale';
     $('manualOrderId').value=order?.id||'';
     $('manualOrderName').value=order?.customer_name||'';
@@ -102,7 +103,7 @@
     $('manualOrderOverlay').hidden=false;
     $('manualOrderName').focus();
   }
-  function closeManual() { $('manualOrderOverlay').hidden=true; }
+  function closeManual() { $('manualOrderOverlay').hidden=true; $('ordersOverlay').hidden=false; document.body.style.overflow='hidden'; $('ordersClose').focus(); }
 
   async function saveManual() {
     const date=$('manualOrderDate').value;
@@ -125,11 +126,14 @@
   }
 
   function openThankYou(order) {
+    if (!order.customer_email) return;
+    $('ordersOverlay').hidden=true;
     activeOrder=order;
     sendRequestId=crypto.randomUUID();
     $('thankYouRecipient').textContent='To: '+(order.customer_name||'Customer')+' <'+(order.customer_email||'no email')+'>';
     $('thankYouSubject').value=defaults.subject;
     $('thankYouMessage').value=defaults.message;
+    $('thankYouItemLine').value=order.itemsText?`I hope you're enjoying ${order.itemsText}.`:'';
     $('receivedConfirmed').checked=false;
     $('thankYouSend').disabled=true;
     $('thankYouError').textContent='';
@@ -137,12 +141,12 @@
     $('thankYouOverlay').hidden=false;
     updatePreview();
   }
-  function closeThankYou() { $('thankYouOverlay').hidden=true; activeOrder=null; }
+  function closeThankYou() { $('thankYouOverlay').hidden=true; activeOrder=null; $('ordersOverlay').hidden=false; document.body.style.overflow='hidden'; $('ordersClose').focus(); }
 
   async function updatePreview() {
     if (!activeOrder) return;
     try {
-      const result=await api('/thank-you/preview',{method:'POST',body:JSON.stringify({sourceType:activeOrder.sourceType,sourceId:activeOrder.id,subject:$('thankYouSubject').value,message:$('thankYouMessage').value})});
+      const result=await api('/thank-you/preview',{method:'POST',body:JSON.stringify({sourceType:activeOrder.sourceType,sourceId:activeOrder.id,subject:$('thankYouSubject').value,message:$('thankYouMessage').value,itemLine:$('thankYouItemLine').value})});
       $('thankYouPreview').srcdoc=result.html;
       $('thankYouError').textContent='';
     } catch (error) { $('thankYouError').textContent=error.message; }
@@ -156,7 +160,7 @@
     $('thankYouSend').textContent='Sending...';
     $('thankYouError').textContent='';
     try {
-      await api('/thank-you/send',{method:'POST',body:JSON.stringify({sourceType:activeOrder.sourceType,sourceId:activeOrder.id,subject:$('thankYouSubject').value,message:$('thankYouMessage').value,receivedConfirmed:true,requestId:sendRequestId})});
+      await api('/thank-you/send',{method:'POST',body:JSON.stringify({sourceType:activeOrder.sourceType,sourceId:activeOrder.id,subject:$('thankYouSubject').value,message:$('thankYouMessage').value,itemLine:$('thankYouItemLine').value,receivedConfirmed:true,requestId:sendRequestId})});
       closeThankYou();
       await loadOrders();
       $('ordersStatus').textContent='Thank-you sent or safely queued for delivery.';
@@ -175,6 +179,7 @@
   $('thankYouCancel').addEventListener('click',closeThankYou);
   $('thankYouSubject').addEventListener('input',schedulePreview);
   $('thankYouMessage').addEventListener('input',schedulePreview);
+  $('thankYouItemLine').addEventListener('input',schedulePreview);
   $('receivedConfirmed').addEventListener('change',()=>{$('thankYouSend').disabled=!$('receivedConfirmed').checked;});
   $('thankYouSend').addEventListener('click',sendThankYou);
   $('ordersList').addEventListener('click',event=>{

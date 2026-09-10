@@ -1,6 +1,6 @@
 const REVIEW_URL = 'https://aliviastreasuredthreads.com/reviews/';
 const DEFAULT_SUBJECT = "A little thank-you from Alivia's Treasured Threads";
-const DEFAULT_MESSAGE = "Thank you so much for your purchase. I hope you love your handmade treasure! If you have a moment, I'd be so grateful if you left a review. Your note helps my little shop more than you know.";
+const DEFAULT_MESSAGE = "Thank you so much for your purchase. I hope you love your homemade treasure! If you have a moment, I'd be so grateful if you left a review. Your note helps my little shop more than you know.";
 
 const clean = (value, max = 500) => String(value || '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 const emailOk = value => /^[^\s@,<>]+@[^\s@,<>]+\.[^\s@,<>]+$/.test(String(value || ''));
@@ -22,7 +22,7 @@ function addressText(raw) {
     .filter(Boolean).map(value => clean(value, 120)).join('\n');
 }
 
-export function thankYouMessage({customerName, customerEmail, itemsText, subject, message}, from) {
+export function thankYouMessage({customerName, customerEmail, itemsText, subject, message, itemLine}, from) {
   const recipient = clean(customerEmail, 254).toLowerCase();
   if (!emailOk(recipient)) throw new Error('Customer email missing or invalid');
   const name = firstName(customerName);
@@ -30,15 +30,15 @@ export function thankYouMessage({customerName, customerEmail, itemsText, subject
   const safeSubject = clean(subject, 140) || DEFAULT_SUBJECT;
   const body = clean(message, 1200) || DEFAULT_MESSAGE;
   const pieces = clean(itemsText, 500);
-  const itemLine = pieces ? `I hope you're enjoying ${pieces}.` : '';
-  const text = [greeting, '', body, itemLine, '', 'Leave a review:', REVIEW_URL, '', 'With love,', 'Alivia', "Alivia's Treasured Threads"].filter((line, index, all) => line || all[index - 1]).join('\n');
+  const purchaseLine = itemLine === undefined ? (pieces ? `I hope you're enjoying ${pieces}.` : '') : clean(itemLine, 500);
+  const text = [greeting, '', body, purchaseLine, '', 'Leave a review:', REVIEW_URL, '', 'With love,', 'Alivia', "Alivia's Treasured Threads"].filter((line, index, all) => line || all[index - 1]).join('\n');
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f7f2f8;color:#35283e;font-family:Arial,Helvetica,sans-serif;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f2f8;"><tr><td align="center" style="padding:30px 14px;">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background:#fff;border:1px solid #e6deec;border-radius:18px;overflow:hidden;">
-<tr><td style="padding:28px;background:#4e365e;text-align:center;color:#fff;"><img src="https://aliviastreasuredthreads.com/images/brand/logo.jpg" width="118" height="118" alt="Alivia's Treasured Threads logo" style="display:block;margin:0 auto 17px;border:0;border-radius:14px;"><p style="margin:0;font:28px Georgia,serif;">Alivia's Treasured Threads</p><p style="margin:9px 0 0;font-size:12px;color:#e8d6ef;">Handmade with love, one stitch at a time.</p></td></tr>
-<tr><td style="padding:32px 30px;"><p style="margin:0 0 18px;font:24px Georgia,serif;color:#4e365e;">${esc(greeting)}</p><p style="margin:0;font-size:15px;line-height:1.75;color:#5f5268;">${esc(body)}</p>${itemLine ? `<p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#5f5268;">${esc(itemLine)}</p>` : ''}<table role="presentation" cellspacing="0" cellpadding="0" style="margin:26px 0 20px;"><tr><td bgcolor="#8E79DD" style="border-radius:9px;"><a href="${REVIEW_URL}" style="display:inline-block;padding:15px 24px;color:#fff;text-decoration:none;font-size:14px;font-weight:bold;">Leave a review 💜</a></td></tr></table><p style="margin:0;font-size:14px;line-height:1.7;color:#5f5268;">With love,<br><strong>Alivia</strong></p></td></tr>
-<tr><td style="padding:18px 28px;border-top:1px dashed #d8c8e1;text-align:center;font-size:11px;color:#82728b;">Thank you for supporting my handmade shop.</td></tr></table></td></tr></table></body></html>`;
+<tr><td style="padding:28px;background:#4e365e;text-align:center;color:#fff;"><img src="https://aliviastreasuredthreads.com/images/brand/logo.jpg" width="118" height="118" alt="Alivia's Treasured Threads logo" style="display:block;margin:0 auto 17px;border:0;border-radius:14px;"><p style="margin:0;font:28px Georgia,serif;">Alivia's Treasured Threads</p><p style="margin:9px 0 0;font-size:12px;color:#e8d6ef;">Homemade with love, one stitch at a time.</p></td></tr>
+<tr><td style="padding:32px 30px;"><p style="margin:0 0 18px;font:24px Georgia,serif;color:#4e365e;">${esc(greeting)}</p><p style="margin:0;font-size:15px;line-height:1.75;color:#5f5268;">${esc(body)}</p>${purchaseLine ? `<p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#5f5268;">${esc(purchaseLine)}</p>` : ''}<table role="presentation" cellspacing="0" cellpadding="0" style="margin:26px 0 20px;"><tr><td bgcolor="#8E79DD" style="border-radius:9px;"><a href="${REVIEW_URL}" style="display:inline-block;padding:15px 24px;color:#fff;text-decoration:none;font-size:14px;font-weight:bold;">Leave a review 💜</a></td></tr></table><p style="margin:0;font-size:14px;line-height:1.7;color:#5f5268;">With love,<br><strong>Alivia</strong></p></td></tr>
+<tr><td style="padding:18px 28px;border-top:1px dashed #d8c8e1;text-align:center;font-size:11px;color:#82728b;">Thank you for supporting my homemade shop.</td></tr></table></td></tr></table></body></html>`;
   return {from, to:[recipient], reply_to:'aliviagellatly@gmail.com', subject:safeSubject, text, html};
 }
 
@@ -80,7 +80,7 @@ export async function listStudioOrders(env) {
 export async function saveManualOrder(env, body, now = Math.floor(Date.now()/1000)) {
   const id = clean(body.id, 80) || `manual-${crypto.randomUUID()}`;
   const email = clean(body.customerEmail, 254).toLowerCase();
-  if (!emailOk(email)) throw new Error('Add a valid customer email');
+  if (email && !emailOk(email)) throw new Error('Add a valid customer email or leave it blank');
   const saleAt = Number.isSafeInteger(Number(body.saleAt)) && Number(body.saleAt) > 0 ? Number(body.saleAt) : now;
   const existing = await env.ORDERS.prepare('SELECT id FROM manual_orders WHERE id=?').bind(id).first();
   if (body.id && !existing) throw new Error('Manual order not found');
@@ -102,7 +102,7 @@ export async function deleteManualOrder(env, id) {
 export async function previewThankYou(env, body) {
   const order = await resolveSource(env, body.sourceType, body.sourceId);
   if (!order) throw new Error('Order not found');
-  const message = thankYouMessage({customerName:order.customer_name,customerEmail:order.customer_email,itemsText:order.itemsText,subject:body.subject,message:body.message},env.ORDER_EMAIL_FROM);
+  const message = thankYouMessage({customerName:order.customer_name,customerEmail:order.customer_email,itemsText:order.itemsText,subject:body.subject,message:body.message,itemLine:body.itemLine},env.ORDER_EMAIL_FROM);
   return {recipient:order.customer_email,customerName:order.customer_name || '',itemsText:order.itemsText,subject:message.subject,text:message.text,html:message.html};
 }
 
@@ -112,10 +112,10 @@ export async function queueThankYou(env, body, now = Math.floor(Date.now()/1000)
   if (!/^[a-f0-9-]{36}$/i.test(requestId)) throw new Error('Invalid send request');
   const order = await resolveSource(env, body.sourceType, body.sourceId);
   if (!order) throw new Error('Order not found');
-  const message = thankYouMessage({customerName:order.customer_name,customerEmail:order.customer_email,itemsText:order.itemsText,subject:body.subject,message:body.message},env.ORDER_EMAIL_FROM);
+  const message = thankYouMessage({customerName:order.customer_name,customerEmail:order.customer_email,itemsText:order.itemsText,subject:body.subject,message:body.message,itemLine:body.itemLine},env.ORDER_EMAIL_FROM);
   await env.ORDERS.prepare(`INSERT OR IGNORE INTO thank_you_outbox
-    (id,source_type,source_id,recipient_email,customer_name,items_text,subject,message,state,next_attempt_at,created_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?)`).bind(requestId,body.sourceType,body.sourceId,order.customer_email,order.customer_name || '',order.itemsText,message.subject,clean(body.message,1200) || DEFAULT_MESSAGE,'pending',now,now).run();
+    (id,source_type,source_id,recipient_email,customer_name,items_text,subject,message,state,next_attempt_at,payload_json,created_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).bind(requestId,body.sourceType,body.sourceId,order.customer_email,order.customer_name || '',order.itemsText,message.subject,clean(body.message,1200) || DEFAULT_MESSAGE,'pending',now,JSON.stringify(message),now).run();
   return {ok:true,id:requestId};
 }
 

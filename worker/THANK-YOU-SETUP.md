@@ -6,8 +6,10 @@ Status: deployed and verified on 2026-09-09. The production schema, Worker, and 
 
 - Studio has an Orders drawer with paid website orders from D1.
 - Website order details are read-only and include items, customer name, email, shipping address, date, and total.
-- Alivia can add, edit, and delete manual sales for in-person or Instagram purchases.
+- Alivia can add, edit, and delete manual sales for in-person or Instagram purchases. Email is optional for recordkeeping, but required before a thank-you can be sent.
 - Each order can open a branded thank-you preview. A missing name becomes `Hi there,` and a missing item does not leave an empty placeholder.
+- The purchase note is filled from the recorded item name, then can be edited or removed before sending.
+- Thank-you copy describes the shop and treasures as homemade.
 - Sending requires a checked confirmation that the customer received the item.
 - Delivery uses Resend with a durable D1 outbox, retries, a stable provider idempotency key, and visible send state in Studio.
 - Existing seller alerts and customer purchase confirmations are unchanged.

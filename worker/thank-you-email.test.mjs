@@ -15,22 +15,31 @@ const fallback=thankYouMessage({customerEmail:'nathan@example.com'},env.ORDER_EM
 assert.match(fallback.text,/^Hi there,/);
 assert.doesNotMatch(fallback.text,/Hi ,|undefined|null/);
 assert.match(fallback.html,/Leave a review/);
+assert.match(fallback.html,/Homemade with love/);
+assert.match(fallback.html,/supporting my homemade shop/);
+assert.doesNotMatch(fallback.html,/handmade/i);
 
-await saveManualOrder(env,{customerEmail:'friend@example.com',itemsText:'Coin pouch',saleAt:50},10);
+await saveManualOrder(env,{itemsText:'Coin pouch',saleAt:50},10);
 let listed=await listStudioOrders(env);
 assert.equal(listed.length,2);
 assert.equal(listed[0].sourceType,'website');
 assert.match(listed[0].shippingText,/1 Main St/);
 const manual=listed.find(order=>order.sourceType==='manual');
+assert.equal(manual.customer_email,'');
+await assert.rejects(()=>previewThankYou(env,{sourceType:'manual',sourceId:manual.id}),/email missing/i);
 await saveManualOrder(env,{id:manual.id,customerName:'Friend Name',customerEmail:'friend@example.com',itemsText:'Two coin pouches',saleAt:50},20);
-const preview=await previewThankYou(env,{sourceType:'manual',sourceId:manual.id});
+const preview=await previewThankYou(env,{sourceType:'manual',sourceId:manual.id,itemLine:'I hope you enjoy your two pouches.'});
 assert.match(preview.text,/Hi Friend,/);
-assert.match(preview.text,/Two coin pouches/);
+assert.match(preview.text,/I hope you enjoy your two pouches\./);
+assert.doesNotMatch(preview.text,/I hope you're enjoying Two coin pouches/);
+const withoutPurchaseLine=await previewThankYou(env,{sourceType:'manual',sourceId:manual.id,itemLine:''});
+assert.doesNotMatch(withoutPurchaseLine.text,/Two coin pouches|I hope you're enjoying/);
 
 const requestId='11111111-1111-4111-8111-111111111111';
-await queueThankYou(env,{sourceType:'website',sourceId:'ATT-TEST000001',receivedConfirmed:true,requestId},1000);
+await queueThankYou(env,{sourceType:'website',sourceId:'ATT-TEST000001',itemLine:'I hope you enjoy your green bookmark.',receivedConfirmed:true,requestId},1000);
 await queueThankYou(env,{sourceType:'website',sourceId:'ATT-TEST000001',receivedConfirmed:true,requestId},1000);
 assert.equal(db.prepare('SELECT count(*) AS n FROM thank_you_outbox').get().n,1);
+assert.match(db.prepare('SELECT payload_json FROM thank_you_outbox WHERE id=?').get(requestId).payload_json,/green bookmark/);
 await assert.rejects(()=>queueThankYou(env,{sourceType:'website',sourceId:'ATT-TEST000001',receivedConfirmed:false,requestId:crypto.randomUUID()},1000),/received/);
 
 let calls=0;
