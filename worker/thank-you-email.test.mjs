@@ -44,5 +44,7 @@ try {
 
 assert.equal((await deleteManualOrder(env,manual.id)).ok,true);
 assert.equal((await listStudioOrders(env)).length,1);
-console.log('Thank-you flow checks passed: order history, manual CRUD, name fallback, preview, receipt gate, duplicate protection and delivery.');
+db.prepare("INSERT INTO studio_preferences (preference_key,preference_value,updated_at) VALUES ('archive-collapse',?,1) ON CONFLICT(preference_key) DO UPDATE SET preference_value=excluded.preference_value,updated_at=excluded.updated_at").run(JSON.stringify(['p:one','p:two']));
+assert.deepEqual(JSON.parse(db.prepare("SELECT preference_value FROM studio_preferences WHERE preference_key='archive-collapse'").get().preference_value),['p:one','p:two']);
+console.log('Thank-you flow checks passed: order history, manual CRUD, name fallback, preview, receipt gate, duplicate protection, delivery and saved Studio preference schema.');
 db.close();

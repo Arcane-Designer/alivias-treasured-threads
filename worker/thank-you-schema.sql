@@ -36,3 +36,9 @@ CREATE INDEX IF NOT EXISTS thank_you_source_idx
 
 CREATE INDEX IF NOT EXISTS thank_you_delivery_idx
   ON thank_you_outbox (state, next_attempt_at);
+
+CREATE TABLE IF NOT EXISTS studio_preferences (
+  preference_key TEXT PRIMARY KEY,
+  preference_value TEXT NOT NULL,
+  updated_at INTEGER NOT NULL
+);

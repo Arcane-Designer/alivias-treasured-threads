@@ -11,6 +11,7 @@ Status: built and locally verified on 2026-09-09. No production database migrati
 - Sending requires a checked confirmation that the customer received the item.
 - Delivery uses Resend with a durable D1 outbox, retries, a stable provider idempotency key, and visible send state in Studio.
 - Existing seller alerts and customer purchase confirmations are unchanged.
+- Archive product sections remember their collapsed state in a private Studio preference, with local device storage as a fallback.
 
 ## Production activation
 

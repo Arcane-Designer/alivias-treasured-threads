@@ -2183,6 +2183,30 @@
     const set = collapsedGroups();
     if (collapsed) set.add(key); else set.delete(key);
     try { localStorage.setItem(ARCHIVE_COLLAPSE_KEY, JSON.stringify([...set])); } catch (e) { /* ignore */ }
+    const base = inboxUrl();
+    if (base && token) fetch(base + '/studio/preferences/archive-collapse', {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ collapsed: [...set] }),
+    }).catch(() => { /* local preference still works on this device */ });
+  }
+
+  async function loadArchiveCollapsePreference() {
+    const base = inboxUrl();
+    if (!base || !token) return;
+    try {
+      const response = await fetch(base + '/studio/preferences/archive-collapse', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (!response.ok) return;
+      const result = await response.json();
+      if (!Array.isArray(result.collapsed)) return;
+      if (!result.saved) {
+        const local = [...collapsedGroups()];
+        if (local.length) setGroupCollapsed(local[0], true);
+        return;
+      }
+      localStorage.setItem(ARCHIVE_COLLAPSE_KEY, JSON.stringify(result.collapsed));
+      renderArchive();
+    } catch (e) { /* keep the last preference saved on this device */ }
   }
 
   /* a listing leaves its product and lands at the top of the archive, keeping
@@ -2906,7 +2930,7 @@
         p.hidden = p.id !== 'panel-' + tab.dataset.tab;
       });
       if (tab.dataset.tab === 'reviews') loadInbox(); /* fresh peek each visit */
-      if (tab.dataset.tab === 'archive') renderArchive();
+      if (tab.dataset.tab === 'archive') { renderArchive(); loadArchiveCollapsePreference(); }
     });
   });
 

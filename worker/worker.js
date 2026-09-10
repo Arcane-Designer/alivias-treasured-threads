@@ -45,6 +45,23 @@ export default {
           return json({error:safeError(error)},400,cors);
         }
       }
+      if (url.pathname === '/studio/preferences/archive-collapse') {
+        if (!(await isAlivia(request))) return json({error:'unauthorized'},401,cors);
+        if (request.method === 'GET') {
+          const row=await env.ORDERS.prepare("SELECT preference_value FROM studio_preferences WHERE preference_key='archive-collapse'").first();
+          let collapsed=[];
+          try { collapsed=JSON.parse(row?.preference_value||'[]'); } catch { collapsed=[]; }
+          return json({collapsed:Array.isArray(collapsed)?collapsed:[],saved:Boolean(row)},200,cors);
+        }
+        if (request.method === 'PUT') {
+          const body=await request.json().catch(()=>({}));
+          const collapsed=Array.isArray(body.collapsed)?body.collapsed.filter(value=>typeof value==='string'&&value.length<=100).slice(0,500):null;
+          if (!collapsed) return json({error:'invalid preference'},400,cors);
+          await env.ORDERS.prepare("INSERT INTO studio_preferences (preference_key,preference_value,updated_at) VALUES ('archive-collapse',?,?) ON CONFLICT(preference_key) DO UPDATE SET preference_value=excluded.preference_value,updated_at=excluded.updated_at").bind(JSON.stringify([...new Set(collapsed)]),Math.floor(Date.now()/1000)).run();
+          return json({ok:true},200,cors);
+        }
+        return json({error:'not found'},404,cors);
+      }
       if (request.method === 'POST' && url.pathname === '/customer-email/review') {
         if (!(await isAlivia(request))) return json({error:'unauthorized'},401,cors);
         const body=await request.json().catch(()=>({}));
