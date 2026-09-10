@@ -1,6 +1,6 @@
 # Order history and thank-you emails
 
-Status: built and locally verified on 2026-09-09. No production database migration, Worker deployment, customer email, or live website publication has been performed for this feature.
+Status: deployed and verified on 2026-09-09. The production schema, Worker, and Studio are live. No thank-you email has been sent.
 
 ## What it does
 
@@ -15,12 +15,12 @@ Status: built and locally verified on 2026-09-09. No production database migrati
 
 ## Production activation
 
-1. Apply `worker/thank-you-schema.sql` to the production `att-orders-production` D1 database.
-2. Deploy the Worker while preserving dashboard-managed variables and secrets.
-3. Publish the static Studio files through the normal GitHub Pages flow.
-4. Open Studio and verify existing paid orders appear without exposing the endpoint publicly.
-5. Locate Nathan's original paid test order, confirm its stored recipient, preview the email, and send only after Nathan gives fresh approval for that specific test.
-6. Confirm provider acceptance, inbox receipt, and the recorded sent status in Studio.
+- D1 schema applied to `att-orders-production`.
+- Worker version `0062ca18-de4b-46f5-aaa4-637b374f4030` deployed.
+- Studio published from commit `bb0e02657b09d8d9d79e8ea98a538638f90b622d`.
+- The authenticated order-history endpoint returns three existing paid website orders.
+- Nathan's original test order is `ATT-93D4FD4E7E`, for `Corner Bookmark - Green`.
+- The thank-you outbox was verified empty after deployment.
 
 Existing paid website orders require no backfill. They appear as soon as the authenticated order-history endpoint and schema are live. No historical customer is emailed automatically.
 
@@ -40,4 +40,4 @@ Run:
 
 `node scripts/validate.mjs`
 
-The order drawer and email preview must also be inspected at desktop and phone sizes before deployment.
+The order drawer and email preview were also inspected at desktop and phone sizes before deployment.
