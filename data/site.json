@@ -129,6 +129,49 @@
   },
   "products": [
     {
+      "id": "p-mu4ehyz1lk8e",
+      "name": "Halloween Bundle",
+      "price": 49,
+      "priceLabel": "$49",
+      "description": "Halloween themed bundles! Each includes a Jackie Mini Tote, a Coin Pouch, and a Zipper Pouch. Buy as a bundle for a discount",
+      "category": "Bags & Pouches",
+      "theme": "",
+      "badges": [
+        "NEW!"
+      ],
+      "archived": false,
+      "oneOfAKind": false,
+      "images": [
+        "images/uploads/halloween-bundle-mu4ejhzxxo8.jpg",
+        "images/uploads/halloween-bundle-mu4eji20ux1.jpg",
+        "images/uploads/halloween-bundle-mu4eji3xh6q.jpg"
+      ],
+      "listings": [
+        {
+          "id": "l-mu4eksipgcav",
+          "name": "Black Halloween Bundle",
+          "images": [
+            "images/uploads/black-halloween-bundle-mu4ekrpseek.jpg"
+          ],
+          "sold": false,
+          "theme": "Halloween",
+          "tag": ""
+        },
+        {
+          "id": "l-mu4ejptlwzgi",
+          "name": "Orange Halloween Bundle",
+          "images": [
+            "images/uploads/orange-halloween-bundle-mu4ejzp339q.jpg"
+          ],
+          "sold": false,
+          "theme": "Halloween",
+          "tag": ""
+        }
+      ],
+      "salePrice": 44,
+      "saleLabel": ""
+    },
+    {
       "id": "p-mts1elx2rrs3",
       "name": "Coin Pouch",
       "price": 10,
@@ -490,13 +533,23 @@
       ],
       "listings": [
         {
+          "id": "l-mu4ehgyh5n5y",
+          "name": "Marauder Zipper Pouch",
+          "images": [
+            "images/uploads/listing-mu4eh14zw22.jpg"
+          ],
+          "sold": false,
+          "theme": "Wizarding",
+          "tag": ""
+        },
+        {
           "id": "l-mts1lt03yqqm",
           "name": "Autumn Plaid Zipper Pouch",
           "images": [
             "images/uploads/listing-mts1lfyk07l.jpg"
           ],
           "sold": false,
-          "theme": "",
+          "theme": "Fall",
           "tag": ""
         },
         {
