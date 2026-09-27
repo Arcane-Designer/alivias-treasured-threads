@@ -248,7 +248,9 @@
           "theme": "",
           "tag": ""
         }
-      ]
+      ],
+      "salePrice": 9,
+      "saleLabel": ""
     },
     {
       "id": "p-msur1234kr0k",
@@ -425,7 +427,9 @@
       "badges": [
         "Back in stock!"
       ],
-      "theme": ""
+      "theme": "",
+      "salePrice": 6.39,
+      "saleLabel": ""
     },
     {
       "id": "p-mt6guvdjpugz",
@@ -455,7 +459,9 @@
           "tag": ""
         }
       ],
-      "theme": ""
+      "theme": "",
+      "salePrice": 9,
+      "saleLabel": ""
     },
     {
       "id": "annas-everyday-tote",
@@ -518,7 +524,9 @@
         }
       ],
       "badges": [],
-      "theme": ""
+      "theme": "",
+      "salePrice": 40.49,
+      "saleLabel": ""
     },
     {
       "id": "zipper-pouch",
@@ -619,7 +627,9 @@
       "badges": [
         "Now available in mini!"
       ],
-      "theme": ""
+      "theme": "",
+      "salePrice": 12.59,
+      "saleLabel": ""
     },
     {
       "id": "bookmarks",
@@ -866,7 +876,9 @@
         }
       ],
       "badges": [],
-      "theme": ""
+      "theme": "",
+      "salePrice": 10.79,
+      "saleLabel": ""
     },
     {
       "id": "mini-tote-bag",
@@ -904,7 +916,9 @@
       "badges": [
         "NEW!"
       ],
-      "theme": ""
+      "theme": "",
+      "salePrice": 22.49,
+      "saleLabel": ""
     },
     {
       "id": "overnighter-tote",
@@ -920,8 +934,12 @@
         "images/products/products-2.jpg"
       ],
       "listings": [],
-      "badges": [],
-      "theme": ""
+      "badges": [
+        "Sale!"
+      ],
+      "theme": "",
+      "salePrice": 54,
+      "saleLabel": ""
     },
     {
       "id": "pot-holders",
@@ -959,7 +977,9 @@
         }
       ],
       "badges": [],
-      "theme": ""
+      "theme": "",
+      "salePrice": 7.19,
+      "saleLabel": ""
     },
     {
       "id": "craft-roll",
@@ -976,7 +996,9 @@
       ],
       "listings": [],
       "badges": [],
-      "theme": ""
+      "theme": "",
+      "salePrice": 17.09,
+      "saleLabel": ""
     },
     {
       "id": "hooded-cape",
