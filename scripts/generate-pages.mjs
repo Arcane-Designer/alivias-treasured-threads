@@ -68,19 +68,29 @@ function isReady(p) {
   return !!(!p.archived && ((p.oneOfAKind && !p.sold) || (p.listings || []).some((l) => !l.sold)));
 }
 
+function formatPrice(value) {
+  const amount = Math.round(Number(value) * 100) / 100;
+  return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+}
+
+function priceLabel(p) {
+  return !p.priceLabel || p.priceLabel === '$' + p.price
+    ? '$' + formatPrice(p.price) : p.priceLabel;
+}
+
 function priceBlock(p) {
   if (p.price === null || typeof p.price !== 'number') {
     return `<div class="price-block custom">${esc(p.priceLabel || 'Custom Order')}</div>`;
   }
   if (isOnSale(p)) {
-    return `<div class="price-block"><span class="was">${esc(p.priceLabel || '$' + p.price)}</span><span class="now">$${esc(String(p.salePrice))}</span></div>`;
+    return `<div class="price-block"><span class="was">${esc(priceLabel(p))}</span><span class="now">$${esc(formatPrice(p.salePrice))}</span></div>`;
   }
   if (p.priceTiers && p.priceTiers.length) {
     if (p.priceLabel) return `<div class="price-block">${esc(p.priceLabel)}</div>`;
     const low = Math.min(...p.priceTiers.map((t) => t.price));
-    return `<div class="price-block">from $${esc(String(low))}</div>`;
+    return `<div class="price-block">from $${esc(formatPrice(low))}</div>`;
   }
-  return `<div class="price-block">${esc(p.priceLabel || '$' + p.price)}</div>`;
+  return `<div class="price-block">${esc(priceLabel(p))}</div>`;
 }
 
 function checkoutUrl(p) {

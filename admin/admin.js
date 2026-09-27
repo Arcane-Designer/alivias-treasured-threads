@@ -7,6 +7,16 @@
 (function () {
   'use strict';
 
+  function formatPrice(value) {
+    const amount = Math.round(Number(value) * 100) / 100;
+    return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+  }
+
+  function priceLabel(p) {
+    return !p.priceLabel || p.priceLabel === '$' + p.price
+      ? '$' + formatPrice(p.price) : p.priceLabel;
+  }
+
   /* ---------------- config ---------------- */
   const GH_OWNER = 'Arcane-Designer';
   const GH_REPO = 'alivias-treasured-threads';
@@ -767,8 +777,8 @@
           '<div class="admin-card-name">' + esc(p.name || 'Untitled') + '</div>' +
           '<div class="admin-card-price' + (p.price === null ? ' custom' : '') + '">' +
             (isOnSaleP(p)
-              ? '<span class="was">' + esc(p.priceLabel || ('$' + p.price)) + '</span>' + esc(p.saleLabel || ('$' + p.salePrice)) + ' 💸'
-              : esc(p.priceLabel || '~')) +
+              ? '<span class="was">' + esc(priceLabel(p)) + '</span>' + esc(p.saleLabel || ('$' + formatPrice(p.salePrice))) + ' 💸'
+              : esc(typeof p.price === 'number' ? priceLabel(p) : (p.priceLabel || '~'))) +
           '</div>' +
           '<div class="admin-card-meta">📷 ' + (p.images || []).length + (p.oneOfAKind ? (p.sold ? ' · Sold' : ' · 🌟 one of a kind') : ' · ✨ ' + unsold + ' ready to ship') + '</div>' +
         '</div>' +
@@ -839,9 +849,9 @@
     $('epName').value = currentProduct.name || '';
     $('epName').classList.remove('invalid');
     setPriceMode(detectPriceMode(currentProduct), false);
-    $('epPriceSimple').value = typeof currentProduct.price === 'number' ? currentProduct.price : '';
+    $('epPriceSimple').value = typeof currentProduct.price === 'number' ? formatPrice(currentProduct.price) : '';
     $('epPriceLabel').value = currentProduct.priceLabel || '';
-    $('epPrice').value = typeof currentProduct.price === 'number' ? currentProduct.price : '';
+    $('epPrice').value = typeof currentProduct.price === 'number' ? formatPrice(currentProduct.price) : '';
     $('epDesc').value = currentProduct.description || '';
     setupTaxonomyEditor();
     if (!Array.isArray(currentProduct.badges)) currentProduct.badges = [];
@@ -855,7 +865,7 @@
     const saleOn = typeof currentProduct.salePrice === 'number';
     $('epSaleOn').checked = saleOn;
     $('saleFields').hidden = !saleOn;
-    $('epSalePrice').value = saleOn ? currentProduct.salePrice : '';
+    $('epSalePrice').value = saleOn ? formatPrice(currentProduct.salePrice) : '';
     $('epSaleLabel').value = currentProduct.saleLabel || '';
     updateSaleMath();
     $('epDelete').style.display = isNew ? 'none' : '';
@@ -1327,7 +1337,7 @@
   function detectPriceMode(p) {
     if (Array.isArray(p.priceTiers) && p.priceTiers.some((t) => typeof t.price === 'number')) return 'multi';
     if (typeof p.price !== 'number') return 'custom';
-    if (p.priceLabel && p.priceLabel !== '$' + p.price) return 'fancy';
+    if (p.priceLabel && p.priceLabel !== '$' + p.price && p.priceLabel !== '$' + formatPrice(p.price)) return 'fancy';
     return 'simple';
   }
 
@@ -1358,7 +1368,7 @@
       } else if (mode === 'simple') {
         const v = parseFloat($('epPriceSimple').value);
         currentProduct.price = isNaN(v) ? null : v;
-        currentProduct.priceLabel = isNaN(v) ? '' : '$' + v;
+        currentProduct.priceLabel = isNaN(v) ? '' : '$' + formatPrice(v);
       } else if (mode === 'fancy') {
         currentProduct.priceLabel = $('epPriceLabel').value.trim();
         const v = parseFloat($('epPrice').value);
@@ -1399,7 +1409,7 @@
   }
 
   function tierAutoLabel(tiers) {
-    return tiers.map((t) => (t.qty === 1 ? '$' + t.price + ' each' : t.qty + ' for $' + t.price)).join(' · ');
+    return tiers.map((t) => (t.qty === 1 ? '$' + formatPrice(t.price) + ' each' : t.qty + ' for $' + formatPrice(t.price))).join(' · ');
   }
 
   /* read the row inputs -> product data + auto price tag */
@@ -1431,7 +1441,7 @@
     if (tiers.length > 1) {
       const n = Math.max(...tiers.map((t) => t.qty)) + 1;
       const c = tierCostAdmin(tiers, n);
-      if (isFinite(c)) text += ' ~ and the basket does the math: ' + n + ' items = $' + +c.toFixed(2) + ' 🧮';
+      if (isFinite(c)) text += ' ~ and the basket does the math: ' + n + ' items = $' + formatPrice(c) + ' 🧮';
     }
     el.textContent = text;
     el.classList.add('happy');
@@ -1452,9 +1462,9 @@
       row.innerHTML =
         '<span class="tier-qty">' + (q === 1 ? '1 item' : q + ' items') + '</span>' +
         '<span class="tier-dollar">$</span>' +
-        '<input type="number" class="field-input" min="0" step="0.5" placeholder="' + (q === 1 ? '4' : 'skip or fill') + '">';
+        '<input type="number" class="field-input" min="0" step="0.01" placeholder="' + (q === 1 ? '4' : 'skip or fill') + '">';
       const input = row.querySelector('input');
-      if (byQty[q] !== undefined) input.value = byQty[q];
+      if (byQty[q] !== undefined) input.value = formatPrice(byQty[q]);
       input.addEventListener('input', function () {
         applyTiers();
         markDirty();
@@ -1481,7 +1491,7 @@
     if (!currentProduct) return;
     const v = this.value.trim();
     currentProduct.price = v === '' ? null : Math.max(0, parseFloat(v) || 0);
-    currentProduct.priceLabel = v === '' ? '' : '$' + currentProduct.price;
+    currentProduct.priceLabel = v === '' ? '' : '$' + formatPrice(currentProduct.price);
     updateSaleMath();
     markDirty();
   });
@@ -1661,15 +1671,15 @@
       el.textContent = 'Set the regular price first so the deal has something to compare to!';
       el.classList.add('warn');
     } else if (typeof sale !== 'number') {
-      el.textContent = 'Regular price is ' + (currentProduct.priceLabel || '$' + price) + ' ~ type the new sale price!';
+      el.textContent = 'Regular price is ' + (currentProduct.priceLabel || '$' + formatPrice(price)) + ' ~ type the new sale price!';
     } else if (sale >= price) {
       el.textContent = "Hmm ~ the sale price isn't lower than the regular price ($" + price + "), so it won't show as a deal yet!";
       el.classList.add('warn');
     } else {
       const off = Math.round((1 - sale / price) * 100);
-      const shows = currentProduct.saleLabel || ('$' + sale);
-      el.textContent = "That's $" + +(price - sale).toFixed(2) + ' off ~ ' + off + '% off! 🎉 Shoppers see “' +
-        (currentProduct.priceLabel || '$' + price) + '” crossed out, then “' + shows + '”.';
+      const shows = currentProduct.saleLabel || ('$' + formatPrice(sale));
+      el.textContent = "That's $" + formatPrice(price - sale) + ' off ~ ' + off + '% off! 🎉 Shoppers see “' +
+        (currentProduct.priceLabel || '$' + formatPrice(price)) + '” crossed out, then “' + shows + '”.';
       el.classList.add('happy');
     }
   }

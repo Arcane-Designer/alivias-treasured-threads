@@ -7,6 +7,16 @@
 (function () {
   'use strict';
 
+  function formatPrice(value) {
+    const amount = Math.round(Number(value) * 100) / 100;
+    return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+  }
+
+  function priceLabel(p) {
+    return !p.priceLabel || p.priceLabel === '$' + p.price
+      ? '$' + formatPrice(p.price) : p.priceLabel;
+  }
+
   const BASKET_KEY = 'att-basket-v2';
   const PLACEHOLDER = 'images/brand/logo.jpg';
 
@@ -243,18 +253,18 @@
     if (isOnSale(p)) {
       return (
         '<span class="was">' +
-        esc(p.priceLabel || '$' + p.price) +
+        esc(priceLabel(p)) +
         '</span><span class="now">$' +
-        esc(String(p.salePrice)) +
+        esc(formatPrice(p.salePrice)) +
         '</span>'
       );
     }
     if (p.priceTiers && p.priceTiers.length) {
       const t = p.priceTiers;
       const low = Math.min(...t.map((x) => x.price));
-      return 'from $' + esc(String(low));
+      return 'from $' + esc(formatPrice(low));
     }
-    return esc(p.priceLabel || '$' + p.price);
+    return esc(priceLabel(p));
   }
   function coverImg(p) {
     if (p.images && p.images[0]) return resolveImg(p.images[0]);
@@ -654,7 +664,7 @@
     }
     if (drawerEst) {
       const { total, priced } = estimate();
-      drawerEst.innerHTML = priced > 0 ? 'Estimated total: $' + total : '';
+      drawerEst.innerHTML = priced > 0 ? 'Estimated total: $' + formatPrice(total) : '';
     }
     /* order page basket panel */
     const orderList = $('orderBasketList');
@@ -677,7 +687,7 @@
             html += '<span class="checkout-cost-row"><span>Finished pieces</span><strong>$' + total.toFixed(2) + '</strong></span>';
             html += '<span class="checkout-cost-row"><span>Free shipping anywhere in the US</span><strong>$' + shipping.toFixed(2) + '</strong></span>';
             html += '<span class="checkout-cost-row checkout-cost-total"><span>Order total</span><strong>$' + (total + shipping).toFixed(2) + '</strong></span>';
-          } else if (priced > 0) html += 'Estimated total: $' + total;
+          } else if (priced > 0) html += 'Estimated total: $' + formatPrice(total);
           if (unpriced > 0) {
             html += '<span class="est-note">' +
               (priced > 0 ? '+ ' : '') +
@@ -1614,7 +1624,7 @@
             '</h3><p>' +
             (p.price === null
               ? 'Custom order'
-              : 'From ' + (p.priceLabel || '$' + p.price) + ' · made to order available') +
+              : 'From ' + (priceLabel(p)) + ' · made to order available') +
             '</p><button type="button" class="btn btn-outline btn-sm" data-custom-select="' + esc(p.id) + '" aria-pressed="false">Select design</button></div></article>'
           );
         })
