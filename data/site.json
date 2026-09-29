@@ -158,7 +158,7 @@
           "tag": ""
         }
       ],
-      "salePrice": 44,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -199,7 +199,7 @@
           "tag": ""
         }
       ],
-      "salePrice": 9,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -294,7 +294,7 @@
         "Back in stock!"
       ],
       "theme": "",
-      "salePrice": 6.39,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -326,7 +326,7 @@
         }
       ],
       "theme": "",
-      "salePrice": 9,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -348,7 +348,7 @@
       "listings": [],
       "badges": [],
       "theme": "",
-      "salePrice": 40.49,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -401,7 +401,7 @@
         "Now available in mini!"
       ],
       "theme": "",
-      "salePrice": 12.59,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -609,7 +609,7 @@
       ],
       "badges": [],
       "theme": "",
-      "salePrice": 10.79,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -628,7 +628,7 @@
         "NEW!"
       ],
       "theme": "",
-      "salePrice": 22.49,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -649,7 +649,7 @@
         "Sale!"
       ],
       "theme": "",
-      "salePrice": 54,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -668,7 +668,7 @@
       "listings": [],
       "badges": [],
       "theme": "",
-      "salePrice": 7.19,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
@@ -687,7 +687,7 @@
       "listings": [],
       "badges": [],
       "theme": "",
-      "salePrice": 17.09,
+      "salePrice": null,
       "saleLabel": ""
     },
     {
