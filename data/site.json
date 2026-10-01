@@ -129,6 +129,20 @@
   },
   "products": [
     {
+      "id": "p-mupu8k2zxm8j",
+      "name": "Bowl Cozy",
+      "price": 9,
+      "priceLabel": "$9",
+      "description": "Bowl cozies, perfect for hot soup or cold ice cream! These are microwave safe, 100% cotton. Fits 8” bowls nicely! ",
+      "category": "Home & Kitchen",
+      "theme": "",
+      "badges": [],
+      "archived": true,
+      "oneOfAKind": false,
+      "images": [],
+      "listings": []
+    },
+    {
       "id": "p-mu4ehyz1lk8e",
       "name": "Halloween Bundle",
       "price": 49,
@@ -801,6 +815,76 @@
     }
   ],
   "archive": [
+    {
+      "id": "l-mupud7bu8fdx",
+      "name": "Boy Who Lived Cozy",
+      "images": [
+        "images/uploads/listing-mupucynf9dp.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "in-person",
+      "kind": "listing",
+      "productId": "p-mupu8k2zxm8j",
+      "productName": "Bowl Cozy",
+      "archivedAt": "2026-10-01"
+    },
+    {
+      "id": "l-mupucuvyh6vo",
+      "name": "Magic School Crest Cozy",
+      "images": [
+        "images/uploads/listing-mupucm2vjul.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "in-person",
+      "kind": "listing",
+      "productId": "p-mupu8k2zxm8j",
+      "productName": "Bowl Cozy",
+      "archivedAt": "2026-10-01"
+    },
+    {
+      "id": "l-mupuch8sng5x",
+      "name": "Green Mushroom Cozy",
+      "images": [
+        "images/uploads/green-mushroom-cozy-mupuceheqyj.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "in-person",
+      "kind": "listing",
+      "productId": "p-mupu8k2zxm8j",
+      "productName": "Bowl Cozy",
+      "archivedAt": "2026-10-01"
+    },
+    {
+      "id": "l-mupuaydkw0sr",
+      "name": "Brown Mushroom Cozy",
+      "images": [
+        "images/uploads/listing-mupuapo42vt.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "in-person",
+      "kind": "listing",
+      "productId": "p-mupu8k2zxm8j",
+      "productName": "Bowl Cozy",
+      "archivedAt": "2026-10-01"
+    },
+    {
+      "id": "l-mupuajx13z7g",
+      "name": "Peanuts Bowl Cozy",
+      "images": [
+        "images/uploads/listing-mupua9s2mmy.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "in-person",
+      "kind": "listing",
+      "productId": "p-mupu8k2zxm8j",
+      "productName": "Bowl Cozy",
+      "archivedAt": "2026-10-01"
+    },
     {
       "id": "l-mts1q14wf5ms",
       "name": "Autumn Foliage Coin Pouch",
