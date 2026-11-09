@@ -129,6 +129,20 @@
   },
   "products": [
     {
+      "id": "p-mw9h39ax55we",
+      "name": "Gift Bags",
+      "price": 5,
+      "priceLabel": "$5",
+      "description": "A small cinch bag, perfect for gift giving!",
+      "category": "Bags & Pouches",
+      "theme": "",
+      "badges": [],
+      "archived": true,
+      "oneOfAKind": false,
+      "images": [],
+      "listings": []
+    },
+    {
       "id": "p-mupu8k2zxm8j",
       "name": "Bowl Cozy",
       "price": 9,
@@ -815,6 +829,51 @@
     }
   ],
   "archive": [
+    {
+      "id": "l-mw9h58mdzrhj",
+      "name": "Newspaper",
+      "images": [
+        "images/uploads/newspaper-mw9h55t0l43.jpg",
+        "images/uploads/newspaper-mw9h55uh6bp.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "p-mw9h39ax55we",
+      "productName": "Gift Bags",
+      "archivedAt": "2026-11-09"
+    },
+    {
+      "id": "l-mw9h4v2i4e9d",
+      "name": "Candy Cane",
+      "images": [
+        "images/uploads/candy-cane-mw9h4t4ksw5.jpg",
+        "images/uploads/candy-cane-mw9h4t64wc9.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "p-mw9h39ax55we",
+      "productName": "Gift Bags",
+      "archivedAt": "2026-11-09"
+    },
+    {
+      "id": "l-mw9h4kuofc1l",
+      "name": "Snowflake",
+      "images": [
+        "images/uploads/listing-mw9h4clrpcf.jpg",
+        "images/uploads/listing-mw9h4cmy1a0.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "p-mw9h39ax55we",
+      "productName": "Gift Bags",
+      "archivedAt": "2026-11-09"
+    },
     {
       "id": "l-mupujuxnuz50",
       "name": "18",
