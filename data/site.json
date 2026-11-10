@@ -129,6 +129,20 @@
   },
   "products": [
     {
+      "id": "p-mwa2wqk7m42j",
+      "name": "Evie’s Shopping Tote",
+      "price": 13,
+      "priceLabel": "$13",
+      "description": "This simple tote bag is perfect for a day of shopping! Lighter and more compact than our other offerings, it’s the perfect size to bring along for all the treasures you find. ",
+      "category": "Bags & Pouches",
+      "theme": "",
+      "badges": [],
+      "archived": true,
+      "oneOfAKind": false,
+      "images": [],
+      "listings": []
+    },
+    {
       "id": "p-mw9h39ax55we",
       "name": "Gift Bags",
       "price": 5,
@@ -829,6 +843,34 @@
     }
   ],
   "archive": [
+    {
+      "id": "l-mwa2znsnoyuw",
+      "name": "Evie",
+      "images": [
+        "images/uploads/evie-mwa2zlgfha8.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "p-mwa2wqk7m42j",
+      "productName": "Evie’s Shopping Tote",
+      "archivedAt": "2026-11-09"
+    },
+    {
+      "id": "l-mwa2zdbrqig0",
+      "name": "Holly",
+      "images": [
+        "images/uploads/listing-mwa2yvxe0ld.jpg"
+      ],
+      "sold": false,
+      "theme": "",
+      "tag": "gift",
+      "kind": "listing",
+      "productId": "p-mwa2wqk7m42j",
+      "productName": "Evie’s Shopping Tote",
+      "archivedAt": "2026-11-09"
+    },
     {
       "id": "l-mw9h58mdzrhj",
       "name": "Newspaper",
