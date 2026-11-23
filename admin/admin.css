@@ -368,7 +368,14 @@ textarea.field-input { resize: vertical; }
 }
 .admin-card-actions .edit-btn:hover { background: var(--purple); color: #fff; border-style: solid; }
 
-.move-btns { display: flex; gap: 4px; }
+.drag-handle { cursor: grab; touch-action: none; font-size: 1.15rem; color: var(--purple-dark); user-select: none; -webkit-user-select: none; }
+.drag-handle:active { cursor: grabbing; }
+.admin-card-body { cursor: grab; }
+.admin-card.drag-placeholder { opacity: 0.35; box-shadow: none; transform: none !important; }
+.admin-card.drag-placeholder * { visibility: hidden; }
+.admin-card.drag-placeholder { background: var(--purple-pale); }
+.drag-ghost { position: fixed !important; top: 0; left: 0; margin: 0; z-index: 600; pointer-events: none; transition: none !important; box-shadow: 0 22px 48px rgba(45, 35, 56, 0.28) !important; will-change: transform; }
+body.is-sorting, body.is-sorting * { cursor: grabbing !important; user-select: none !important; -webkit-user-select: none !important; }
 
 /* add-new card */
 .add-card {

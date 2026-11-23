@@ -83,6 +83,12 @@ Outputs:
 
 Zero npm dependencies. Nested product pages use `../../assets` and `../../images` so relative paths stay valid.
 
+### Photo copies
+
+Every shop photo also has a small (240px) and medium (640px) copy at `images/thumbs/sm/…` and `images/thumbs/md/…`, mirroring its original path. Listing rows, the basket, and gallery strips use the small copy; product cards and tiles use the medium one; the main gallery photo and the lightbox use the original. Each copy falls back to the original if it is missing, so nothing shows broken.
+
+The Studio makes both copies when Alivia uploads a photo and commits them with it. For photos added any other way, run `node scripts/make-thumbs.mjs` on a Mac (it uses the built-in `sips`; `--force` rebuilds all). `validate.mjs` warns about any photo without its copies.
+
 ### Validation
 
 ```bash

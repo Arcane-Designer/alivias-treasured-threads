@@ -257,6 +257,14 @@ for (const img of imageRefs) {
   if (img.startsWith('/')) warn(`Root-absolute image path (may break project Pages base): ${img}`);
 }
 
+/* small/medium copies the shop shows in rows and cards. A missing one still
+   works (the page falls back to the original), it is just slower, so warn. */
+{
+  const missingThumbs = [...imageRefs].filter((img) => typeof img === 'string' && /^images\/(?!thumbs\/).+\.jpe?g$/i.test(img))
+    .filter((img) => ['sm', 'md'].some((size) => !existsSync(join(ROOT, 'images', 'thumbs', size, img.slice('images/'.length)))));
+  if (missingThumbs.length) warn(`${missingThumbs.length} photo(s) have no small/medium copy (run node scripts/make-thumbs.mjs on a Mac): ${missingThumbs.slice(0, 3).join(', ')}${missingThumbs.length > 3 ? ', …' : ''}`);
+}
+
 /* every theme tag should resolve to a theme in settings, otherwise a rename
    or delete left an orphan that would never show up in the shop filters */
 {

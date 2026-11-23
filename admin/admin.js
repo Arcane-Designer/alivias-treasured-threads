@@ -156,6 +156,20 @@
     return '../' + path;
   }
 
+  /* small/medium copies of each photo, matching scripts/make-thumbs.mjs and
+     sizedImg() in the shop; made here at upload and published alongside */
+  const THUMB_SIZES = { sm: 240, md: 640 };
+  const THUMB_QUALITY = 0.7;
+  function thumbPath(path, size) {
+    return 'images/thumbs/' + size + '/' + String(path).replace(/^images\//, '');
+  }
+  /* src (plus a fall-back-to-original) for a grid or row image in the Studio */
+  function thumbAttrs(path, size) {
+    if (!path) return 'src=""';
+    if (pendingImages[path] || !/^images\/(?!thumbs\/).+\.jpe?g$/i.test(path)) return 'src="' + esc(imgSrc(path)) + '"';
+    return 'src="' + esc('../' + thumbPath(path, size)) + '" data-full="' + esc(imgSrc(path)) + '" onerror="this.onerror=null;this.src=this.dataset.full"';
+  }
+
   function confirmCute(msg, yesLabel, noLabel) {
     return new Promise((resolve) => {
       const returnFocus = document.activeElement;
@@ -532,11 +546,16 @@
 
         const tree = [];
         let photoNum = 0;
-        const photoTotal = files.filter((f) => f.base64).length;
+        const photoTotal = files.filter((f) => f.base64 && !f.thumb).length;
         for (const file of files) {
           if (file.base64) {
-            photoNum++;
-            onStep('Uploading photo ' + photoNum + ' of ' + photoTotal + '…');
+            if (!file.thumb) {
+              photoNum++;
+              onStep('Uploading photo ' + photoNum + ' of ' + photoTotal + '…');
+            } else if (photoNum === photoTotal) {
+              photoNum++; /* say it once, as the small copies start */
+              onStep('Finishing up your photos…');
+            }
             const blob = await ghJson(repoBase + '/git/blobs', {
               method: 'POST',
               body: JSON.stringify({ content: file.base64, encoding: 'base64' }),
@@ -721,7 +740,19 @@
           canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
           const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-          resolve({ dataUrl, base64: dataUrl.split(',')[1] });
+          /* the small and medium copies the shop shows in rows and cards */
+          const thumbs = {};
+          Object.entries(THUMB_SIZES).forEach(([size, edge]) => {
+            const s = Math.min(1, edge / Math.max(width, height));
+            const c = document.createElement('canvas');
+            c.width = Math.round(width * s);
+            c.height = Math.round(height * s);
+            const ctx = c.getContext('2d');
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(canvas, 0, 0, c.width, c.height);
+            thumbs[size] = c.toDataURL('image/jpeg', THUMB_QUALITY).split(',')[1];
+          });
+          resolve({ dataUrl, base64: dataUrl.split(',')[1], thumbs });
         } catch (e) { reject(e); }
       };
       img.onerror = () => {
@@ -736,9 +767,9 @@
     const results = [];
     for (const file of Array.from(fileList)) {
       try {
-        const { dataUrl, base64 } = await compressImage(file);
+        const { dataUrl, base64, thumbs } = await compressImage(file);
         const path = UPLOAD_DIR + '/' + (slug(label) || 'photo') + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5) + '.jpg';
-        results.push({ path, dataUrl, base64 });
+        results.push({ path, dataUrl, base64, thumbs });
       } catch (e) {
         toast("One photo didn't work (" + esc(file.name) + ") ~ try a JPG or PNG, or a screenshot of it!", 'pink');
       }
@@ -750,7 +781,7 @@
      render: product cards
      ================================================ */
   function productCover(p) {
-    return (p.images && p.images[0]) ? imgSrc(p.images[0]) : '../images/brand/logo.jpg';
+    return (p.images && p.images[0]) ? thumbAttrs(p.images[0], 'md') : 'src="../images/brand/logo.jpg"';
   }
 
   function renderAll() {
@@ -770,9 +801,10 @@
       const unsold = (p.listings || []).filter((l) => !l.sold).length;
       const card = document.createElement('div');
       card.className = 'admin-card' + (p.archived ? ' is-archived' : '');
+      card.dataset.id = p.id;
       card.innerHTML =
         (p.archived ? '<span class="sticker">Hidden 🙈</span>' : '') +
-        '<img class="admin-card-img" src="' + esc(productCover(p)) + '" alt="" loading="lazy">' +
+        '<img class="admin-card-img" ' + productCover(p) + ' alt="" loading="lazy" draggable="false">' +
         '<div class="admin-card-body">' +
           '<div class="admin-card-name">' + esc(p.name || 'Untitled') + '</div>' +
           '<div class="admin-card-price' + (p.price === null ? ' custom' : '') + '">' +
@@ -784,16 +816,21 @@
         '</div>' +
         '<div class="admin-card-actions">' +
           '<button type="button" class="edit-btn">✏️ Edit</button>' +
-          '<div class="move-btns">' +
-            '<button type="button" class="icon-btn mini mv-up" aria-label="Move earlier" ' + (i === 0 ? 'disabled style="opacity:.35"' : '') + '>←</button>' +
-            '<button type="button" class="icon-btn mini mv-dn" aria-label="Move later" ' + (i === draft.products.length - 1 ? 'disabled style="opacity:.35"' : '') + '>→</button>' +
-          '</div>' +
+          '<button type="button" class="icon-btn mini drag-handle" title="Drag to move" aria-label="Move ' + esc(p.name || 'this product') + ' ~ drag, or use the arrow keys">⠿</button>' +
         '</div>';
 
-      card.querySelector('.edit-btn').addEventListener('click', () => openEditor(p.id));
-      card.querySelector('.admin-card-img').addEventListener('click', () => openEditor(p.id));
-      card.querySelector('.mv-up').addEventListener('click', () => moveProduct(i, -1));
-      card.querySelector('.mv-dn').addEventListener('click', () => moveProduct(i, 1));
+      card.querySelector('.edit-btn').addEventListener('click', () => { if (!dragActive) openEditor(p.id); });
+      card.querySelector('.admin-card-img').addEventListener('click', () => { if (!dragActive) openEditor(p.id); });
+      const handle = card.querySelector('.drag-handle');
+      handle.addEventListener('keydown', (e) => {
+        const delta = (e.key === 'ArrowLeft' || e.key === 'ArrowUp') ? -1 : (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : 0;
+        if (!delta || dragActive) return;
+        e.preventDefault();
+        moveProduct(i, delta);
+        const moved = grid.querySelector('.admin-card[data-id="' + CSS.escape(p.id) + '"] .drag-handle');
+        if (moved) moved.focus();
+      });
+      card.addEventListener('pointerdown', (e) => beginProductDrag(e, card, grid));
       grid.appendChild(card);
     });
 
@@ -802,7 +839,7 @@
     add.type = 'button';
     add.className = 'add-card';
     add.innerHTML = '<span class="plus">+</span> Add a new product';
-    add.addEventListener('click', createProduct);
+    add.addEventListener('click', () => { if (!dragActive) createProduct(); });
     grid.appendChild(add);
   }
 
@@ -814,6 +851,144 @@
     markDirty();
     renderProducts();
   }
+
+  /* ---------- drag to reorder ----------
+     Pointer events, so mouse, finger, and pencil all work. A mouse can grab
+     anywhere on a card; a finger uses the ⠿ grip so the page still scrolls.
+     The card stays in the grid as a faded placeholder while a lifted copy
+     follows the pointer; the other cards slide aside as it passes. */
+  let suppressCardClick = false;
+  let dragActive = false; /* one drag at a time: a second finger, key, or tap must not redraw the grid mid-drag */
+
+  function beginProductDrag(e, card, grid) {
+    if (e.button !== 0 || e.ctrlKey || dragActive) return; /* ctrl-click on a Mac is a right-click */
+    const onHandle = !!e.target.closest('.drag-handle');
+    if (e.pointerType !== 'mouse' && !onHandle) return;
+    if (!onHandle && e.target.closest('button:not(.drag-handle), a, input')) return;
+
+    const startX = e.clientX, startY = e.clientY;
+    let lastX = startX, lastY = startY;
+    let ghost = null, offX = 0, offY = 0, raf = 0;
+    const threshold = onHandle && e.pointerType !== 'mouse' ? 2 : 6;
+    const before = draft.products.map((p) => p.id).join('|');
+    if (onHandle) e.preventDefault();
+    dragActive = true;
+
+    const cards = () => [...grid.querySelectorAll('.admin-card')];
+
+    function flipMove(mutate) {
+      const others = cards().filter((c) => c !== card);
+      const first = new Map(others.map((c) => [c, c.getBoundingClientRect()]));
+      mutate();
+      others.forEach((c) => {
+        const a = first.get(c), b = c.getBoundingClientRect();
+        const dx = a.left - b.left, dy = a.top - b.top;
+        if (!dx && !dy) return;
+        c.style.transition = 'none';
+        c.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+        requestAnimationFrame(() => {
+          c.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
+          c.style.transform = '';
+        });
+      });
+    }
+
+    function placeAt(x, y) {
+      if (!grid.contains(card)) return;
+      const hit = document.elementFromPoint(x, y);
+      const over = hit && hit.closest('#adminGrid > .admin-card, #adminGrid > .add-card');
+      if (!over || over === card) return;
+      if (over.classList.contains('add-card')) {
+        if (card.nextElementSibling !== over) flipMove(() => grid.insertBefore(card, over));
+        return;
+      }
+      const r = over.getBoundingClientRect();
+      const ref = x > r.left + r.width / 2 ? over.nextElementSibling : over;
+      if (ref === card || card.nextElementSibling === ref) return; /* already there */
+      flipMove(() => grid.insertBefore(card, ref));
+    }
+
+    function tick() {
+      if (!ghost) return;
+      const edge = 80;
+      let speed = 0;
+      if (lastY < edge) speed = -Math.ceil((edge - lastY) / 5);
+      else if (lastY > innerHeight - edge) speed = Math.ceil((lastY - (innerHeight - edge)) / 5);
+      if (speed) { window.scrollBy(0, speed); placeAt(lastX, lastY); }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      const r = card.getBoundingClientRect();
+      offX = startX - r.left;
+      offY = startY - r.top;
+      ghost = card.cloneNode(true);
+      ghost.classList.add('drag-ghost');
+      ghost.removeAttribute('data-id');
+      ghost.style.width = r.width + 'px';
+      ghost.style.height = r.height + 'px';
+      document.body.appendChild(ghost);
+      card.classList.add('drag-placeholder');
+      document.body.classList.add('is-sorting');
+      move(lastX, lastY);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function move(x, y) {
+      ghost.style.transform = 'translate(' + (x - offX) + 'px,' + (y - offY) + 'px) rotate(-2deg) scale(1.03)';
+    }
+
+    function onMove(ev) {
+      if (ev.pointerId !== e.pointerId) return;
+      /* the button was let go somewhere we never heard about (a context menu,
+         another app): end here rather than leave the card stuck to the cursor */
+      if (ev.pointerType === 'mouse' && !(ev.buttons & 1)) { finish(ev); return; }
+      lastX = ev.clientX; lastY = ev.clientY;
+      if (!ghost) {
+        if (Math.hypot(lastX - startX, lastY - startY) < threshold) return;
+        start();
+      }
+      ev.preventDefault();
+      move(lastX, lastY);
+      placeAt(lastX, lastY);
+    }
+
+    function finish(ev) {
+      if (ev.pointerId !== e.pointerId) return;
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', finish);
+      window.removeEventListener('pointercancel', finish);
+      dragActive = false;
+      if (!ghost) return;
+      cancelAnimationFrame(raf);
+      ghost.remove();
+      ghost = null;
+      card.classList.remove('drag-placeholder');
+      document.body.classList.remove('is-sorting');
+      suppressCardClick = true;
+      setTimeout(() => { suppressCardClick = false; }, 0);
+      const order = [...new Set(cards().map((c) => c.dataset.id))];
+      /* a cancelled gesture, or a grid that was redrawn under us, keeps the old order */
+      if (ev.type !== 'pointercancel' && grid.contains(card) && order.join('|') !== before) {
+        const byId = new Map(draft.products.map((p) => [p.id, p]));
+        const next = order.map((id) => byId.get(id)).filter(Boolean);
+        /* belt and braces: never drop a product the grid somehow missed */
+        draft.products.forEach((p) => { if (!next.includes(p)) next.push(p); });
+        draft.products = next;
+        markDirty();
+      }
+      renderProducts();
+    }
+
+    window.addEventListener('pointermove', onMove, { passive: false });
+    window.addEventListener('pointerup', finish);
+    window.addEventListener('pointercancel', finish);
+  }
+
+  /* a drag that ends over the photo or Edit button shouldn't also open the editor */
+  document.addEventListener('click', (e) => {
+    if (suppressCardClick && e.target.closest('#adminGrid')) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
 
   /* ================================================
      product editor
@@ -1780,7 +1955,7 @@
       const cell = document.createElement('div');
       cell.className = 'photo-cell';
       cell.innerHTML =
-        '<img src="' + esc(imgSrc(path)) + '" alt="Photo ' + (i + 1) + '">' +
+        '<img ' + thumbAttrs(path, 'sm') + ' alt="Photo ' + (i + 1) + '">' +
         (i === 0 ? '<span class="cover-tag">cover</span>' : '') +
         (pendingImages[path] ? '<span class="new-tag">new</span>' : '') +
         '<div class="photo-cell-actions">' +
@@ -1820,8 +1995,8 @@
     if (!currentProduct || !this.files.length) return;
     toast('Adding ' + this.files.length + ' photo' + (this.files.length > 1 ? 's' : '') + '… 📷', 'teal');
     const shots = await ingestFiles(this.files, currentProduct.name || 'product');
-    shots.forEach(({ path, dataUrl, base64 }) => {
-      pendingImages[path] = { dataUrl, base64 };
+    shots.forEach(({ path, dataUrl, base64, thumbs }) => {
+      pendingImages[path] = { dataUrl, base64, thumbs };
       currentProduct.images.push(path);
     });
     this.value = '';
@@ -1854,7 +2029,7 @@
       const row = document.createElement('div');
       row.className = 'listing-row' + (listing.sold ? ' is-sold' : '');
       const thumb = (listing.images && listing.images[0])
-        ? '<img class="listing-thumb" src="' + esc(imgSrc(listing.images[0])) + '" alt="">'
+        ? '<img class="listing-thumb" ' + thumbAttrs(listing.images[0], 'sm') + ' alt="">'
         : '<div class="listing-thumb-empty">🧵</div>';
       const isNewPhoto = (listing.images || []).some((p) => pendingImages[p]);
 
@@ -1982,7 +2157,7 @@
       const cell = document.createElement('div');
       cell.className = 'photo-cell';
       cell.innerHTML =
-        '<img src="' + esc(imgSrc(path)) + '" alt="">' +
+        '<img ' + thumbAttrs(path, 'sm') + ' alt="">' +
         (i === 0 ? '<span class="cover-tag">main</span>' : '') +
         (pendingImages[path] ? '<span class="new-tag">new</span>' : '') +
         '<div class="photo-cell-actions">' +
@@ -2010,8 +2185,8 @@
     addLbl.querySelector('input').addEventListener('change', async function () {
       if (!this.files.length) return;
       const shots = await ingestFiles(this.files, label);
-      shots.forEach(({ path, dataUrl, base64 }) => {
-        pendingImages[path] = { dataUrl, base64 };
+      shots.forEach(({ path, dataUrl, base64, thumbs }) => {
+        pendingImages[path] = { dataUrl, base64, thumbs };
         imgs.push(path);
       });
       markDirty();
@@ -2065,7 +2240,7 @@
         cell.className = 'picker-cell';
         cell.dataset.path = path;
         cell.innerHTML =
-          '<img src="' + esc(imgSrc(path)) + '" alt="" loading="lazy">' +
+          '<img ' + thumbAttrs(path, 'sm') + ' alt="" loading="lazy">' +
           '<span class="picker-check" aria-hidden="true">✓</span>' +
           (label ? '<span class="picker-label">' + esc(label) + '</span>' : '');
         cell.addEventListener('click', () => cell.classList.toggle('selected'));
@@ -2112,7 +2287,7 @@
     $('newListingPhotoLabel').textContent = stagedListingPhotos.length
       ? '📷 ' + stagedListingPhotos.length + ' picked' : '📷 Pick photo(s)';
     $('newListingPreview').innerHTML = stagedListingPhotos
-      .map((s, i) => '<div class="photo-cell" style="width:74px"><img src="' + esc(s.dataUrl || imgSrc(s.path)) + '" alt="Photo ' + (i + 1) + '"></div>')
+      .map((s, i) => '<div class="photo-cell" style="width:74px"><img ' + (s.dataUrl ? 'src="' + esc(s.dataUrl) + '"' : thumbAttrs(s.path, 'sm')) + ' alt="Photo ' + (i + 1) + '"></div>')
       .join('');
   }
 
@@ -2136,8 +2311,8 @@
     $('newListingName').classList.remove('invalid');
 
     const listing = { id: uid('l'), name, images: [], sold: false, theme: '', tag: cleanTag($('newListingTag').value) };
-    stagedListingPhotos.forEach(({ path, dataUrl, base64, existing }) => {
-      if (!existing) pendingImages[path] = { dataUrl, base64 };
+    stagedListingPhotos.forEach(({ path, dataUrl, base64, thumbs, existing }) => {
+      if (!existing) pendingImages[path] = { dataUrl, base64, thumbs };
       if (!listing.images.includes(path)) listing.images.push(path);
     });
     stagedListingPhotos = [];
@@ -2428,7 +2603,7 @@
       const cover = (liveProduct && liveProduct.images && liveProduct.images[0]) || (withPhoto ? entryImages(withPhoto)[0] : '');
       section.innerHTML =
         '<button type="button" class="archive-group-head" aria-expanded="' + (isCollapsed ? 'false' : 'true') + '">' +
-          (cover ? '<img class="archive-group-cover" src="' + esc(imgSrc(cover)) + '" alt="">' : '<span class="archive-group-cover empty">🧵</span>') +
+          (cover ? '<img class="archive-group-cover" ' + thumbAttrs(cover, 'sm') + ' alt="">' : '<span class="archive-group-cover empty">🧵</span>') +
           '<span class="archive-group-title">' + esc(group.title) + '</span>' +
           '<span class="archive-group-count">' + group.entries.length + '</span>' +
           '<span class="archive-group-chevron" aria-hidden="true">⌄</span>' +
@@ -2454,7 +2629,7 @@
     const row = document.createElement('div');
     row.className = 'listing-row archive-row' + (entry.kind === 'product' ? ' is-product' : '');
     const thumb = imgs[0]
-      ? '<img class="listing-thumb" src="' + esc(imgSrc(imgs[0])) + '" alt="">'
+      ? '<img class="listing-thumb" ' + thumbAttrs(imgs[0], 'sm') + ' alt="">'
       : '<div class="listing-thumb-empty">🧵</div>';
     const isNewPhoto = imgs.some((p) => pendingImages[p]);
     row.innerHTML =
@@ -2531,7 +2706,7 @@
   function renderArchiveAddPreview() {
     $('archiveAddPhotoLabel').textContent = archiveAddPhotos.length ? '📷 ' + archiveAddPhotos.length + ' picked' : '📷 Pick photo(s)';
     $('archiveAddPreview').innerHTML = archiveAddPhotos
-      .map((s, i) => '<div class="photo-cell" style="width:74px"><img src="' + esc(s.dataUrl || imgSrc(s.path)) + '" alt="Photo ' + (i + 1) + '"></div>')
+      .map((s, i) => '<div class="photo-cell" style="width:74px"><img ' + (s.dataUrl ? 'src="' + esc(s.dataUrl) + '"' : thumbAttrs(s.path, 'sm')) + ' alt="Photo ' + (i + 1) + '"></div>')
       .join('');
     $('archiveAddDateBtn').textContent = '📅 ' + formatIsoDate(archiveAddDate);
   }
@@ -2590,8 +2765,8 @@
       kind: 'listing', productId: product ? product.id : '', productName: product ? cleanTaxonomyValue(product.name) : '',
       archivedAt: cleanIsoDate(archiveAddDate) || todayIso(),
     };
-    archiveAddPhotos.forEach(({ path, dataUrl, base64, existing }) => {
-      if (!existing) pendingImages[path] = { dataUrl, base64 };
+    archiveAddPhotos.forEach(({ path, dataUrl, base64, thumbs, existing }) => {
+      if (!existing) pendingImages[path] = { dataUrl, base64, thumbs };
       if (!entry.images.includes(path)) entry.images.push(path);
     });
     archiveArr().unshift(entry);
@@ -2900,8 +3075,8 @@
     if (!shots.length) return;
     if (!draft.settings) draft.settings = {};
     const previous = draft.settings.seasonImage;
-    const { path, dataUrl, base64 } = shots[0];
-    pendingImages[path] = { dataUrl, base64 };
+    const { path, dataUrl, base64, thumbs } = shots[0];
+    pendingImages[path] = { dataUrl, base64, thumbs };
     draft.settings.seasonImage = path;
     if (previous && pendingImages[previous] && !JSON.stringify(draft).includes(previous)) delete pendingImages[previous];
     renderSeasonPhoto();
@@ -3084,6 +3259,11 @@
     const draftJson = JSON.stringify(draft, null, 2) + '\n';
     const used = Object.entries(pendingImages).filter(([path]) => draftJson.includes(path));
     const files = used.map(([path, v]) => ({ path, base64: v.base64 }));
+    /* each new photo's small/medium copies go in the same commit, so the shop
+       never points at a copy that isn't there yet */
+    used.forEach(([path, v]) => {
+      Object.entries(v.thumbs || {}).forEach(([size, base64]) => files.push({ path: thumbPath(path, size), base64, thumb: true }));
+    });
     files.push({ path: DATA_PATH, content: draftJson });
 
     const photoCount = used.length;

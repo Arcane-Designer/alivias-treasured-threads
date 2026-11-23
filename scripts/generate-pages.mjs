@@ -60,6 +60,15 @@ function allImages(p) {
   return p.images && p.images.length ? [...p.images] : ['images/brand/logo.jpg'];
 }
 
+/* small (240px) / medium (640px) copies live under images/thumbs/<size>/;
+   if one is missing the browser swaps back to the original */
+function sizedImg(path, size) {
+  const full = `../../${path}`;
+  if (!/^images\/(?!thumbs\/).+\.jpe?g$/i.test(path)) return `src="${escAttr(full)}"`;
+  const thumb = `../../images/thumbs/${size}/${path.slice('images/'.length)}`;
+  return `src="${escAttr(thumb)}" data-full="${escAttr(full)}" onerror="this.onerror=null;this.src=this.dataset.full"`;
+}
+
 function isOnSale(p) {
   return typeof p.salePrice === 'number' && typeof p.price === 'number' && p.salePrice < p.price;
 }
@@ -162,14 +171,14 @@ function listingsHtml(p) {
   const sorted = [...listings].sort((a, b) => (a.sold === b.sold ? 0 : a.sold ? 1 : -1));
   const rows = sorted
     .map((l) => {
-      const thumb = l.images && l.images[0] ? `../../${l.images[0]}` : '../../images/brand/logo.jpg';
+      const thumb = l.images && l.images[0] ? l.images[0] : 'images/brand/logo.jpg';
       const sold = !!l.sold;
       const action = sold
         ? ''
         : `<button type="button" class="btn btn-sm btn-primary" data-add-listing="${escAttr(l.id)}">Add to basket</button>`;
       return `<div class="listing-row${sold ? ' is-sold' : ''}">
         <button type="button" class="listing-image-button" data-listing-image="${escAttr(l.images && l.images[0] ? l.images[0] : 'images/brand/logo.jpg')}" aria-label="View a larger photo of ${escAttr(l.name || p.name)}">
-          <img class="listing-thumb" src="${escAttr(thumb)}" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span>
+          <img class="listing-thumb" ${sizedImg(thumb, 'sm')} alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span>
         </button>
         <div class="listing-meta">
           <div class="listing-name">${esc(l.name)}</div>
@@ -200,7 +209,7 @@ function galleryHtml(p) {
     .map(
       (src, i) =>
         `<button type="button" data-gallery-idx="${i}" aria-current="${i === 0 ? 'true' : 'false'}" aria-label="Photo ${i + 1}">
-          <img src="../../${escAttr(src)}" alt="" width="64" height="64" loading="lazy">
+          <img ${sizedImg(src, 'sm')} alt="" width="64" height="64" loading="lazy">
         </button>`
     )
     .join('\n');

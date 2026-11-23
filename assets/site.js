@@ -82,6 +82,25 @@
     return IMG(path);
   }
 
+  /* Every shop photo also exists as a small (240px) and medium (640px) copy
+     under images/thumbs/<size>/, so a 56px listing row or a 300px card never
+     downloads the full 1400px original. If a copy is ever missing the image
+     quietly swaps back to the original, so nothing can show broken. */
+  function sizedImg(path, size) {
+    const src = path || PLACEHOLDER;
+    const full = resolveImg(src);
+    const thumbable = /^images\/(?!thumbs\/).+\.jpe?g$/i.test(src) && full === IMG(src);
+    const shown = thumbable ? ROOT + 'images/thumbs/' + size + '/' + src.slice('images/'.length) : full;
+    return 'src="' + esc(shown) + '"' + (thumbable ? ' data-full="' + esc(full) + '" onerror="this.onerror=null;this.src=this.dataset.full"' : '');
+  }
+  function coverPath(p) {
+    return (p && p.images && p.images[0]) || PLACEHOLDER;
+  }
+  /* full-size cover URL, kept for window.ATT */
+  function coverImg(p) {
+    return resolveImg(coverPath(p));
+  }
+
   function showPreviewRibbon() {
     if (document.querySelector('.preview-ribbon')) return;
     const ribbon = document.createElement('div');
@@ -266,10 +285,6 @@
     }
     return esc(priceLabel(p));
   }
-  function coverImg(p) {
-    if (p.images && p.images[0]) return resolveImg(p.images[0]);
-    return resolveImg(PLACEHOLDER);
-  }
   function allImages(p) {
     return p.images && p.images.length ? p.images.slice() : [];
   }
@@ -305,8 +320,8 @@
       ? (matches.length ? cleanTheme(matches[0].theme) : cleanTheme(p.theme))
       : '';
     const cover = matches.length && matches[0].images && matches[0].images[0]
-      ? resolveImg(matches[0].images[0])
-      : coverImg(p);
+      ? matches[0].images[0]
+      : coverPath(p);
     const themeHtml = activeTheme ? themeBadgeHtml(activeTheme, 'theme-badge--card') : '';
 
     let readyTag;
@@ -328,9 +343,9 @@
       '<div class="product-card-media">' +
       badgeHtml +
       themeHtml +
-      '<img src="' +
-      esc(cover) +
-      '" alt="' +
+      '<img ' +
+      sizedImg(cover, 'md') +
+      ' alt="' +
       esc(p.name) +
       '" loading="lazy" width="400" height="400">' +
       '</div>' +
@@ -592,7 +607,7 @@
     if (!p) return '';
     let title = p.name;
     let sub = '';
-    let img = coverImg(p);
+    let img = coverPath(p);
     if (item.type === 'listing') {
       const l = (p.listings || []).find((x) => x.id === item.listingId);
       title = l ? l.name : p.name;
@@ -600,7 +615,7 @@
         p.name +
         ' · ready to ship' +
         (typeof shownPrice(p) === 'number' ? ' · $' + shownPrice(p) : '');
-      if (l && l.images && l.images[0]) img = resolveImg(l.images[0]);
+      if (l && l.images && l.images[0]) img = l.images[0];
     } else if (item.type === 'oneoff') {
       sub =
         'one of a kind · ready to ship' +
@@ -617,9 +632,9 @@
       '<div class="bi' +
       (extraClass || '') +
       '">' +
-      '<img class="bi-img" src="' +
-      esc(img) +
-      '" alt="' +
+      '<img class="bi-img" ' +
+      sizedImg(img, 'sm') +
+      ' alt="' +
       esc(title) +
       '">' +
       '<div class="bi-body"><div class="bi-name">' +
@@ -1292,7 +1307,7 @@
         const cover = products.find(isReady) || products[0];
         const summary = products.length + (products.length === 1 ? ' design' : ' designs') + (ready ? ' · ' + ready + ' ready now' : ' · Made to order');
         return '<a class="tile" href="' + esc(ROOT + 'shop/?type=' + encodeURIComponent(category)) + '">' +
-          '<div class="tile-photo"><img src="' + esc(coverImg(cover)) + '" alt="' + esc(category + ' handmade by Alivia') + '" width="800" height="800" loading="lazy"></div>' +
+          '<div class="tile-photo"><img ' + sizedImg(coverPath(cover), 'md') + ' alt="' + esc(category + ' handmade by Alivia') + '" width="800" height="800" loading="lazy"></div>' +
           '<div class="tile-name">' + esc(category) + '</div>' +
           '<div class="tile-sub">' + esc(summary) + '</div></a>';
       }).join('');
@@ -1475,7 +1490,7 @@
     const images = allImages(p);
     if (!images.length) images.push(PLACEHOLDER);
     const gallery = '<div class="gallery"><div class="gallery-main"><img id="galleryMainImg" src="' + esc(resolveImg(images[0])) + '" alt="' + esc(p.name) + '" width="800" height="800"></div>' +
-      '<div class="gallery-thumbs">' + images.map((src, index) => '<button type="button" data-gallery-idx="' + index + '" aria-current="' + (index === 0) + '" aria-label="Photo ' + (index + 1) + '"><img src="' + esc(resolveImg(src)) + '" alt="" width="64" height="64" loading="lazy"></button>').join('') + '</div></div>';
+      '<div class="gallery-thumbs">' + images.map((src, index) => '<button type="button" data-gallery-idx="' + index + '" aria-current="' + (index === 0) + '" aria-label="Photo ' + (index + 1) + '"><img ' + sizedImg(src, 'sm') + ' alt="" width="64" height="64" loading="lazy"></button>').join('') + '</div></div>';
     let listings = '';
     if (!p.oneOfAKind) {
       /* arriving from a theme filter puts those pieces first, highlighted,
@@ -1495,9 +1510,9 @@
             esc(themeMeta(params.get('theme')).label) + ' first. Every finished piece is listed below.</p>'
           : '';
         listings = '<div class="listings-block"><h3>' + (rows.some(l => !l.sold) ? 'Available now' : 'Finished pieces') + '</h3>' + themeNote + rows.map((listing) => {
-          const image = listing.images?.[0] ? resolveImg(listing.images[0]) : resolveImg(PLACEHOLDER);
+          const image = listing.images?.[0] || PLACEHOLDER;
           const listingName = listing.name || p.name;
-          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + (isMatch(listing) ? ' is-theme-match' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" src="' + esc(image) + '" alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + (cleanTheme(listing.theme) ? ' ' + themeBadgeHtml(listing.theme, 'theme-badge--sm') : '') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
+          return '<div class="listing-row' + (listing.sold ? ' is-sold' : '') + (isMatch(listing) ? ' is-theme-match' : '') + '"><button type="button" class="listing-image-button" data-listing-image="' + esc(listing.images?.[0] || PLACEHOLDER) + '" aria-label="View a larger photo of ' + esc(listingName) + '"><img class="listing-thumb" ' + sizedImg(image, 'sm') + ' alt="" width="56" height="56" loading="lazy"><span class="listing-zoom" aria-hidden="true">⌕</span></button><div class="listing-meta"><div class="listing-name">' + esc(listingName) + '</div><div class="listing-status">' + (listing.sold ? 'Sold' : 'Ready to ship') + (cleanTheme(listing.theme) ? ' ' + themeBadgeHtml(listing.theme, 'theme-badge--sm') : '') + '</div></div>' + (listing.sold ? '' : '<button type="button" class="btn btn-sm btn-primary" data-add-listing="' + esc(listing.id) + '">Add to basket</button>') + '</div>';
         }).join('') + '</div>';
       }
     }
@@ -1546,17 +1561,20 @@
       const mainImg = $('galleryMainImg');
       const thumbs = $$('[data-gallery-idx]');
       const imgs = allImages(p);
+      let shownIdx = 0;
       thumbs.forEach((btn) => {
         btn.addEventListener('click', () => {
           const i = parseInt(btn.getAttribute('data-gallery-idx'), 10);
           if (mainImg && imgs[i]) {
             mainImg.src = resolveImg(imgs[i]);
+            shownIdx = i;
             thumbs.forEach((t) => t.setAttribute('aria-current', t === btn ? 'true' : 'false'));
           }
         });
       });
       if (mainImg) {
-        mainImg.addEventListener('click', () => openLightbox(imgs, 0));
+        /* zoom opens on the photo she is looking at, not always the first */
+        mainImg.addEventListener('click', () => openLightbox(imgs, shownIdx));
         mainImg.style.cursor = 'zoom-in';
       }
       /* Buy Now only when valid checkout URL */
@@ -1594,7 +1612,7 @@
           const p = productById(item.productId);
           if (!p) return '';
           return '<div class="custom-selected-item">' +
-            '<img src="' + esc(coverImg(p)) + '" alt="">' +
+            '<img ' + sizedImg(coverPath(p), 'sm') + ' alt="">' +
             '<div class="custom-selected-body"><strong>' + esc(p.name) + '</strong>' +
             '<label>Quantity <input class="custom-qty-input" type="number" min="1" max="20" value="' + item.qty + '" data-custom-qty="' + idx + '" aria-label="Quantity for ' + esc(p.name) + '"></label></div>' +
             '<button type="button" class="bi-remove" data-custom-remove="' + idx + '" aria-label="Remove ' + esc(p.name) + '">✕</button></div>';
@@ -1614,9 +1632,9 @@
         .map((p) => {
           return (
             '<article class="silhouette-card custom-design-card">' +
-            '<img src="' +
-            esc(coverImg(p)) +
-            '" alt="' +
+            '<img ' +
+            sizedImg(coverPath(p), 'md') +
+            ' alt="' +
             esc(p.name) +
             '" loading="lazy" width="400" height="400">' +
             '<div class="body"><h3>' +
