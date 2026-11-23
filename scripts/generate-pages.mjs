@@ -7,6 +7,8 @@
  *   product/<id>/index.html   as noindex compatibility redirects
  *   sitemap.xml
  *   robots.txt
+ * and refreshes Studio-edited wording inside the hand-written pages
+ * (index, shop, custom, about, reviews) so they never flash old text.
  *
  * Usage (from repo root):
  *   node scripts/generate-pages.mjs
@@ -325,7 +327,7 @@ ${jsonLdProduct(p, pageUrl)}
         <div class="footer-col"><h4>Connect</h4><ul>
           <li><a href="https://www.instagram.com/alivias_treasured_threads" target="_blank" rel="noopener noreferrer">Instagram</a></li>
           <li><a href="../../checkout/">Checkout</a></li>
-          <li><a href="../../reviews/">Leave a note</a></li>
+          <li><a href="../../reviews/">Leave a review</a></li>
         </ul></div>
       </div>
       <div class="footer-bottom">
@@ -435,6 +437,58 @@ function legacyRedirect(p) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="${escAttr(target)}"><meta http-equiv="refresh" content="0;url=${escAttr(target)}"><title>Moved</title></head><body><p>This page moved to <a href="${escAttr(target)}">the Shop listing</a>.</p></body></html>`;
 }
 
+/* Studio-edited wording, baked into the hand-written pages.
+   assets/site.js swaps each of these elements' text for Alivia's current
+   setting once data/site.json loads, so a page whose built-in text is out of
+   date flashes the old words first (e.g. "Leave a Note" -> "Leave a Review").
+   Writing her current wording into the HTML on every publish removes the
+   flash; the result is the same text site.js would show. The checkout
+   success title is left alone because it is a live status message. */
+const COPY_PAGES = ['index.html', 'shop/index.html', 'custom/index.html', 'about/index.html', 'reviews/index.html'];
+const COPY_IDS = {
+  heroTagline: 'tagline', heroSub: 'heroSub', aboutHeading: 'aboutHeading', aboutText1: 'aboutText1',
+  aboutText2: 'aboutText2', shopScript: 'shopScript', shopTitle: 'shopTitle', shopSubtitle: 'shopSubtitle',
+  orderScript: 'orderScript', orderTitle: 'orderTitle', orderIntro: 'orderIntro', reviewsScript: 'reviewsScript',
+  reviewsTitle: 'reviewsTitle', leaveScript: 'leaveScript', leaveTitle: 'leaveTitle', leaveReviewIntro: 'leaveReviewIntro',
+};
+
+function plainText(html) {
+  return String(html).replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+}
+
+function syncStaticCopy(settings) {
+  let changed = 0;
+  for (const rel of COPY_PAGES) {
+    const file = join(ROOT, rel);
+    if (!existsSync(file)) continue;
+    const html = readFileSync(file, 'utf8');
+    let out = '';
+    let cursor = 0;
+    for (const m of html.matchAll(/<([a-z][a-z0-9]*)\b([^>]*)>/g)) {
+      if (m.index < cursor) continue;
+      const [open, tag, attrs] = m;
+      const id = (attrs.match(/\bid="([^"]+)"/) || [])[1];
+      const copy = /\bdata-copy-attr=/.test(attrs) ? null : (attrs.match(/\bdata-copy="([^"]+)"/) || [])[1];
+      const key = (id && COPY_IDS[id]) || copy;
+      if (!key || settings[key] == null || typeof settings[key] === 'object') continue;
+      const start = m.index + open.length;
+      const end = html.indexOf(`</${tag}>`, start);
+      if (end < 0) continue;
+      const inner = html.slice(start, end);
+      if (new RegExp(`<${tag}\\b`).test(inner)) continue; /* nested same tag: leave it */
+      const value = String(settings[key]);
+      if (plainText(inner) === value.replace(/\s+/g, ' ').trim()) continue;
+      out += html.slice(cursor, start) + esc(value);
+      cursor = end;
+    }
+    if (!cursor) continue;
+    writeFileSync(file, out + html.slice(cursor), 'utf8');
+    changed++;
+  }
+  return changed;
+}
+
 function main() {
   const data = loadData();
   const settings = data.settings || {};
@@ -464,7 +518,9 @@ function main() {
   }
   writeSitemap(products);
   writeRobots();
+  const synced = syncStaticCopy(settings);
   console.log(`Generated ${n} active Shop catalog page(s), legacy redirects, sitemap.xml, robots.txt`);
+  if (synced) console.log(`Updated Studio wording on ${synced} page(s)`);
   console.log(`Base URL: ${BASE}`);
 }
 
