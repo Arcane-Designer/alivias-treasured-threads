@@ -426,7 +426,6 @@
       "images": [
         "images/uploads/listing-mupua9s2mmy.jpg",
         "images/uploads/listing-mupuapo42vt.jpg",
-        "images/uploads/green-mushroom-cozy-mupuceheqyj.jpg",
         "images/uploads/listing-mupucm2vjul.jpg",
         "images/uploads/listing-mupucynf9dp.jpg"
       ],
@@ -437,7 +436,7 @@
           "images": [
             "images/uploads/listing-mupua9s2mmy.jpg"
           ],
-          "sold": false,
+          "sold": true,
           "theme": "",
           "tag": "in-person"
         },
