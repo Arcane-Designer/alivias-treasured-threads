@@ -40,7 +40,8 @@ jobs:
         env:
           GENERATE_BASE: ${{ vars.GENERATE_BASE || 'https://aliviastreasuredthreads.com' }}
         run: |
-          if git diff --quiet; then
+          # status, not diff: a brand-new page is untracked and diff would miss it
+          if [ -z "$(git status --porcelain shop product sitemap.xml robots.txt)" ]; then
             echo "Generated pages are already current."
             exit 0
           fi

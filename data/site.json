@@ -151,10 +151,67 @@
       "category": "Bags & Pouches",
       "theme": "",
       "badges": [],
-      "archived": true,
+      "archived": false,
       "oneOfAKind": false,
-      "images": [],
-      "listings": []
+      "images": [
+        "images/uploads/listing-mwhi4bfrpdv.jpg",
+        "images/uploads/listing-mwhi4p9d2dk.jpg",
+        "images/uploads/listing-mwhi4y4trtw.jpg",
+        "images/uploads/listing-mwhi5c18szl.jpg",
+        "images/uploads/listing-mwhi5llh4jb.jpg"
+      ],
+      "listings": [
+        {
+          "id": "l-mwhi4k8m9na1",
+          "name": "black christmas print",
+          "images": [
+            "images/uploads/listing-mwhi4bfrpdv.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mwhi4u23i6vc",
+          "name": "snowflake",
+          "images": [
+            "images/uploads/listing-mwhi4p9d2dk.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mwhi53a41idq",
+          "name": "christmas tree truck",
+          "images": [
+            "images/uploads/listing-mwhi4y4trtw.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mwhi5ik7dv3a",
+          "name": "christmas tree truck 2",
+          "images": [
+            "images/uploads/listing-mwhi5c18szl.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mwhi5q0jdh74",
+          "name": "snow fairy",
+          "images": [
+            "images/uploads/listing-mwhi5llh4jb.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        }
+      ]
     },
     {
       "id": "p-mupu8k2zxm8j",
@@ -165,10 +222,67 @@
       "category": "Home & Kitchen",
       "theme": "",
       "badges": [],
-      "archived": true,
+      "archived": false,
       "oneOfAKind": false,
-      "images": [],
-      "listings": []
+      "images": [
+        "images/uploads/listing-mupua9s2mmy.jpg",
+        "images/uploads/listing-mupuapo42vt.jpg",
+        "images/uploads/green-mushroom-cozy-mupuceheqyj.jpg",
+        "images/uploads/listing-mupucm2vjul.jpg",
+        "images/uploads/listing-mupucynf9dp.jpg"
+      ],
+      "listings": [
+        {
+          "id": "l-mupuajx13z7g",
+          "name": "Peanuts Bowl Cozy",
+          "images": [
+            "images/uploads/listing-mupua9s2mmy.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuaydkw0sr",
+          "name": "Brown Mushroom Cozy",
+          "images": [
+            "images/uploads/listing-mupuapo42vt.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuch8sng5x",
+          "name": "Green Mushroom Cozy",
+          "images": [
+            "images/uploads/green-mushroom-cozy-mupuceheqyj.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupucuvyh6vo",
+          "name": "Magic School Crest Cozy",
+          "images": [
+            "images/uploads/listing-mupucm2vjul.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupud7bu8fdx",
+          "name": "Boy Who Lived Cozy",
+          "images": [
+            "images/uploads/listing-mupucynf9dp.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        }
+      ]
     },
     {
       "id": "p-mu4ehyz1lk8e",
@@ -189,6 +303,16 @@
         "images/uploads/halloween-bundle-mu4eji3xh6q.jpg"
       ],
       "listings": [
+        {
+          "id": "l-mu4eksipgcav",
+          "name": "Black Halloween Bundle",
+          "images": [
+            "images/uploads/black-halloween-bundle-mu4ekrpseek.jpg"
+          ],
+          "sold": false,
+          "theme": "Halloween",
+          "tag": "in-person"
+        },
         {
           "id": "l-mu4ejptlwzgi",
           "name": "Orange Halloween Bundle",
@@ -220,6 +344,46 @@
         "images/uploads/coin-pouch-mts1g1ekptv.jpg"
       ],
       "listings": [
+        {
+          "id": "l-mts1p4tlwo92",
+          "name": "Dark Harvest Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1ot5ewfu.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mts1pflj47yi",
+          "name": "Apple Spice Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1pahq5b4.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mts1pqfy89rx",
+          "name": "Cozy Pumpkin Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1pjms9v3.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mts1q14wf5ms",
+          "name": "Autumn Foliage Coin Pouch",
+          "images": [
+            "images/uploads/listing-mts1pu6rkq1.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
         {
           "id": "l-mts1oov1ejf7",
           "name": "Great Pumpkin Coin Pouch",
@@ -255,7 +419,7 @@
       "badges": [
         "Sale!"
       ],
-      "archived": true,
+      "archived": false,
       "oneOfAKind": false,
       "images": [
         "images/uploads/fall-bundles-mts1e0nwdo6.jpg",
@@ -263,9 +427,93 @@
         "images/uploads/fall-bundles-mts1e0qtuew.jpg",
         "images/uploads/fall-bundles-mts1e0s8p81.jpg"
       ],
-      "listings": [],
+      "listings": [
+        {
+          "id": "l-mts1d3rbml78",
+          "name": "Yellow Fall Bundle",
+          "images": [
+            "images/uploads/listing-mts1cw60wqu.jpg",
+            "images/uploads/listing-mts1cw7iwsh.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mts1cl6ejv0p",
+          "name": "Blue Fall Bundle",
+          "images": [
+            "images/uploads/blue-fall-bundle-mts1cixeosk.jpg",
+            "images/uploads/blue-fall-bundle-mts1ciyzy1n.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mts1c80ym2ra",
+          "name": "Orange Fall Bundle",
+          "images": [
+            "images/uploads/orange-fall-bundle-mts1c1gexrp.jpg",
+            "images/uploads/orange-fall-bundle-mts1c1hx3z4.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        }
+      ],
       "salePrice": null,
       "saleLabel": ""
+    },
+    {
+      "id": "p-msur1234kr0k",
+      "name": "Apple Cider Bundle",
+      "category": "Bundles",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This Apple Cider Bundle includes a Jackie Mini Tote, a zipper pouch, two pot holders, and three bookmarks in a cute apple inspired color scheme. Buy it as a bundle to save!",
+      "badges": [
+        "Limited edition!"
+      ],
+      "archived": false,
+      "oneOfAKind": true,
+      "images": [
+        "images/uploads/apple-cider-bundle-msur3jkm4l7.jpg",
+        "images/uploads/apple-cider-bundle-msur3jmgkl6.jpg",
+        "images/uploads/apple-cider-bundle-msur3jo9xsp.jpg",
+        "images/uploads/apple-cider-bundle-msur3jpyuus.jpg",
+        "images/uploads/apple-cider-bundle-msur3jru2va.jpg"
+      ],
+      "listings": [],
+      "salePrice": 60,
+      "saleLabel": "",
+      "theme": "Fall",
+      "tag": "in-person"
+    },
+    {
+      "id": "p-ms3nk6mp2otm",
+      "name": "Sunny Sky Bundle ",
+      "category": "Bundles",
+      "price": 67,
+      "priceLabel": "$67",
+      "description": "This bundle includes a mini tote bag, four bookmarks, four coasters, and a zipper bag in a blue and yellow color scheme with a cute cloud print! Buy the bundle to get a discounted price on everything.",
+      "badges": [
+        "Limited edition!"
+      ],
+      "archived": false,
+      "oneOfAKind": true,
+      "images": [
+        "images/uploads/sunny-sky-bundle-ms3nn5pss1u.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5rkjrl.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5t9i3w.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5v0wib.jpg",
+        "images/uploads/sunny-sky-bundle-ms3nn5woax8.jpg"
+      ],
+      "listings": [],
+      "salePrice": 60,
+      "saleLabel": "",
+      "theme": "Summer",
+      "tag": "in-person"
     },
     {
       "id": "p-mrsqof4x8ebz",
@@ -387,7 +635,38 @@
         "images/products/products-1.jpg",
         "images/products/products-3.jpg"
       ],
-      "listings": [],
+      "listings": [
+        {
+          "id": "l-mtdckjc6ept6",
+          "name": "Blue Strawberry Tote",
+          "images": [
+            "images/uploads/listing-mtdck1n3ijt.jpg"
+          ],
+          "sold": false,
+          "theme": "Summer",
+          "tag": "in-person"
+        },
+        {
+          "id": "tote-black-halloween",
+          "name": "Black Halloween Tote",
+          "images": [
+            "images/available/anna-s-everyday-tote-bag-black-halloween.jpg"
+          ],
+          "sold": false,
+          "theme": "Halloween",
+          "tag": "in-person"
+        },
+        {
+          "id": "tote-orange-halloween",
+          "name": "Orange Halloween Tote",
+          "images": [
+            "images/available/anna-s-everyday-tote-bag-orange-halloween.jpg"
+          ],
+          "sold": false,
+          "theme": "Halloween",
+          "tag": "in-person"
+        }
+      ],
       "badges": [],
       "theme": "",
       "salePrice": null,
@@ -405,6 +684,56 @@
         "images/uploads/zipper-pouch-mrllwtakomy.jpg"
       ],
       "listings": [
+        {
+          "id": "l-mu4ehgyh5n5y",
+          "name": "Marauder Zipper Pouch",
+          "images": [
+            "images/uploads/listing-mu4eh14zw22.jpg"
+          ],
+          "sold": false,
+          "theme": "Wizarding",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mts1lt03yqqm",
+          "name": "Autumn Plaid Zipper Pouch",
+          "images": [
+            "images/uploads/listing-mts1lfyk07l.jpg"
+          ],
+          "sold": false,
+          "theme": "Fall",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mtdcq37d2jg6",
+          "name": "Yellow Strawberry Zipper Pouch",
+          "images": [
+            "images/uploads/listing-mtdcpvrcigj.jpg"
+          ],
+          "sold": false,
+          "theme": "Summer",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mtdcpb34e1m3",
+          "name": "Balletcore Zipper Pouch",
+          "images": [
+            "images/uploads/listing-mtdcp1gfpkj.jpg"
+          ],
+          "sold": false,
+          "theme": "Summer",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mtdcotaunjfv",
+          "name": "Lemon Blueberry Zipper Pouch ",
+          "images": [
+            "images/uploads/listing-mtdcocv9fcc.jpg"
+          ],
+          "sold": false,
+          "theme": "Summer",
+          "tag": "in-person"
+        },
         {
           "id": "l-mtdcpqkwe82h",
           "name": "Blue Strawberry Zipper Pouch",
@@ -458,6 +787,186 @@
         "images/uploads/bookmarks-mrmec355ly1.jpg"
       ],
       "listings": [
+        {
+          "id": "l-mupufpogtyjj",
+          "name": "1",
+          "images": [
+            "images/uploads/listing-mupufm990ag.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupufxa1t1uj",
+          "name": "2",
+          "images": [
+            "images/uploads/listing-mupufubeifi.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupug60d6g9b",
+          "name": "3",
+          "images": [
+            "images/uploads/3-mupug3p71vw.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuge6c8lgr",
+          "name": "4",
+          "images": [
+            "images/uploads/listing-mupugbegitg.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupugmucyl4u",
+          "name": "5",
+          "images": [
+            "images/uploads/listing-mupugk3nne9.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupugul3p9ox",
+          "name": "6",
+          "images": [
+            "images/uploads/listing-mupugrihurb.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuh2149bqz",
+          "name": "7",
+          "images": [
+            "images/uploads/listing-mupugz3zh7h.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuh9src05f",
+          "name": "8",
+          "images": [
+            "images/uploads/listing-mupuh6frs8n.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuhmcy1und",
+          "name": "9",
+          "images": [
+            "images/uploads/9-mupuhjzp2ap.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuhw8k2itm",
+          "name": "10",
+          "images": [
+            "images/uploads/listing-mupuhsr7av8.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupui408agla",
+          "name": "11",
+          "images": [
+            "images/uploads/listing-mupui0amjdy.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuibul1d3a",
+          "name": "12",
+          "images": [
+            "images/uploads/listing-mupui85yuc5.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuiowk0ypc",
+          "name": "13",
+          "images": [
+            "images/uploads/13-mupuimgl5et.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuj08ed10v",
+          "name": "14",
+          "images": [
+            "images/uploads/14-mupuix0x2qr.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupuj854kae5",
+          "name": "15",
+          "images": [
+            "images/uploads/15-mupuj67a09t.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupujfe82xc8",
+          "name": "16",
+          "images": [
+            "images/uploads/16-mupujdr1tvz.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupujnhfn7g8",
+          "name": "17",
+          "images": [
+            "images/uploads/17-mupujlcj1sk.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupujuxnuz50",
+          "name": "18",
+          "images": [
+            "images/uploads/18-mupujtdkjfd.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
         {
           "id": "bk-fall-fun",
           "name": "Fall Fun Bookmark",
@@ -638,6 +1147,47 @@
       ],
       "listings": [
         {
+          "id": "coaster-papaya-racing",
+          "name": "Papaya Racing Coaster",
+          "images": [
+            "images/available/papaya-racing-coaster.jpg",
+            "images/uploads/papaya-racing-coaster-mrmeenvngc3.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "coaster-lights-out",
+          "name": "Lights Out Coaster",
+          "images": [
+            "images/available/lights-out-coaster.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "coaster-marauders-map",
+          "name": "Marauder's Map Coasters",
+          "images": [
+            "images/available/marauders-map-coasters.jpg"
+          ],
+          "sold": false,
+          "theme": "Wizarding",
+          "tag": "in-person"
+        },
+        {
+          "id": "coaster-boy-who-lived",
+          "name": "Boy Who Lived Coasters",
+          "images": [
+            "images/available/boy-who-lived-coasters.jpg"
+          ],
+          "sold": false,
+          "theme": "Wizarding",
+          "tag": "in-person"
+        },
+        {
           "id": "coaster-pink",
           "name": "Pretty in Pink Coaster",
           "images": [
@@ -665,7 +1215,38 @@
       "images": [
         "images/uploads/jackie-mini-tote-bag-ms3m7hjifr8.jpg"
       ],
-      "listings": [],
+      "listings": [
+        {
+          "id": "l-mtdcjtj307ii",
+          "name": "Strawberry Jam Mini Tote",
+          "images": [
+            "images/uploads/listing-mtdcjig6obp.jpg"
+          ],
+          "sold": false,
+          "theme": "Summer",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mshwiv36uu6e",
+          "name": "Off The Wall Mini Tote",
+          "images": [
+            "images/uploads/off-the-wall-mini-tote-mt3s5xucb1m.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        },
+        {
+          "id": "l-mupufah6f2pn",
+          "name": "Blue Faith Tote",
+          "images": [
+            "images/uploads/listing-mupuf4rjemx.jpg"
+          ],
+          "sold": false,
+          "theme": "",
+          "tag": "in-person"
+        }
+      ],
       "badges": [
         "NEW!"
       ],
@@ -707,7 +1288,18 @@
         "images/products/pot-holders-2.jpg",
         "images/products/pot-holders-3.jpg"
       ],
-      "listings": [],
+      "listings": [
+        {
+          "id": "ph-orange-halloween",
+          "name": "Orange Halloween Pot Holder",
+          "images": [
+            "images/available/pot-holder-orange-halloween.jpg"
+          ],
+          "sold": false,
+          "theme": "Halloween",
+          "tag": "in-person"
+        }
+      ],
       "badges": [],
       "theme": "",
       "salePrice": null,
@@ -844,76 +1436,6 @@
   ],
   "archive": [
     {
-      "id": "l-mwhi5q0jdh74",
-      "name": "snow fairy",
-      "images": [
-        "images/uploads/listing-mwhi5llh4jb.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mw9h39ax55we",
-      "productName": "Gift Bags",
-      "archivedAt": "2026-11-14"
-    },
-    {
-      "id": "l-mwhi5ik7dv3a",
-      "name": "christmas tree truck 2",
-      "images": [
-        "images/uploads/listing-mwhi5c18szl.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mw9h39ax55we",
-      "productName": "Gift Bags",
-      "archivedAt": "2026-11-14"
-    },
-    {
-      "id": "l-mwhi53a41idq",
-      "name": "christmas tree truck",
-      "images": [
-        "images/uploads/listing-mwhi4y4trtw.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mw9h39ax55we",
-      "productName": "Gift Bags",
-      "archivedAt": "2026-11-14"
-    },
-    {
-      "id": "l-mwhi4u23i6vc",
-      "name": "snowflake",
-      "images": [
-        "images/uploads/listing-mwhi4p9d2dk.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mw9h39ax55we",
-      "productName": "Gift Bags",
-      "archivedAt": "2026-11-14"
-    },
-    {
-      "id": "l-mwhi4k8m9na1",
-      "name": "black christmas print",
-      "images": [
-        "images/uploads/listing-mwhi4bfrpdv.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mw9h39ax55we",
-      "productName": "Gift Bags",
-      "archivedAt": "2026-11-14"
-    },
-    {
       "id": "l-mwa2znsnoyuw",
       "name": "Evie",
       "images": [
@@ -987,553 +1509,6 @@
       "archivedAt": "2026-11-09"
     },
     {
-      "id": "l-mupujuxnuz50",
-      "name": "18",
-      "images": [
-        "images/uploads/18-mupujtdkjfd.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupujnhfn7g8",
-      "name": "17",
-      "images": [
-        "images/uploads/17-mupujlcj1sk.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupujfe82xc8",
-      "name": "16",
-      "images": [
-        "images/uploads/16-mupujdr1tvz.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuj854kae5",
-      "name": "15",
-      "images": [
-        "images/uploads/15-mupuj67a09t.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuj08ed10v",
-      "name": "14",
-      "images": [
-        "images/uploads/14-mupuix0x2qr.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuiowk0ypc",
-      "name": "13",
-      "images": [
-        "images/uploads/13-mupuimgl5et.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuibul1d3a",
-      "name": "12",
-      "images": [
-        "images/uploads/listing-mupui85yuc5.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupui408agla",
-      "name": "11",
-      "images": [
-        "images/uploads/listing-mupui0amjdy.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuhw8k2itm",
-      "name": "10",
-      "images": [
-        "images/uploads/listing-mupuhsr7av8.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuhmcy1und",
-      "name": "9",
-      "images": [
-        "images/uploads/9-mupuhjzp2ap.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuh9src05f",
-      "name": "8",
-      "images": [
-        "images/uploads/listing-mupuh6frs8n.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuh2149bqz",
-      "name": "7",
-      "images": [
-        "images/uploads/listing-mupugz3zh7h.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupugul3p9ox",
-      "name": "6",
-      "images": [
-        "images/uploads/listing-mupugrihurb.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupugmucyl4u",
-      "name": "5",
-      "images": [
-        "images/uploads/listing-mupugk3nne9.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuge6c8lgr",
-      "name": "4",
-      "images": [
-        "images/uploads/listing-mupugbegitg.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupug60d6g9b",
-      "name": "3",
-      "images": [
-        "images/uploads/3-mupug3p71vw.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupufxa1t1uj",
-      "name": "2",
-      "images": [
-        "images/uploads/listing-mupufubeifi.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupufpogtyjj",
-      "name": "1",
-      "images": [
-        "images/uploads/listing-mupufm990ag.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "bookmarks",
-      "productName": "Bookmarks",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupufah6f2pn",
-      "name": "Blue Faith Tote",
-      "images": [
-        "images/uploads/listing-mupuf4rjemx.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "mini-tote-bag",
-      "productName": "Jackie Mini Tote Bag",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupud7bu8fdx",
-      "name": "Boy Who Lived Cozy",
-      "images": [
-        "images/uploads/listing-mupucynf9dp.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mupu8k2zxm8j",
-      "productName": "Bowl Cozy",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupucuvyh6vo",
-      "name": "Magic School Crest Cozy",
-      "images": [
-        "images/uploads/listing-mupucm2vjul.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mupu8k2zxm8j",
-      "productName": "Bowl Cozy",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuch8sng5x",
-      "name": "Green Mushroom Cozy",
-      "images": [
-        "images/uploads/green-mushroom-cozy-mupuceheqyj.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mupu8k2zxm8j",
-      "productName": "Bowl Cozy",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuaydkw0sr",
-      "name": "Brown Mushroom Cozy",
-      "images": [
-        "images/uploads/listing-mupuapo42vt.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mupu8k2zxm8j",
-      "productName": "Bowl Cozy",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mupuajx13z7g",
-      "name": "Peanuts Bowl Cozy",
-      "images": [
-        "images/uploads/listing-mupua9s2mmy.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mupu8k2zxm8j",
-      "productName": "Bowl Cozy",
-      "archivedAt": "2026-10-01"
-    },
-    {
-      "id": "l-mts1q14wf5ms",
-      "name": "Autumn Foliage Coin Pouch",
-      "images": [
-        "images/uploads/listing-mts1pu6rkq1.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mts1elx2rrs3",
-      "productName": "Coin Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mts1pqfy89rx",
-      "name": "Cozy Pumpkin Coin Pouch",
-      "images": [
-        "images/uploads/listing-mts1pjms9v3.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mts1elx2rrs3",
-      "productName": "Coin Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mts1pflj47yi",
-      "name": "Apple Spice Coin Pouch",
-      "images": [
-        "images/uploads/listing-mts1pahq5b4.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mts1elx2rrs3",
-      "productName": "Coin Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mts1p4tlwo92",
-      "name": "Dark Harvest Coin Pouch",
-      "images": [
-        "images/uploads/listing-mts1ot5ewfu.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mts1elx2rrs3",
-      "productName": "Coin Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mshwiv36uu6e",
-      "name": "Off The Wall Mini Tote",
-      "images": [
-        "images/uploads/off-the-wall-mini-tote-mt3s5xucb1m.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "mini-tote-bag",
-      "productName": "Jackie Mini Tote Bag",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mtdcjtj307ii",
-      "name": "Strawberry Jam Mini Tote",
-      "images": [
-        "images/uploads/listing-mtdcjig6obp.jpg"
-      ],
-      "sold": false,
-      "theme": "Summer",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "mini-tote-bag",
-      "productName": "Jackie Mini Tote Bag",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "coaster-boy-who-lived",
-      "name": "Boy Who Lived Coasters",
-      "images": [
-        "images/available/boy-who-lived-coasters.jpg"
-      ],
-      "sold": false,
-      "theme": "Wizarding",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "cute-quilted-coasters",
-      "productName": "Cute Quilted Coasters",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "coaster-marauders-map",
-      "name": "Marauder's Map Coasters",
-      "images": [
-        "images/available/marauders-map-coasters.jpg"
-      ],
-      "sold": false,
-      "theme": "Wizarding",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "cute-quilted-coasters",
-      "productName": "Cute Quilted Coasters",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "coaster-lights-out",
-      "name": "Lights Out Coaster",
-      "images": [
-        "images/available/lights-out-coaster.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "cute-quilted-coasters",
-      "productName": "Cute Quilted Coasters",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "coaster-papaya-racing",
-      "name": "Papaya Racing Coaster",
-      "images": [
-        "images/available/papaya-racing-coaster.jpg",
-        "images/uploads/papaya-racing-coaster-mrmeenvngc3.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "cute-quilted-coasters",
-      "productName": "Cute Quilted Coasters",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mtdcotaunjfv",
-      "name": "Lemon Blueberry Zipper Pouch ",
-      "images": [
-        "images/uploads/listing-mtdcocv9fcc.jpg"
-      ],
-      "sold": false,
-      "theme": "Summer",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "zipper-pouch",
-      "productName": "Zipper Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mtdcpb34e1m3",
-      "name": "Balletcore Zipper Pouch",
-      "images": [
-        "images/uploads/listing-mtdcp1gfpkj.jpg"
-      ],
-      "sold": false,
-      "theme": "Summer",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "zipper-pouch",
-      "productName": "Zipper Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mtdcq37d2jg6",
-      "name": "Yellow Strawberry Zipper Pouch",
-      "images": [
-        "images/uploads/listing-mtdcpvrcigj.jpg"
-      ],
-      "sold": false,
-      "theme": "Summer",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "zipper-pouch",
-      "productName": "Zipper Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mts1lt03yqqm",
-      "name": "Autumn Plaid Zipper Pouch",
-      "images": [
-        "images/uploads/listing-mts1lfyk07l.jpg"
-      ],
-      "sold": false,
-      "theme": "Fall",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "zipper-pouch",
-      "productName": "Zipper Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mu4ehgyh5n5y",
-      "name": "Marauder Zipper Pouch",
-      "images": [
-        "images/uploads/listing-mu4eh14zw22.jpg"
-      ],
-      "sold": false,
-      "theme": "Wizarding",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "zipper-pouch",
-      "productName": "Zipper Pouch",
-      "archivedAt": "2026-09-28"
-    },
-    {
       "id": "l-mt3s3zpw45zh",
       "name": "Chai Time Tote",
       "images": [
@@ -1547,181 +1522,6 @@
       "kind": "listing",
       "productId": "annas-everyday-tote",
       "productName": "Anna's Everyday Tote Bag",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "tote-orange-halloween",
-      "name": "Orange Halloween Tote",
-      "images": [
-        "images/available/anna-s-everyday-tote-bag-orange-halloween.jpg"
-      ],
-      "sold": false,
-      "theme": "Halloween",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "annas-everyday-tote",
-      "productName": "Anna's Everyday Tote Bag",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "tote-black-halloween",
-      "name": "Black Halloween Tote",
-      "images": [
-        "images/available/anna-s-everyday-tote-bag-black-halloween.jpg"
-      ],
-      "sold": false,
-      "theme": "Halloween",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "annas-everyday-tote",
-      "productName": "Anna's Everyday Tote Bag",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mtdckjc6ept6",
-      "name": "Blue Strawberry Tote",
-      "images": [
-        "images/uploads/listing-mtdck1n3ijt.jpg"
-      ],
-      "sold": false,
-      "theme": "Summer",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "annas-everyday-tote",
-      "productName": "Anna's Everyday Tote Bag",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "p-ms3nk6mp2otm",
-      "kind": "product",
-      "archivedAt": "2026-09-28",
-      "product": {
-        "id": "p-ms3nk6mp2otm",
-        "name": "Sunny Sky Bundle ",
-        "category": "Bundles",
-        "price": 67,
-        "priceLabel": "$67",
-        "description": "This bundle includes a mini tote bag, four bookmarks, four coasters, and a zipper bag in a blue and yellow color scheme with a cute cloud print! Buy the bundle to get a discounted price on everything.",
-        "badges": [
-          "Limited edition!"
-        ],
-        "archived": true,
-        "oneOfAKind": true,
-        "images": [
-          "images/uploads/sunny-sky-bundle-ms3nn5pss1u.jpg",
-          "images/uploads/sunny-sky-bundle-ms3nn5rkjrl.jpg",
-          "images/uploads/sunny-sky-bundle-ms3nn5t9i3w.jpg",
-          "images/uploads/sunny-sky-bundle-ms3nn5v0wib.jpg",
-          "images/uploads/sunny-sky-bundle-ms3nn5woax8.jpg"
-        ],
-        "listings": [],
-        "salePrice": 60,
-        "saleLabel": "",
-        "theme": "Summer",
-        "tag": "in-person"
-      }
-    },
-    {
-      "id": "l-mts1c80ym2ra",
-      "name": "Orange Fall Bundle",
-      "images": [
-        "images/uploads/orange-fall-bundle-mts1c1gexrp.jpg",
-        "images/uploads/orange-fall-bundle-mts1c1hx3z4.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mts18jjgzx8o",
-      "productName": "Fall Bundles",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mts1cl6ejv0p",
-      "name": "Blue Fall Bundle",
-      "images": [
-        "images/uploads/blue-fall-bundle-mts1cixeosk.jpg",
-        "images/uploads/blue-fall-bundle-mts1ciyzy1n.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mts18jjgzx8o",
-      "productName": "Fall Bundles",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "l-mts1d3rbml78",
-      "name": "Yellow Fall Bundle",
-      "images": [
-        "images/uploads/listing-mts1cw60wqu.jpg",
-        "images/uploads/listing-mts1cw7iwsh.jpg"
-      ],
-      "sold": false,
-      "theme": "",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mts18jjgzx8o",
-      "productName": "Fall Bundles",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "p-msur1234kr0k",
-      "kind": "product",
-      "archivedAt": "2026-09-28",
-      "product": {
-        "id": "p-msur1234kr0k",
-        "name": "Apple Cider Bundle",
-        "category": "Bundles",
-        "price": 67,
-        "priceLabel": "$67",
-        "description": "This Apple Cider Bundle includes a Jackie Mini Tote, a zipper pouch, two pot holders, and three bookmarks in a cute apple inspired color scheme. Buy it as a bundle to save!",
-        "badges": [
-          "Limited edition!"
-        ],
-        "archived": false,
-        "oneOfAKind": true,
-        "images": [
-          "images/uploads/apple-cider-bundle-msur3jkm4l7.jpg",
-          "images/uploads/apple-cider-bundle-msur3jmgkl6.jpg",
-          "images/uploads/apple-cider-bundle-msur3jo9xsp.jpg",
-          "images/uploads/apple-cider-bundle-msur3jpyuus.jpg",
-          "images/uploads/apple-cider-bundle-msur3jru2va.jpg"
-        ],
-        "listings": [],
-        "salePrice": 60,
-        "saleLabel": "",
-        "theme": "Fall",
-        "tag": "in-person"
-      }
-    },
-    {
-      "id": "l-mu4eksipgcav",
-      "name": "Black Halloween Bundle",
-      "images": [
-        "images/uploads/black-halloween-bundle-mu4ekrpseek.jpg"
-      ],
-      "sold": false,
-      "theme": "Halloween",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "p-mu4ehyz1lk8e",
-      "productName": "Halloween Bundle",
-      "archivedAt": "2026-09-28"
-    },
-    {
-      "id": "ph-orange-halloween",
-      "name": "Orange Halloween Pot Holder",
-      "images": [
-        "images/available/pot-holder-orange-halloween.jpg"
-      ],
-      "sold": false,
-      "theme": "Halloween",
-      "tag": "in-person",
-      "kind": "listing",
-      "productId": "pot-holders",
-      "productName": "Pot Holders",
       "archivedAt": "2026-09-28"
     },
     {
