@@ -319,6 +319,58 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
     radial-gradient(circle at 85% 70%, rgba(79, 228, 188, 0.1), transparent 45%),
     linear-gradient(180deg, #f4f0fe 0%, #fbf9ff 100%);
 }
+/* Big snowflakes floating behind the homepage hero while the seasonal
+   feature is Christmas or Winter (keyed off the seasonal band's data-season).
+   Each <i> in .hero-snow is one flake; --xf/--yf place it like
+   background-position does (0 = left/top edge, 1 = right/bottom edge). */
+.hero-snow { display: none; }
+main:has(.theme-band[data-season="christmas"], .theme-band[data-season="winter"]) .hero { overflow: hidden; isolation: isolate; }
+main:has(.theme-band[data-season="christmas"], .theme-band[data-season="winter"]) .hero-snow {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.62;
+  --flake-p: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-50 -50 100 100%27%3E%3Cg fill=%27none%27 stroke=%27%23b8a9f0%27 stroke-width=%273.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath transform=%27rotate%280%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%2860%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28120%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28180%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28240%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28300%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Ccircle r=%275%27/%3E%3C/g%3E%3C/svg%3E");
+  --flake-p-soft: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-50 -50 100 100%27%3E%3Cg fill=%27none%27 stroke=%27%23b8a9f0%27 stroke-width=%273.2%27 opacity=%270.6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath transform=%27rotate%280%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%2860%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28120%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28180%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28240%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28300%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Ccircle r=%275%27/%3E%3C/g%3E%3C/svg%3E");
+  --flake-k: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-50 -50 100 100%27%3E%3Cg fill=%27none%27 stroke=%27%23ffb0e8%27 stroke-width=%273.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath transform=%27rotate%280%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%2860%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28120%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28180%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28240%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28300%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Ccircle r=%275%27/%3E%3C/g%3E%3C/svg%3E");
+  --flake-t-soft: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-50 -50 100 100%27%3E%3Cg fill=%27none%27 stroke=%27%238ff0d6%27 stroke-width=%273.6%27 opacity=%270.6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath transform=%27rotate%280%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%2860%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28120%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28180%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28240%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Cpath transform=%27rotate%28300%29%27 d=%27M0 0V-44M0-17l-11-11M0-17l11-11M0-31l-8-8M0-31l8-8%27/%3E%3Ccircle r=%275%27/%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-snow i {
+  position: absolute;
+  left: calc((100% - var(--s)) * var(--xf));
+  top: calc((100% - var(--s)) * var(--yf));
+  width: var(--s);
+  height: var(--s);
+  background: var(--img) center / contain no-repeat;
+  animation: snow-float var(--d) ease-in-out var(--delay) infinite alternate;
+}
+.hero-snow i:nth-child(1) { --img: var(--flake-p-soft); --s: 200px; --xf: -0.015; --yf: 0.06; --dx: 14px; --dy: 18px; --r: 18deg; --d: 11s; --delay: -2s; }
+.hero-snow i:nth-child(2) { --img: var(--flake-k); --s: 78px; --xf: 0.4; --yf: 0.07; --dx: -12px; --dy: 14px; --r: -22deg; --d: 8s; --delay: -5s; }
+.hero-snow i:nth-child(3) { --img: var(--flake-t-soft); --s: 130px; --xf: 0.46; --yf: 1.04; --dx: 16px; --dy: -14px; --r: 16deg; --d: 12s; --delay: -7s; }
+.hero-snow i:nth-child(4) { --img: var(--flake-k); --s: 90px; --xf: 0.01; --yf: 0.97; --dx: 10px; --dy: -16px; --r: -18deg; --d: 9s; --delay: -3s; }
+.hero-snow i:nth-child(5) { --img: var(--flake-p); --s: 56px; --xf: 0.51; --yf: 0.48; --dx: -10px; --dy: 12px; --r: 24deg; --d: 7s; --delay: -1s; }
+.hero-snow i:nth-child(6) { --img: var(--flake-t-soft); --s: 140px; --xf: 0.99; --yf: 0.03; --dx: -14px; --dy: 16px; --r: -16deg; --d: 13s; --delay: -9s; }
+.hero-snow i:nth-child(7) { --img: var(--flake-k); --s: 190px; --xf: 1.03; --yf: 0.62; --dx: -16px; --dy: -14px; --r: 14deg; --d: 12s; --delay: -4s; }
+.hero-snow i:nth-child(8) { --img: var(--flake-p); --s: 60px; --xf: -0.03; --yf: 0.58; --dx: 12px; --dy: 14px; --r: -20deg; --d: 9s; --delay: -6s; }
+@keyframes snow-float {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); }
+}
+@media (max-width: 760px) {
+  .hero-snow i:nth-child(1) { --s: 120px; --xf: -0.14; --yf: 0.015; }
+  .hero-snow i:nth-child(2) { --s: 56px; --xf: 0.97; --yf: 0.01; }
+  .hero-snow i:nth-child(3) { --s: 100px; --xf: 1.1; --yf: 0.24; }
+  .hero-snow i:nth-child(4) { --s: 64px; --xf: -0.1; --yf: 0.31; }
+  .hero-snow i:nth-child(5) { display: none; }
+  .hero-snow i:nth-child(6) { --s: 80px; --xf: 1.08; --yf: 0.62; }
+  .hero-snow i:nth-child(7) { --s: 110px; --xf: -0.1; --yf: 0.97; }
+  .hero-snow i:nth-child(8) { --s: 90px; --xf: 1.04; --yf: 0.99; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-snow i { animation: none; }
+}
 .hero-grid {
   display: grid;
   grid-template-columns: 1.05fr 0.9fr;
