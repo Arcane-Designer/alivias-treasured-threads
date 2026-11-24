@@ -303,6 +303,28 @@ for (const img of imageRefs) {
   themeTagCount = seenTags.size;
 }
 
+/* the homepage seasonal section and its Studio editor must use class names
+   the stylesheets define (an Aug 2026 rename left them unstyled for months) */
+{
+  const checks = [
+    { page: 'index.html', css: 'assets/site.css', block: /<section class="theme-band"[\s\S]*?<\/section>/ },
+    { page: 'admin/index.html', css: 'admin/admin.css', block: /<div class="theme-photo-editor">/ },
+  ];
+  for (const { page, css, block } of checks) {
+    const html = readFileSync(join(ROOT, page), 'utf8');
+    const section = (html.match(block) || [])[0];
+    if (!section) {
+      fail(`${page}: the seasonal section (${block.source.slice(0, 40)}…) is missing or was renamed; update it and its styles together.`);
+      continue;
+    }
+    const styles = readFileSync(join(ROOT, css), 'utf8');
+    const classes = new Set([...section.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/)).filter((c) => /^theme-/.test(c)));
+    for (const cls of classes) {
+      if (!new RegExp(`\\.${cls}(?![\\w-])`).test(styles)) fail(`${page}: class "${cls}" in the seasonal section has no style in ${css}.`);
+    }
+  }
+}
+
 /* scan HTML for secrets / bad checkout placeholders */
 for (const file of walkHtml(ROOT)) {
   const html = readFileSync(file, 'utf8');
