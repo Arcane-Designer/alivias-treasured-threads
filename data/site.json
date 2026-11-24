@@ -166,7 +166,7 @@
             "images/uploads/snowflake-mwu3ef3i0lw.jpg"
           ],
           "sold": false,
-          "theme": "",
+          "theme": "Winter",
           "tag": "in-person"
         },
         {
@@ -176,7 +176,7 @@
             "images/uploads/snowflake-mwu3ef3i0lw.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Winter"
         },
         {
           "id": "l-mwhi53a41idq",
@@ -186,7 +186,7 @@
             "images/uploads/listing-mwhi4y4trtw.jpg"
           ],
           "sold": false,
-          "theme": "",
+          "theme": "Christmas",
           "tag": "in-person"
         },
         {
@@ -197,7 +197,7 @@
             "images/uploads/listing-mwhi5c18szl.jpg"
           ],
           "sold": false,
-          "theme": "",
+          "theme": "Christmas",
           "tag": "in-person"
         },
         {
@@ -208,7 +208,7 @@
             "images/uploads/listing-mwhi5c18szl.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Christmas"
         },
         {
           "id": "l-mwhi5q0jdh74",
@@ -217,7 +217,7 @@
             "images/uploads/snow-fairy-mwu3fd22bhq.jpg"
           ],
           "sold": false,
-          "theme": "",
+          "theme": "Winter",
           "tag": "in-person"
         },
         {
@@ -227,7 +227,7 @@
             "images/uploads/snow-fairy-mwu3fd22bhq.jpg"
           ],
           "sold": false,
-          "theme": ""
+          "theme": "Winter"
         }
       ]
     },
