@@ -1046,6 +1046,16 @@
       ],
       "listings": [
         {
+          "id": "l-mwu3i7otpkwd",
+          "name": "Christmas Patchwork Tote",
+          "images": [
+            "images/uploads/christmas-tree-mwu3hmka9gi.jpg"
+          ],
+          "sold": false,
+          "theme": "Christmas",
+          "tag": ""
+        },
+        {
           "id": "l-mtdcjtj307ii",
           "name": "Strawberry Jam Mini Tote",
           "images": [
@@ -1072,7 +1082,7 @@
             "images/uploads/listing-mupuf4rjemx.jpg"
           ],
           "sold": false,
-          "theme": "",
+          "theme": "Faith",
           "tag": "in-person"
         }
       ],
