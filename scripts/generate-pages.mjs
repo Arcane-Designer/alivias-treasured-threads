@@ -486,7 +486,23 @@ function syncStaticCopy(settings) {
     writeFileSync(file, out + html.slice(cursor), 'utf8');
     changed++;
   }
+  if (syncSeasonPhoto(settings)) changed++;
   return changed;
+}
+
+/* The homepage seasonal photo: same flash problem, but in its src/alt. */
+function syncSeasonPhoto(settings) {
+  const file = join(ROOT, 'index.html');
+  if (!existsSync(file) || !settings.seasonImage) return false;
+  const html = readFileSync(file, 'utf8');
+  const out = html.replace(/<img\b[^>]*\bdata-copy="seasonImage"[^>]*>/, (tag) => {
+    let t = tag.replace(/\bsrc="[^"]*"/, `src="${esc(settings.seasonImage)}"`);
+    if (settings.seasonImageAlt) t = t.replace(/\balt="[^"]*"/, `alt="${esc(settings.seasonImageAlt)}"`);
+    return t;
+  });
+  if (out === html) return false;
+  writeFileSync(file, out, 'utf8');
+  return true;
 }
 
 function main() {

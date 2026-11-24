@@ -545,6 +545,7 @@ section[id], [id="order"], [id="faq"], [id="reviews"], [id="leave-review"] { scr
 .theme-copy h2 {
   font-family: var(--font-serif);
   font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.3rem);
+  text-wrap: balance;
 }
 .theme-copy .script-accent { display: block; margin: 0 0 2px; transform: rotate(-2deg); width: fit-content; }
 .theme-copy p { color: var(--ink-soft); max-width: 30rem; }
