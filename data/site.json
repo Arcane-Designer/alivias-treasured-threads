@@ -136,7 +136,9 @@
       "description": "A small cinch bag, perfect for gift giving! 8\" wide x 9\" tall.",
       "category": "Bags & Pouches",
       "theme": "",
-      "badges": [],
+      "badges": [
+        "NEW!"
+      ],
       "archived": false,
       "oneOfAKind": false,
       "images": [
@@ -176,7 +178,8 @@
             "images/uploads/snowflake-mwu3ef3i0lw.jpg"
           ],
           "sold": false,
-          "theme": "Winter"
+          "theme": "Winter",
+          "tag": ""
         },
         {
           "id": "l-mwhi53a41idq",
@@ -208,7 +211,8 @@
             "images/uploads/listing-mwhi5c18szl.jpg"
           ],
           "sold": false,
-          "theme": "Christmas"
+          "theme": "Christmas",
+          "tag": ""
         },
         {
           "id": "l-mwhi5q0jdh74",
@@ -227,7 +231,8 @@
             "images/uploads/snow-fairy-mwu3fd22bhq.jpg"
           ],
           "sold": false,
-          "theme": "Winter"
+          "theme": "Winter",
+          "tag": ""
         }
       ]
     },
@@ -239,9 +244,7 @@
       "description": "The perfect size for change or cards, these little pouches have a zipper closure and a loop for attaching to your bag or keychain!",
       "category": "Bags & Pouches",
       "theme": "",
-      "badges": [
-        "NEW!"
-      ],
+      "badges": [],
       "archived": false,
       "oneOfAKind": false,
       "images": [
@@ -320,9 +323,7 @@
       "description": "Fall Bundles include one Jackie’s Mini Tote, one zipper pouch, and one coin pouch! Buy it all together for a discount",
       "category": "Bundles",
       "theme": "",
-      "badges": [
-        "Sale!"
-      ],
+      "badges": [],
       "archived": false,
       "oneOfAKind": false,
       "images": [
@@ -376,9 +377,7 @@
       "price": 67,
       "priceLabel": "$67",
       "description": "This Apple Cider Bundle includes a Jackie Mini Tote, a zipper pouch, two pot holders, and three bookmarks in a cute apple inspired color scheme. Buy it as a bundle to save!",
-      "badges": [
-        "Limited edition!"
-      ],
+      "badges": [],
       "archived": false,
       "oneOfAKind": true,
       "images": [
@@ -401,9 +400,7 @@
       "price": 67,
       "priceLabel": "$67",
       "description": "This bundle includes a mini tote bag, four bookmarks, four coasters, and a zipper bag in a blue and yellow color scheme with a cute cloud print! Buy the bundle to get a discounted price on everything.",
-      "badges": [
-        "Limited edition!"
-      ],
+      "badges": [],
       "archived": false,
       "oneOfAKind": true,
       "images": [
@@ -426,9 +423,7 @@
       "price": 67,
       "priceLabel": "$67",
       "description": "This bundle includes a mini tote bag, zipper bag, four coasters, and four bookmarks in a dark green and mushroom color palette! Buy all together to get the better price. \nBunny not included!",
-      "badges": [
-        "Limited edition!"
-      ],
+      "badges": [],
       "archived": false,
       "oneOfAKind": true,
       "images": [
@@ -452,7 +447,9 @@
       "description": "Bowl cozies, perfect for hot soup or cold ice cream! These are microwave safe, 100% cotton. Fits 8” bowls nicely! ",
       "category": "Home & Kitchen",
       "theme": "",
-      "badges": [],
+      "badges": [
+        "NEW!"
+      ],
       "archived": false,
       "oneOfAKind": false,
       "images": [
@@ -574,9 +571,7 @@
       "priceLabel": "$10",
       "description": "A cube for your  baby! Trust me, they love them. For the baby who has everything.",
       "category": "Baby",
-      "badges": [
-        "NEW!"
-      ],
+      "badges": [],
       "archived": false,
       "oneOfAKind": false,
       "images": [
@@ -1114,9 +1109,7 @@
           "tag": "in-person"
         }
       ],
-      "badges": [
-        "NEW!"
-      ],
+      "badges": [],
       "theme": "",
       "salePrice": null,
       "saleLabel": ""
@@ -1254,7 +1247,7 @@
       ],
       "listings": [],
       "badges": [
-        "Sale!"
+        "Customize Me!"
       ],
       "theme": "",
       "salePrice": null,
@@ -1285,7 +1278,9 @@
           "tag": "in-person"
         }
       ],
-      "badges": [],
+      "badges": [
+        "NEW!"
+      ],
       "theme": "",
       "salePrice": null,
       "saleLabel": ""
@@ -1298,9 +1293,7 @@
       "description": "Halloween themed bundles! Each includes a Jackie Mini Tote, a Coin Pouch, and a Zipper Pouch. Buy as a bundle for a discount",
       "category": "Bags & Pouches",
       "theme": "",
-      "badges": [
-        "NEW!"
-      ],
+      "badges": [],
       "archived": false,
       "oneOfAKind": false,
       "images": [
@@ -1365,7 +1358,9 @@
         "images/products/cape-2.jpg"
       ],
       "listings": [],
-      "badges": [],
+      "badges": [
+        "Customize Me!"
+      ],
       "theme": ""
     },
     {
