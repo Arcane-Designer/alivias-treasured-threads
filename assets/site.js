@@ -186,6 +186,12 @@
     if (seasonPhoto && s.seasonImageAlt) seasonPhoto.alt = s.seasonImageAlt;
     const seasonLink = document.querySelector('[data-copy="seasonCta"]');
     if (seasonLink) seasonLink.setAttribute('href', seasonShopHref(s.seasonTheme));
+    const seasonBand = document.querySelector('.theme-band');
+    const seasonKey = cleanTheme(s.seasonTheme).toLocaleLowerCase();
+    if (seasonBand) {
+      if (seasonKey) seasonBand.dataset.season = seasonKey;
+      else delete seasonBand.dataset.season;
+    }
   }
 
   /* ---------- product helpers ---------- */

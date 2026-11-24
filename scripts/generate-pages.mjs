@@ -502,7 +502,8 @@ function syncSeasonPhoto(settings) {
     let t = settings.seasonImage ? tag.replace(/\bsrc="[^"]*"/, `src="${esc(settings.seasonImage)}"`) : tag;
     if (settings.seasonImageAlt) t = t.replace(/\balt="[^"]*"/, `alt="${esc(settings.seasonImageAlt)}"`);
     return t;
-  }).replace(/<a\b[^>]*\bdata-copy="seasonCta"[^>]*>/, (tag) => tag.replace(/\bhref="[^"]*"/, `href="${esc(href)}"`));
+  }).replace(/<a\b[^>]*\bdata-copy="seasonCta"[^>]*>/, (tag) => tag.replace(/\bhref="[^"]*"/, `href="${esc(href)}"`))
+    .replace(/<section class="theme-band"[^>]*>/, themeKey ? `<section class="theme-band" data-season="${esc(themeKey)}">` : '<section class="theme-band">');
   if (out === html) return false;
   writeFileSync(file, out, 'utf8');
   return true;
