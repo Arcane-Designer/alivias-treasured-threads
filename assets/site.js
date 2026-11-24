@@ -184,6 +184,8 @@
     });
     const seasonPhoto = document.querySelector('.theme-photo');
     if (seasonPhoto && s.seasonImageAlt) seasonPhoto.alt = s.seasonImageAlt;
+    const seasonLink = document.querySelector('[data-copy="seasonCta"]');
+    if (seasonLink) seasonLink.setAttribute('href', seasonShopHref(s.seasonTheme));
   }
 
   /* ---------- product helpers ---------- */
@@ -215,6 +217,11 @@
   ];
   function cleanTheme(value) {
     return String(value || '').trim().replace(/\s+/g, ' ');
+  }
+  /* the homepage seasonal button; scripts/generate-pages.mjs writes the same link */
+  function seasonShopHref(theme) {
+    const key = cleanTheme(theme).toLocaleLowerCase();
+    return ROOT + 'shop/' + (key ? '?theme=' + encodeURIComponent(key) : '');
   }
   function themeVocab() {
     const raw = Array.isArray(DATA.settings?.themes) && DATA.settings.themes.length

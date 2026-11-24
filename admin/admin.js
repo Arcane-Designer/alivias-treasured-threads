@@ -3044,6 +3044,8 @@
      settings tab
      ================================================ */
   function renderSettings() {
+    const seasonTheme = $('setSeasonTheme');
+    if (seasonTheme) seasonTheme.innerHTML = themeOptionsHtml((draft.settings || {}).seasonTheme || '', 'The whole shop');
     document.querySelectorAll('[data-setting]').forEach((input) => {
       input.value = (draft.settings || {})[input.dataset.setting] || '';
     });

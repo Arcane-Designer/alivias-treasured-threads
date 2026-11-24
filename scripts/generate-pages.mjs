@@ -490,16 +490,19 @@ function syncStaticCopy(settings) {
   return changed;
 }
 
-/* The homepage seasonal photo: same flash problem, but in its src/alt. */
+/* The homepage seasonal photo and button link: same flash problem, but in
+   attributes. The link matches seasonShopHref() in assets/site.js. */
 function syncSeasonPhoto(settings) {
   const file = join(ROOT, 'index.html');
-  if (!existsSync(file) || !settings.seasonImage) return false;
+  if (!existsSync(file)) return false;
   const html = readFileSync(file, 'utf8');
+  const themeKey = String(settings.seasonTheme || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+  const href = 'shop/' + (themeKey ? '?theme=' + encodeURIComponent(themeKey) : '');
   const out = html.replace(/<img\b[^>]*\bdata-copy="seasonImage"[^>]*>/, (tag) => {
-    let t = tag.replace(/\bsrc="[^"]*"/, `src="${esc(settings.seasonImage)}"`);
+    let t = settings.seasonImage ? tag.replace(/\bsrc="[^"]*"/, `src="${esc(settings.seasonImage)}"`) : tag;
     if (settings.seasonImageAlt) t = t.replace(/\balt="[^"]*"/, `alt="${esc(settings.seasonImageAlt)}"`);
     return t;
-  });
+  }).replace(/<a\b[^>]*\bdata-copy="seasonCta"[^>]*>/, (tag) => tag.replace(/\bhref="[^"]*"/, `href="${esc(href)}"`));
   if (out === html) return false;
   writeFileSync(file, out, 'utf8');
   return true;
