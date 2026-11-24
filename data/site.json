@@ -170,6 +170,15 @@
           "tag": "in-person"
         },
         {
+          "id": "l-mwu3ygkhxn0s",
+          "name": "Snowflake 2",
+          "images": [
+            "images/uploads/snowflake-mwu3ef3i0lw.jpg"
+          ],
+          "sold": false,
+          "theme": ""
+        },
+        {
           "id": "l-mwhi53a41idq",
           "name": "Christmas Tree Truck",
           "images": [
@@ -192,6 +201,16 @@
           "tag": "in-person"
         },
         {
+          "id": "l-mwu3z1l0w7xt",
+          "name": "Christmas Tree Truck 3",
+          "images": [
+            "images/uploads/christmas-tree-truck-2-mwu3euokojl.jpg",
+            "images/uploads/listing-mwhi5c18szl.jpg"
+          ],
+          "sold": false,
+          "theme": ""
+        },
+        {
           "id": "l-mwhi5q0jdh74",
           "name": "Snow Fairy",
           "images": [
@@ -200,6 +219,15 @@
           "sold": false,
           "theme": "",
           "tag": "in-person"
+        },
+        {
+          "id": "l-mwu3yj28me9g",
+          "name": "Snow Fairy 2",
+          "images": [
+            "images/uploads/snow-fairy-mwu3fd22bhq.jpg"
+          ],
+          "sold": false,
+          "theme": ""
         }
       ]
     },
