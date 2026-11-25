@@ -530,6 +530,16 @@
       ],
       "listings": [
         {
+          "id": "l-mwvkk3wi6ewp",
+          "name": "Plaid Christmas Tote",
+          "images": [
+            "images/uploads/plaid-christmas-tote-mwvkjy3pvsz.jpg"
+          ],
+          "sold": false,
+          "theme": "Christmas",
+          "tag": "in-person"
+        },
+        {
           "id": "l-mtdckjc6ept6",
           "name": "Blue Strawberry Tote",
           "images": [
