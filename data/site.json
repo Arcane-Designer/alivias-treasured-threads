@@ -368,7 +368,7 @@
           "tag": "in-person"
         }
       ],
-      "salePrice": null,
+      "salePrice": 45,
       "saleLabel": ""
     },
     {
@@ -1334,7 +1334,7 @@
           "tag": ""
         }
       ],
-      "salePrice": null,
+      "salePrice": 45,
       "saleLabel": ""
     },
     {
