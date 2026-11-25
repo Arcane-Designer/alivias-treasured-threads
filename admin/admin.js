@@ -73,6 +73,9 @@
   let editorWasNew = false;
   let expandedListingId = null;
   let stagedListingPhotos = [];     /* photos picked for a not-yet-added listing */
+  let newListingThemeChosen = false; /* she picked this new listing's theme herself */
+  let newListingThemeCarry = '';     /* her last pick, the default for the next piece */
+  let archiveAddThemeChosen = false; /* same, for "add to archive" */
   let categoryBeforeNew = '';
   let warnedQuota = false;
   let saveTimer = null;
@@ -1046,6 +1049,9 @@
     $('epDelete').style.display = isNew ? 'none' : '';
     $('newListingName').value = '';
     $('newListingTag').innerHTML = tagOptionsHtml('');
+    newListingThemeChosen = false;
+    newListingThemeCarry = '';
+    $('newListingTheme').innerHTML = themeOptionsHtml(currentProduct.theme || '', 'No theme');
     $('newListingPreview').innerHTML = '';
     $('newListingPhotoLabel').textContent = '📷 Pick photo(s)';
 
@@ -1130,6 +1136,40 @@
       out.push({ label, emoji: emoji || defaultThemeEmoji(label) });
     });
     return out;
+  }
+
+  /* the theme whose name appears as whole words in a piece's name
+     ("Christmas Tree Truck" -> Christmas); the longest match wins */
+  function themeFromName(name) {
+    const text = String(name || '').toLocaleLowerCase();
+    let best = '';
+    knownThemes().forEach(({ label }) => {
+      const word = label.toLocaleLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp('(^|[^\\p{L}\\p{N}])' + word + '(?=$|[^\\p{L}\\p{N}])', 'u');
+      if (re.test(text) && label.length > best.length) best = label;
+    });
+    return best;
+  }
+
+  /* point a not-yet-touched theme select at the theme the name suggests,
+     falling back to `fallback`; glows when the name picked it */
+  function suggestThemeInto(select, name, fallback) {
+    const fromName = themeFromName(name);
+    const pick = fromName || cleanTaxonomyValue(fallback);
+    if (cleanTaxonomyValue(select.value).toLocaleLowerCase() === pick.toLocaleLowerCase()) return;
+    select.innerHTML = themeOptionsHtml(pick, 'No theme');
+    if (fromName) {
+      select.classList.remove('just-picked');
+      void select.offsetWidth;
+      select.classList.add('just-picked');
+    }
+  }
+
+  /* keep a form's theme select's options current, holding its choice if that theme still exists */
+  function refreshThemeSelect(select) {
+    const current = cleanTaxonomyValue(select.value);
+    const stillThere = knownThemes().some((s) => s.label.toLocaleLowerCase() === current.toLocaleLowerCase());
+    select.innerHTML = themeOptionsHtml(stillThere ? current : '', 'No theme');
   }
 
   function themeEmojiFor(label) {
@@ -1307,8 +1347,10 @@
   function refreshThemeUi() {
     if (currentProduct) {
       $('epTheme').innerHTML = themeOptionsHtml(currentProduct.theme || '', 'No theme');
+      refreshThemeSelect($('newListingTheme'));
       renderEditorListings();
     }
+    if (!$('archiveAddOverlay').hidden) refreshThemeSelect($('archiveAddTheme'));
     renderThemeManager();
     renderArchive();
   }
@@ -2098,7 +2140,7 @@
         /* "Fall Fun Bookmark" -> "Fall Fun Bookmark 2"; "… 2" -> "… 3" */
         const m = (listing.name || '').match(/^(.*?)(\d+)\s*$/);
         const nextName = m ? m[1] + (parseInt(m[2], 10) + 1) : ((listing.name || 'Untitled') + ' 2');
-        const copy = { id: uid('l'), name: nextName, images: [...(listing.images || [])], sold: false, theme: listing.theme || '' };
+        const copy = { id: uid('l'), name: nextName, images: [...(listing.images || [])], sold: false, theme: listing.theme || '', tag: cleanTag(listing.tag) === 'sold' ? '' : cleanTag(listing.tag) };
         const at = currentProduct.listings.indexOf(listing);
         currentProduct.listings.splice(at + 1, 0, copy);
         markDirty();
@@ -2310,7 +2352,8 @@
     }
     $('newListingName').classList.remove('invalid');
 
-    const listing = { id: uid('l'), name, images: [], sold: false, theme: '', tag: cleanTag($('newListingTag').value) };
+    const theme = canonicalTaxonomyValue($('newListingTheme').value, knownThemes().map((s) => s.label));
+    const listing = { id: uid('l'), name, images: [], sold: false, theme, tag: cleanTag($('newListingTag').value) };
     stagedListingPhotos.forEach(({ path, dataUrl, base64, thumbs, existing }) => {
       if (!existing) pendingImages[path] = { dataUrl, base64, thumbs };
       if (!listing.images.includes(path)) listing.images.push(path);
@@ -2318,9 +2361,20 @@
     stagedListingPhotos = [];
     $('newListingName').value = '';
     $('newListingTag').value = '';
+    /* a theme she picked herself becomes the default for the next piece
+       (batches of Christmas bags), though a theme named in the next name
+       still wins; one the name suggested resets with the name */
+    if (newListingThemeChosen) newListingThemeCarry = theme;
+    newListingThemeChosen = false;
+    suggestThemeInto($('newListingTheme'), '', newListingFallbackTheme());
     renderStagedPreview();
     return listing;
   }
+
+  function newListingFallbackTheme() {
+    return newListingThemeCarry || (currentProduct && currentProduct.theme) || '';
+  }
+  $('newListingTheme').addEventListener('change', () => { newListingThemeChosen = true; });
 
   $('addListingBtn').addEventListener('click', () => {
     if (!currentProduct) return;
@@ -2345,7 +2399,10 @@
     toast('Added straight to the archive 📦', 'teal');
   });
 
-  $('newListingName').addEventListener('input', function () { this.classList.remove('invalid'); });
+  $('newListingName').addEventListener('input', function () {
+    this.classList.remove('invalid');
+    if (currentProduct && !newListingThemeChosen) suggestThemeInto($('newListingTheme'), this.value, newListingFallbackTheme());
+  });
 
   /* ================================================
      archive ~ every past piece, whole and restorable
@@ -2717,6 +2774,8 @@
     $('archiveAddName').value = '';
     $('archiveAddName').classList.remove('invalid');
     $('archiveAddTag').innerHTML = tagOptionsHtml('');
+    archiveAddThemeChosen = false;
+    $('archiveAddTheme').innerHTML = themeOptionsHtml('', 'No theme');
     $('archiveAddProduct').innerHTML = '<option value="">Not attached to a product</option>' +
       draft.products.filter((p) => !p.oneOfAKind).map((p) => '<option value="' + esc(p.id) + '">' + esc(p.name || 'Untitled') + (p.archived ? ' (hidden)' : '') + '</option>').join('');
     renderArchiveAddPreview();
@@ -2732,7 +2791,18 @@
   $('archiveAddClose').addEventListener('click', closeArchiveAdd);
   $('archiveAddCancel').addEventListener('click', closeArchiveAdd);
   $('archiveAddOverlay').addEventListener('click', (e) => { if (e.target === $('archiveAddOverlay')) closeArchiveAdd(); });
-  $('archiveAddName').addEventListener('input', function () { this.classList.remove('invalid'); });
+  function archiveAddProductTheme() {
+    const product = draft.products.find((p) => p.id === $('archiveAddProduct').value);
+    return product ? product.theme : '';
+  }
+  $('archiveAddName').addEventListener('input', function () {
+    this.classList.remove('invalid');
+    if (!archiveAddThemeChosen) suggestThemeInto($('archiveAddTheme'), this.value, archiveAddProductTheme());
+  });
+  $('archiveAddProduct').addEventListener('change', () => {
+    if (!archiveAddThemeChosen) suggestThemeInto($('archiveAddTheme'), $('archiveAddName').value, archiveAddProductTheme());
+  });
+  $('archiveAddTheme').addEventListener('change', () => { archiveAddThemeChosen = true; });
   $('archiveAddPhotos').addEventListener('change', async function () {
     if (!this.files.length) return;
     const shots = await ingestFiles(this.files, $('archiveAddName').value || 'archive');
@@ -2761,7 +2831,9 @@
     }
     const product = draft.products.find((p) => p.id === $('archiveAddProduct').value) || null;
     const entry = {
-      id: uid('l'), name, images: [], sold: false, theme: '', tag: cleanTag($('archiveAddTag').value),
+      id: uid('l'), name, images: [], sold: false,
+      theme: canonicalTaxonomyValue($('archiveAddTheme').value, knownThemes().map((s) => s.label)),
+      tag: cleanTag($('archiveAddTag').value),
       kind: 'listing', productId: product ? product.id : '', productName: product ? cleanTaxonomyValue(product.name) : '',
       archivedAt: cleanIsoDate(archiveAddDate) || todayIso(),
     };

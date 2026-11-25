@@ -1567,6 +1567,13 @@ body.is-sorting, body.is-sorting * { cursor: grabbing !important; user-select: n
 .add-listing-row .tag-wrap { flex: 1 1 150px; min-width: 150px; }
 .add-listing-row .tag-wrap select { margin-bottom: 0; padding-block: 9px; font-size: 0.85rem; }
 .add-listing-go { margin-top: 10px; }
+.add-listing-sort { margin-top: 10px; }
+.add-listing-row .theme-wrap { flex: 1 1 150px; min-width: 150px; }
+.add-listing-row .theme-wrap select { margin-bottom: 0; padding-block: 9px; font-size: 0.85rem; }
+/* a theme the Studio picked from the name gives a quick glow so she notices */
+.themed-select.just-picked { animation: justPicked 0.9s ease-out; }
+@keyframes justPicked { 0% { box-shadow: 0 0 0 0 rgba(255, 116, 212, 0.55); } 100% { box-shadow: 0 0 0 10px rgba(255, 116, 212, 0); } }
+@media (prefers-reduced-motion: reduce) { .themed-select.just-picked { animation: none; } }
 
 /* the archive date, tappable */
 .date-chip {

@@ -443,6 +443,10 @@
                 <span id="newListingPhotoLabel">📷 Pick photo(s)</span>
               </label>
               <button type="button" class="add-photos-btn small" id="newListingPickExisting">📚 Reuse</button>
+            </div>
+            <div class="add-listing-row add-listing-sort">
+              <label class="sr-only" for="newListingTheme">Theme for the new listing</label>
+              <div class="select-wrap compact theme-wrap"><select id="newListingTheme" class="field-input themed-select"></select></div>
               <label class="sr-only" for="newListingTag">Tag for the new listing</label>
               <div class="select-wrap compact tag-wrap"><select id="newListingTag" class="field-input themed-select tag-select"></select></div>
             </div>
@@ -581,10 +585,14 @@
           </div>
           <div class="photo-strip" id="archiveAddPreview"></div>
         </div>
+        <div class="field-group">
+          <label class="field-label" for="archiveAddProduct">Product</label>
+          <div class="select-wrap"><select id="archiveAddProduct" class="field-input themed-select"></select></div>
+        </div>
         <div class="field-row">
           <div class="field-group">
-            <label class="field-label" for="archiveAddProduct">Product</label>
-            <div class="select-wrap"><select id="archiveAddProduct" class="field-input themed-select"></select></div>
+            <label class="field-label" for="archiveAddTheme">Theme</label>
+            <div class="select-wrap"><select id="archiveAddTheme" class="field-input themed-select"></select></div>
           </div>
           <div class="field-group">
             <label class="field-label" for="archiveAddTag">Tag</label>
