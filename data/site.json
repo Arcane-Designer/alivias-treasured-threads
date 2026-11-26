@@ -158,8 +158,8 @@
           "images": [
             "images/uploads/listing-mwhi4bfrpdv.jpg"
           ],
-          "sold": false,
-          "theme": "",
+          "sold": true,
+          "theme": "Christmas",
           "tag": "in-person"
         },
         {
